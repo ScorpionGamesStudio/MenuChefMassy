@@ -47,9 +47,9 @@
 
         body {
             margin: 0;
-            font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
             color: var(--text);
-            background: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg,var(--bg) 0%,var(--bg2) 40%,var(--bg) 100%);
+            background: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, var(--bg) 100%);
             overflow-x: hidden;
         }
 
@@ -240,7 +240,7 @@
             vertical-align: -3px;
         }
 
-        @media (max-width:720px) {
+        @media (max-width: 720px) {
             .chef {
                 order: 3;
                 width: 100%;
@@ -289,7 +289,7 @@
             align-items: stretch;
         }
 
-        @media (max-width:960px) {
+        @media (max-width: 960px) {
             .coverInner {
                 grid-template-columns: 1fr;
             }
@@ -319,15 +319,14 @@
             white-space: normal;
         }
 
-        /* SOLO 2 card: Orario + Note */
         .metaGrid {
             display: grid;
-            grid-template-columns: repeat(2,1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             margin-top: 14px;
         }
 
-        @media (max-width:520px) {
+        @media (max-width: 520px) {
             .metaGrid {
                 grid-template-columns: 1fr;
             }
@@ -475,23 +474,22 @@
                 border-color: rgba(0,0,0,.16);
             }
 
-        /* default 3 per riga */
         .grid {
             padding: 16px;
             display: grid;
-            grid-template-columns: repeat(12,1fr);
+            grid-template-columns: repeat(12, 1fr);
             gap: 14px;
         }
 
-        @media (max-width:980px) {
+        @media (max-width: 980px) {
             .grid {
-                grid-template-columns: repeat(6,1fr);
+                grid-template-columns: repeat(6, 1fr);
             }
         }
 
-        @media (max-width:560px) {
+        @media (max-width: 560px) {
             .grid {
-                grid-template-columns: repeat(1,1fr);
+                grid-template-columns: repeat(1, 1fr);
             }
         }
 
@@ -510,13 +508,13 @@
             background: rgba(0,0,0,.02);
         }
 
-        @media (max-width:980px) {
+        @media (max-width: 980px) {
             .card {
                 grid-column: span 6;
             }
         }
 
-        @media (max-width:560px) {
+        @media (max-width: 560px) {
             .card {
                 grid-column: span 1;
             }
@@ -552,7 +550,6 @@
             transform: scale(1.01);
         }
 
-        /* Admin buttons on card */
         .cardBtns {
             position: absolute;
             top: 10px;
@@ -633,9 +630,8 @@
             color: rgba(0,0,0,.62);
         }
 
-        /* Center mode (1 o 2 card) */
         .grid.center-few {
-            grid-template-columns: repeat(var(--cols,1), minmax(280px,360px));
+            grid-template-columns: repeat(var(--cols, 1), minmax(280px, 360px));
             justify-content: center;
             justify-items: stretch;
         }
@@ -646,7 +642,7 @@
                 width: 100%;
             }
 
-        @media (max-width:980px) {
+        @media (max-width: 980px) {
             .grid.center-few {
                 grid-template-columns: 1fr;
                 justify-content: stretch;
@@ -655,18 +651,6 @@
                 .grid.center-few .card {
                     max-width: none;
                 }
-        }
-
-        footer {
-            margin-top: 16px;
-            color: rgba(255,255,255,.55);
-            font-size: 12px;
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        body.light footer {
-            color: rgba(0,0,0,.55);
         }
 
         /* Floating save (admin) */
@@ -721,7 +705,7 @@
             }
 
         .modal {
-            width: min(860px,100%);
+            width: min(860px, 100%);
             border: 1px solid rgba(255,255,255,.14);
             background: linear-gradient(180deg, rgba(20,20,30,.88), rgba(10,10,16,.88));
             border-radius: 22px;
@@ -769,7 +753,6 @@
             max-height: calc(100vh - 40px - 60px);
         }
 
-        /* form */
         .panel {
             border: 1px solid rgba(255,255,255,.10);
             background: rgba(255,255,255,.04);
@@ -790,7 +773,7 @@
             margin-top: 10px;
         }
 
-        @media (max-width:720px) {
+        @media (max-width: 720px) {
             .row {
                 grid-template-columns: 1fr;
             }
@@ -995,11 +978,7 @@
 
                 <aside class="toastNote" aria-label="Dettagli serata">
                     <h3>Dettagli serata</h3>
-                    <p id="toastText">
-                        1) Giochi<br />
-                        2) Giochi da tavola<br />
-                        3) Altro
-                    </p>
+                    <p id="toastText">—</p>
                 </aside>
             </div>
         </section>
@@ -1013,7 +992,6 @@
             Modifiche non salvate
         </div>
 
-        <!-- unico bottone (come richiesto): salva + scarica JSON -->
         <button class="btn ok" id="saveAllBtn" type="button" title="Salva + scarica menu-data.json">Salva</button>
     </div>
 
@@ -1031,14 +1009,13 @@
         /******************************************************************
          * CONFIG
          ******************************************************************/
-        const ADMIN_USERNAME = "admin"; // cambia qui
-        const ADMIN_PASSWORD = "1234";  // cambia qui
+        const ADMIN_USERNAME = "admin";
+        const ADMIN_PASSWORD = "1234";
 
-        // ✅ Questo file DEVE essere nella stessa cartella di index.html su GitHub
         const REMOTE_DATA_FILE = "menu-data.json";
 
-        const SESSION_KEY = "menu_admin_session_v7";
-        const MENU_KEY = "menu_data_v7_localcache";
+        const SESSION_KEY = "menu_admin_session_v8";
+        const MENU_KEY = "menu_data_v8_localcache";
 
         let MENU = null;
         let DRAFT = null;
@@ -1090,12 +1067,10 @@
             $("modalBody").innerHTML = "";
         }
 
-        // ✅ NEWLINES -> <br/>
         function nlToBr(s) {
             const v = String(s ?? "").replace(/\r\n/g, "\n");
             return v.split("\n").map(x => x.trimEnd()).join("<br/>");
         }
-        // ✅ <br/> -> newlines
         function brToNl(s) {
             return String(s ?? "")
                 .replaceAll("<br/>", "\n")
@@ -1105,23 +1080,23 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-          <defs>
-            <linearGradient id="g" x1="0" x2="1">
-              <stop offset="0" stop-color="%2307070a"/>
-              <stop offset="1" stop-color="%23151622"/>
-            </linearGradient>
-            <radialGradient id="r" cx="25%" cy="20%" r="70%">
-              <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-              <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(%23g)"/>
-          <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-          <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-          <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-          <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-        </svg>`;
+          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+            <defs>
+              <linearGradient id="g" x1="0" x2="1">
+                <stop offset="0" stop-color="%2307070a"/>
+                <stop offset="1" stop-color="%23151622"/>
+              </linearGradient>
+              <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="100%" height="100%" fill="url(%23g)"/>
+            <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+            <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+            <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+            <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+          </svg>`;
         }
 
         function fileToDataUrl(file) {
@@ -1164,7 +1139,7 @@
                 heroGold: "cena da 3 stelle",
                 heroDesc: "Un menu completo, elegante e moderno.\nPresentato in modo “wow” come fosse un fine-dining,\nma con il calore di una serata tra amici e famiglia.",
                 chefName: "Massimiliano Giannone",
-                toast: "1) Giochi\n2) Giochi da tavola\n3) Altro",
+                toast: "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate.\nIo cucino, voi godetevela.”",
                 metaOrario: "06/01/2026\nalle ore 20:30",
                 metaNote: "Chiedimi per allergeni o alternative.\nPiatti serviti “a ondate”."
             },
@@ -1209,11 +1184,10 @@
             if (!parsed || typeof parsed !== "object") return deepClone(DEFAULT_DATA);
             parsed.cover = parsed.cover || {};
 
-            // fallback minimi
             if (!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
             if (!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
 
-            // IMPORTANTISSIMO: manteniamo SEMPRE testo con newline, ma accettiamo anche vecchi <br/>
+            // mantieni testo con \n ma accetta vecchi <br/>
             parsed.cover.heroDesc = brToNl(parsed.cover.heroDesc ?? DEFAULT_DATA.cover.heroDesc);
             parsed.cover.toast = brToNl(parsed.cover.toast ?? DEFAULT_DATA.cover.toast);
             parsed.cover.metaOrario = brToNl(parsed.cover.metaOrario ?? DEFAULT_DATA.cover.metaOrario);
@@ -1226,9 +1200,8 @@
 
         function loadMenuFromLocal() {
             const raw = localStorage.getItem(MENU_KEY);
-            if (!raw) {
-                saveMenuToLocal(deepClone(DEFAULT_DATA));
-            }
+            if (!raw) saveMenuToLocal(deepClone(DEFAULT_DATA));
+
             const parsed = safeParseJson(localStorage.getItem(MENU_KEY));
             if (!parsed) {
                 saveMenuToLocal(deepClone(DEFAULT_DATA));
@@ -1238,20 +1211,16 @@
         }
 
         async function loadMenuAsync() {
-            // 1) prova a caricare il JSON pubblico (vale per tutti i dispositivi)
             try {
                 const res = await fetch(REMOTE_DATA_FILE, { cache: "no-store" });
                 if (res.ok) {
                     const txt = await res.text();
                     const data = JSON.parse(txt);
                     const norm = normalizeMenuData(data);
-                    saveMenuToLocal(norm); // cache locale
+                    saveMenuToLocal(norm);
                     return norm;
                 }
-            } catch (e) {
-                // ignore -> fallback
-            }
-            // 2) fallback locale
+            } catch (e) { }
             return loadMenuFromLocal();
         }
 
@@ -1272,7 +1241,6 @@
             $("heroPrefix").textContent = menu.cover.heroPrefix || "";
             $("heroGold").textContent = menu.cover.heroGold || "";
 
-            // ✅ NEWLINES VISIBILI IN ANTEPRIMA
             $("heroDesc").innerHTML = nlToBr(menu.cover.heroDesc || "");
             $("toastText").innerHTML = nlToBr(menu.cover.toast || "");
 
@@ -1291,21 +1259,21 @@
                 sectionEl.setAttribute("aria-label", section.title);
 
                 const actionsHtml = adminMode ? `
-            <div class="sectionActions">
-              <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
-            </div>
-          ` : `<div></div>`;
+              <div class="sectionActions">
+                <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+              </div>
+            ` : `<div></div>`;
 
                 sectionEl.innerHTML = `
-            <div class="sectionHead">
-              <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-              <div style="display:flex; align-items:baseline; gap:12px;">
-                <p class="desc">${escapeXml(section.desc || "")}</p>
-                ${actionsHtml}
+              <div class="sectionHead">
+                <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+                <div style="display:flex; align-items:baseline; gap:12px;">
+                  <p class="desc">${escapeXml(section.desc || "")}</p>
+                  ${actionsHtml}
+                </div>
               </div>
-            </div>
-            <div class="grid" data-section="${escapeXml(section.key)}"></div>
-          `;
+              <div class="grid" data-section="${escapeXml(section.key)}"></div>
+            `;
 
                 const grid = sectionEl.querySelector(".grid");
 
@@ -1320,27 +1288,26 @@
                     card.setAttribute("data-sec", section.key);
 
                     card.innerHTML = `
-              <div class="img">
-                ${adminMode ? `
-                  <div class="cardBtns">
-                    <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                    <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                  </div>
-                ` : ``}
-                <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
-              </div>
-              <div class="content">
-                <h3 class="name">${escapeXml(it.name || "")}</h3>
-                <p class="info">${escapeXml(it.info || "")}</p>
-              </div>
-            `;
+                <div class="img">
+                  ${adminMode ? `
+                    <div class="cardBtns">
+                      <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                      <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                    </div>
+                  ` : ``}
+                  <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+                </div>
+                <div class="content">
+                  <h3 class="name">${escapeXml(it.name || "")}</h3>
+                  <p class="info">${escapeXml(it.info || "")}</p>
+                </div>
+              `;
                     grid.appendChild(card);
                 });
 
                 root.appendChild(sectionEl);
             }
 
-            // center sections with 1 or 2 items
             document.querySelectorAll('.section .grid').forEach(grid => {
                 const count = grid.querySelectorAll('.card').length;
                 if (count > 0 && count < 3) {
@@ -1418,15 +1385,15 @@
             if (!it) return;
 
             openModal("Elimina", `
-          <div class="panel">
-            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-            <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-            <div class="right">
-              <button class="btn" id="cancelDel" type="button">Annulla</button>
-              <button class="btn danger" id="doDel" type="button">Elimina</button>
+            <div class="panel">
+              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+              <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+              <div class="right">
+                <button class="btn" id="cancelDel" type="button">Annulla</button>
+                <button class="btn danger" id="doDel" type="button">Elimina</button>
+              </div>
             </div>
-          </div>
-        `);
+          `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -1446,43 +1413,43 @@
             const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
 
             openModal(title, `
-          <div class="panel">
-            <div class="row">
-              <label>Titolo</label>
-              <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-            </div>
+            <div class="panel">
+              <div class="row">
+                <label>Titolo</label>
+                <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+              </div>
 
-            <div class="row">
-              <label>Descrizione</label>
-              <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-            </div>
+              <div class="row">
+                <label>Descrizione</label>
+                <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+              </div>
 
-            <div class="row">
-              <label>Immagine</label>
-              <div class="fileRow">
-                <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+              <div class="row">
+                <label>Immagine</label>
+                <div class="fileRow">
+                  <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
 
-                <div class="fileActions">
-                  <input id="fFile" type="file" accept="image/*" style="display:none" />
-                  <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+                  <div class="fileActions">
+                    <input id="fFile" type="file" accept="image/*" style="display:none" />
+                    <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
 
-                  <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
-                </div>
+                    <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                  </div>
 
-                <div class="mini">Oppure incolla un URL (opzionale):</div>
-                <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
-                <div class="mini">
-                  Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                  <div class="mini">Oppure incolla un URL (opzionale):</div>
+                  <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
+                  <div class="mini">
+                    Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="right">
-              <button class="btn" id="cancelItem" type="button">Annulla</button>
-              <button class="btn ok" id="saveItem" type="button">Conferma</button>
+              <div class="right">
+                <button class="btn" id="cancelItem" type="button">Annulla</button>
+                <button class="btn ok" id="saveItem" type="button">Conferma</button>
+              </div>
             </div>
-          </div>
-        `);
+          `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -1512,19 +1479,6 @@
                             urlInput.value = "";
                         } catch (e) {
                             console.error(e);
-                            openModal("Errore immagine", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Impossibile caricare</b>
-                    <p class="mini">Riprova con un file più leggero.</p>
-                    <div class="right">
-                      <button class="btn ok" id="imgErrClose" type="button">Ok</button>
-                    </div>
-                  </div>
-                `);
-                            setTimeout(() => {
-                                const b = document.getElementById("imgErrClose");
-                                if (b) b.onclick = closeModal;
-                            }, 0);
                         }
                     };
                 }
@@ -1591,52 +1545,48 @@
             const c = DRAFT.cover;
 
             openModal("Modifica evento", `
-          <div class="panel">
-            <div class="row">
-              <label>Titolo browser</label>
-              <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" placeholder="Es: Cena a Casa • 05 Gennaio" />
-            </div>
+            <div class="panel">
+              <div class="row">
+                <label>Titolo browser</label>
+                <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
+              </div>
 
-            <div class="row">
-              <label>Titolo (prima parte)</label>
-              <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" placeholder="Es: Stasera a casa:" />
-            </div>
+              <div class="row">
+                <label>Titolo (prima parte)</label>
+                <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+              </div>
 
-            <div class="row">
-              <label>Titolo (parte oro)</label>
-              <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" placeholder="Es: cena da 3 stelle" />
-            </div>
+              <div class="row">
+                <label>Titolo (parte oro)</label>
+                <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+              </div>
 
-            <div class="row">
-              <label>Descrizione evento</label>
-              <textarea id="eHeroDesc" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
-            </div>
+              <div class="row">
+                <label>Descrizione evento</label>
+                <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+              </div>
 
-            <div class="row">
-              <label>Dettagli serata</label>
-              <textarea id="eToast" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
-            </div>
+              <div class="row">
+                <label>Dettagli serata</label>
+                <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+              </div>
 
-            <div class="row">
-              <label>Data & Orario</label>
-              <textarea id="eOrario" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
-            </div>
+              <div class="row">
+                <label>Data & Orario</label>
+                <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+              </div>
 
-            <div class="row">
-              <label>Note</label>
-              <textarea id="eNote" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
-            </div>
+              <div class="row">
+                <label>Note</label>
+                <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+              </div>
 
-            <p class="mini">
-              Qui puoi usare semplicemente <b>INVIO</b>: in anteprima verrà mostrato su più righe.
-            </p>
-
-            <div class="right">
-              <button class="btn" id="cancelEvent" type="button">Annulla</button>
-              <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+              <div class="right">
+                <button class="btn" id="cancelEvent" type="button">Annulla</button>
+                <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+              </div>
             </div>
-          </div>
-        `);
+          `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
@@ -1648,7 +1598,6 @@
                     const heroPrefix = document.getElementById("eHeroPrefix").value.trim();
                     const heroGold = document.getElementById("eHeroGold").value.trim();
 
-                    // ✅ NON facciamo trim, per non rompere i capi
                     const heroDesc = document.getElementById("eHeroDesc").value;
                     const toast = document.getElementById("eToast").value;
                     const orario = document.getElementById("eOrario").value;
@@ -1658,7 +1607,6 @@
                     DRAFT.cover.heroPrefix = heroPrefix || "";
                     DRAFT.cover.heroGold = heroGold || "";
 
-                    // ✅ salviamo in formato testo con \n (non <br/>)
                     DRAFT.cover.heroDesc = String(heroDesc ?? "").replace(/\r\n/g, "\n");
                     DRAFT.cover.toast = String(toast ?? "").replace(/\r\n/g, "\n");
                     DRAFT.cover.metaOrario = String(orario ?? "").replace(/\r\n/g, "\n");
@@ -1673,23 +1621,20 @@
 
         function showLogin() {
             openModal("Login Admin", `
-          <div class="panel">
-            <div class="row">
-              <label>Username</label>
-              <input id="loginUser" type="text" placeholder="username" autocomplete="username" />
+            <div class="panel">
+              <div class="row">
+                <label>Username</label>
+                <input id="loginUser" type="text" autocomplete="username" />
+              </div>
+              <div class="row">
+                <label>Password</label>
+                <input id="loginPass" type="password" autocomplete="current-password" />
+              </div>
+              <div class="right">
+                <button class="btn ok" id="doLogin" type="button">Accedi</button>
+              </div>
             </div>
-            <div class="row">
-              <label>Password</label>
-              <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" />
-            </div>
-            <div class="right">
-              <button class="btn ok" id="doLogin" type="button">Accedi</button>
-            </div>
-            <p class="mini">
-              Cambia le credenziali nel codice: <b>ADMIN_USERNAME</b> e <b>ADMIN_PASSWORD</b>.
-            </p>
-          </div>
-        `);
+          `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -1705,14 +1650,14 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                <div class="panel">
-                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                  <p class="mini">Riprova.</p>
-                  <div class="right">
-                    <button class="btn" id="retryLogin" type="button">Riprova</button>
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                    <p class="mini">Riprova.</p>
+                    <div class="right">
+                      <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                    </div>
                   </div>
-                </div>
-              `);
+                `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -1721,11 +1666,7 @@
                 }
 
                 if (btn) btn.onclick = attempt;
-                if (p) {
-                    p.addEventListener("keydown", (e) => {
-                        if (e.key === "Enter") attempt();
-                    });
-                }
+                if (p) p.addEventListener("keydown", (e) => { if (e.key === "Enter") attempt(); });
             }, 0);
         }
 
@@ -1750,31 +1691,6 @@
             renderPublic(MENU, false);
         }
 
-        function route() {
-            const adminRoute = (location.hash || "").toLowerCase() === "#admin";
-            if (!adminRoute) {
-                if (isAdmin()) exitAdmin();
-                else {
-                    document.body.classList.remove("admin");
-                    $("logoutBtn").style.display = "none";
-                    $("saveFloat").style.display = "none";
-                    $("editEventBtn").style.display = "none";
-                    renderPublic(MENU, false);
-                }
-                return;
-            }
-
-            if (isAdmin()) {
-                enterAdmin();
-            } else {
-                renderPublic(MENU, false);
-                showLogin();
-            }
-        }
-
-        /******************************************************************
-         * EXPORT JSON (download)
-         ******************************************************************/
         function downloadJsonFile(data, filename = "menu-data.json") {
             const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: "application/json" });
@@ -1793,27 +1709,25 @@
         function saveAll() {
             if (!isAdmin() || !DRAFT) return;
 
-            // 1) salva cache locale
             DRAFT = normalizeMenuData(DRAFT);
             saveMenuToLocal(DRAFT);
             MENU = deepClone(DRAFT);
             setDirty(false);
 
-            // 2) scarica JSON (da caricare su GitHub)
             downloadJsonFile(DRAFT, "menu-data.json");
 
             openModal("Salvato", `
-          <div class="panel">
-            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-            <p class="mini">
-              Ho salvato e scaricato <b>menu-data.json</b>.<br/>
-              Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti (PC/telefono/QR).
-            </p>
-            <div class="right">
-              <button class="btn ok" id="okClose" type="button">Ok</button>
+            <div class="panel">
+              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+              <p class="mini">
+                Ho salvato e scaricato <b>menu-data.json</b>.<br/>
+                Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
+              </p>
+              <div class="right">
+                <button class="btn ok" id="okClose" type="button">Ok</button>
+              </div>
             </div>
-          </div>
-        `);
+          `);
             setTimeout(() => {
                 const b = document.getElementById("okClose");
                 if (b) b.onclick = closeModal;
@@ -1823,22 +1737,26 @@
         }
 
         (async function init() {
+            // ✅ se l’URL ha ancora un hash (tipo #admin), lo rimuovo per evitare comportamenti strani
+            if (location.hash) {
+                history.replaceState(null, "", location.pathname + location.search);
+            }
+
             $("toggleTheme").addEventListener("click", () => document.body.classList.toggle("light"));
             $("printBtn").addEventListener("click", () => window.print());
-
             $("modalClose").addEventListener("click", closeModal);
 
             // Non chiudere cliccando sullo sfondo
             $("modalBack").addEventListener("click", (e) => { });
 
+            // ✅ Admin SOLO se clicchi
             $("adminBtn").addEventListener("click", () => {
-                location.hash = "#admin";
-                route();
+                if (isAdmin()) enterAdmin();
+                else showLogin();
             });
 
             $("logoutBtn").addEventListener("click", () => {
                 logout();
-                location.hash = "";
                 exitAdmin();
             });
 
@@ -1849,12 +1767,8 @@
                 openEventModal();
             });
 
-            // ✅ carico PRIMA menu-data.json
             MENU = await loadMenuAsync();
             renderPublic(MENU, false);
-
-            window.addEventListener("hashchange", route);
-            route();
 
             window.addEventListener("beforeunload", (e) => {
                 if (isAdmin() && DIRTY) {
