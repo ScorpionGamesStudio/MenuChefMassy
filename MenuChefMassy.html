@@ -530,24 +530,29 @@
             background: rgba(0,0,0,.04);
         }
 
+        /* ✅ FIX IMMAGINI: niente tagli (contain) + box più alto */
         .img {
-            height: 170px;
-            background: #0b0b0f;
+            height: 230px; /* prima 170px */
+            background: rgba(0,0,0,.20); /* base neutra per immagini verticali/orizzontali */
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         body.light .img {
-            background: #f0eee9;
+            background: rgba(0,0,0,.04);
         }
 
         .img img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain; /* ✅ mostra tutta l'immagine */
+            object-position: center;
             display: block;
             filter: contrast(1.04) saturate(1.05);
-            transform: scale(1.01);
+            transform: none; /* prima: scale(1.01) -> poteva “mangiare” bordi */
         }
 
         .cardBtns {
@@ -800,7 +805,9 @@
             outline: none;
         }
 
-        body.light input[type="text"], body.light input[type="password"], body.light textarea {
+        body.light input[type="text"],
+        body.light input[type="password"],
+        body.light textarea {
             background: rgba(255,255,255,.75);
             color: rgba(0,0,0,.85);
             border-color: rgba(0,0,0,.10);
@@ -1080,23 +1087,23 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-            <defs>
-              <linearGradient id="g" x1="0" x2="1">
-                <stop offset="0" stop-color="%2307070a"/>
-                <stop offset="1" stop-color="%23151622"/>
-              </linearGradient>
-              <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(%23g)"/>
-            <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-            <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-            <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-            <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-          </svg>`;
+              <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+                <defs>
+                  <linearGradient id="g" x1="0" x2="1">
+                    <stop offset="0" stop-color="%2307070a"/>
+                    <stop offset="1" stop-color="%23151622"/>
+                  </linearGradient>
+                  <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                    <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                    <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(%23g)"/>
+                <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+                <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+                <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+                <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+              </svg>`;
         }
 
         function fileToDataUrl(file) {
@@ -1259,21 +1266,21 @@
                 sectionEl.setAttribute("aria-label", section.title);
 
                 const actionsHtml = adminMode ? `
-              <div class="sectionActions">
-                <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
-              </div>
-            ` : `<div></div>`;
+                      <div class="sectionActions">
+                        <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+                      </div>
+                    ` : `<div></div>`;
 
                 sectionEl.innerHTML = `
-              <div class="sectionHead">
-                <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-                <div style="display:flex; align-items:baseline; gap:12px;">
-                  <p class="desc">${escapeXml(section.desc || "")}</p>
-                  ${actionsHtml}
-                </div>
-              </div>
-              <div class="grid" data-section="${escapeXml(section.key)}"></div>
-            `;
+                      <div class="sectionHead">
+                        <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+                        <div style="display:flex; align-items:baseline; gap:12px;">
+                          <p class="desc">${escapeXml(section.desc || "")}</p>
+                          ${actionsHtml}
+                        </div>
+                      </div>
+                      <div class="grid" data-section="${escapeXml(section.key)}"></div>
+                    `;
 
                 const grid = sectionEl.querySelector(".grid");
 
@@ -1288,20 +1295,20 @@
                     card.setAttribute("data-sec", section.key);
 
                     card.innerHTML = `
-                <div class="img">
-                  ${adminMode ? `
-                    <div class="cardBtns">
-                      <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                      <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                    </div>
-                  ` : ``}
-                  <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
-                </div>
-                <div class="content">
-                  <h3 class="name">${escapeXml(it.name || "")}</h3>
-                  <p class="info">${escapeXml(it.info || "")}</p>
-                </div>
-              `;
+                          <div class="img">
+                            ${adminMode ? `
+                              <div class="cardBtns">
+                                <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                                <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                              </div>
+                            ` : ``}
+                            <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+                          </div>
+                          <div class="content">
+                            <h3 class="name">${escapeXml(it.name || "")}</h3>
+                            <p class="info">${escapeXml(it.info || "")}</p>
+                          </div>
+                        `;
                     grid.appendChild(card);
                 });
 
@@ -1385,15 +1392,15 @@
             if (!it) return;
 
             openModal("Elimina", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-              <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-              <div class="right">
-                <button class="btn" id="cancelDel" type="button">Annulla</button>
-                <button class="btn danger" id="doDel" type="button">Elimina</button>
-              </div>
-            </div>
-          `);
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+                    <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+                    <div class="right">
+                      <button class="btn" id="cancelDel" type="button">Annulla</button>
+                      <button class="btn danger" id="doDel" type="button">Elimina</button>
+                    </div>
+                  </div>
+                `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -1413,43 +1420,43 @@
             const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
 
             openModal(title, `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo</label>
-                <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-              </div>
+                  <div class="panel">
+                    <div class="row">
+                      <label>Titolo</label>
+                      <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+                    </div>
 
-              <div class="row">
-                <label>Descrizione</label>
-                <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-              </div>
+                    <div class="row">
+                      <label>Descrizione</label>
+                      <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+                    </div>
 
-              <div class="row">
-                <label>Immagine</label>
-                <div class="fileRow">
-                  <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+                    <div class="row">
+                      <label>Immagine</label>
+                      <div class="fileRow">
+                        <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
 
-                  <div class="fileActions">
-                    <input id="fFile" type="file" accept="image/*" style="display:none" />
-                    <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+                        <div class="fileActions">
+                          <input id="fFile" type="file" accept="image/*" style="display:none" />
+                          <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
 
-                    <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                          <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                        </div>
+
+                        <div class="mini">Oppure incolla un URL (opzionale):</div>
+                        <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
+                        <div class="mini">
+                          Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="right">
+                      <button class="btn" id="cancelItem" type="button">Annulla</button>
+                      <button class="btn ok" id="saveItem" type="button">Conferma</button>
+                    </div>
                   </div>
-
-                  <div class="mini">Oppure incolla un URL (opzionale):</div>
-                  <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
-                  <div class="mini">
-                    Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
-                  </div>
-                </div>
-              </div>
-
-              <div class="right">
-                <button class="btn" id="cancelItem" type="button">Annulla</button>
-                <button class="btn ok" id="saveItem" type="button">Conferma</button>
-              </div>
-            </div>
-          `);
+                `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -1545,48 +1552,48 @@
             const c = DRAFT.cover;
 
             openModal("Modifica evento", `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo browser</label>
-                <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
-              </div>
+                  <div class="panel">
+                    <div class="row">
+                      <label>Titolo browser</label>
+                      <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
+                    </div>
 
-              <div class="row">
-                <label>Titolo (prima parte)</label>
-                <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
-              </div>
+                    <div class="row">
+                      <label>Titolo (prima parte)</label>
+                      <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+                    </div>
 
-              <div class="row">
-                <label>Titolo (parte oro)</label>
-                <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
-              </div>
+                    <div class="row">
+                      <label>Titolo (parte oro)</label>
+                      <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+                    </div>
 
-              <div class="row">
-                <label>Descrizione evento</label>
-                <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
-              </div>
+                    <div class="row">
+                      <label>Descrizione evento</label>
+                      <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+                    </div>
 
-              <div class="row">
-                <label>Dettagli serata</label>
-                <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
-              </div>
+                    <div class="row">
+                      <label>Dettagli serata</label>
+                      <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+                    </div>
 
-              <div class="row">
-                <label>Data & Orario</label>
-                <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
-              </div>
+                    <div class="row">
+                      <label>Data & Orario</label>
+                      <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+                    </div>
 
-              <div class="row">
-                <label>Note</label>
-                <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
-              </div>
+                    <div class="row">
+                      <label>Note</label>
+                      <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+                    </div>
 
-              <div class="right">
-                <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                <button class="btn ok" id="saveEvent" type="button">Conferma</button>
-              </div>
-            </div>
-          `);
+                    <div class="right">
+                      <button class="btn" id="cancelEvent" type="button">Annulla</button>
+                      <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+                    </div>
+                  </div>
+                `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
@@ -1621,20 +1628,20 @@
 
         function showLogin() {
             openModal("Login Admin", `
-            <div class="panel">
-              <div class="row">
-                <label>Username</label>
-                <input id="loginUser" type="text" autocomplete="username" />
-              </div>
-              <div class="row">
-                <label>Password</label>
-                <input id="loginPass" type="password" autocomplete="current-password" />
-              </div>
-              <div class="right">
-                <button class="btn ok" id="doLogin" type="button">Accedi</button>
-              </div>
-            </div>
-          `);
+                  <div class="panel">
+                    <div class="row">
+                      <label>Username</label>
+                      <input id="loginUser" type="text" autocomplete="username" />
+                    </div>
+                    <div class="row">
+                      <label>Password</label>
+                      <input id="loginPass" type="password" autocomplete="current-password" />
+                    </div>
+                    <div class="right">
+                      <button class="btn ok" id="doLogin" type="button">Accedi</button>
+                    </div>
+                  </div>
+                `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -1650,14 +1657,14 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                    <p class="mini">Riprova.</p>
-                    <div class="right">
-                      <button class="btn ok" id="retryLogin" type="button">Riprova</button>
-                    </div>
-                  </div>
-                `);
+                              <div class="panel">
+                                <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                                <p class="mini">Riprova.</p>
+                                <div class="right">
+                                  <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                                </div>
+                              </div>
+                            `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -1717,17 +1724,17 @@
             downloadJsonFile(DRAFT, "menu-data.json");
 
             openModal("Salvato", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-              <p class="mini">
-                Ho salvato e scaricato <b>menu-data.json</b>.<br/>
-                Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
-              </p>
-              <div class="right">
-                <button class="btn ok" id="okClose" type="button">Ok</button>
-              </div>
-            </div>
-          `);
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                    <p class="mini">
+                      Ho salvato e scaricato <b>menu-data.json</b>.<br/>
+                      Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
+                    </p>
+                    <div class="right">
+                      <button class="btn ok" id="okClose" type="button">Ok</button>
+                    </div>
+                  </div>
+                `);
             setTimeout(() => {
                 const b = document.getElementById("okClose");
                 if (b) b.onclick = closeModal;
