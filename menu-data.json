@@ -1,0 +1,96 @@
+{
+  "cover": {
+    "browserTitle": "Menu della Serata",
+    "heroPrefix": "Stasera a casa con Chef Massy:",
+    "heroGold": "cena da 3 stelle",
+    "heroDesc": "Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining, ma con il calore di una serata tra amici e famiglia.",
+    "chefName": "Massimiliano Giannone",
+    "toast": "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate. Io cucino, voi godetevela.”",
+    "metaOrario": "20:30 • Aperitivo & Antipasti<br/>21:15 • Portate principali",
+    "metaNote": "Chiedimi per allergeni o alternative.<br/>Piatti serviti “a ondate”."
+  },
+  "sections": [
+    {
+      "key": "antipasti",
+      "title": "Antipasti",
+      "desc": "Il benvenuto (piccoli assaggi, grande impatto)"
+    },
+    {
+      "key": "primi",
+      "title": "Primi",
+      "desc": "La portata che fa innamorare"
+    },
+    {
+      "key": "secondi",
+      "title": "Secondi",
+      "desc": "Il piatto protagonista"
+    },
+    {
+      "key": "dolci",
+      "title": "Dolci",
+      "desc": "Finale morbido, felice, memorabile"
+    },
+    {
+      "key": "bevande",
+      "title": "Bevande",
+      "desc": "Durante la serata (scegli, abbina, brinda)"
+    }
+  ],
+  "itemsBySection": {
+    "antipasti": [
+      {
+        "name": "Bruschette gourmet",
+        "info": "Croccanti, profumate, con topping ricchi e servite “a degustazione”.",
+        "imageUrl": ""
+      },
+      {
+        "name": "Spritz",
+        "info": "Leggero e frizzante, perfetto per aprire la serata con stile.",
+        "imageUrl": ""
+      }
+    ],
+    "primi": [
+      {
+        "name": "Pasta con gamberi e stracciatella",
+        "info": "Gamberi cotti con vino bianco, bisk di gambero, stracciatella e gambero rosso crudo: cremoso, saporito e fresco.",
+        "imageUrl": ""
+      }
+    ],
+    "secondi": [
+      {
+        "name": "Pesce spada in crosta di pistacchio",
+        "info": "Rosolato con vino bianco e brodo di pesce chiarificato, servito con fondo e crosta di pistacchio: delicato e sorprendente.",
+        "imageUrl": ""
+      }
+    ],
+    "dolci": [
+      {
+        "name": "Cannolo siciliano",
+        "info": "Cremoso e croccante: un classico che chiude la serata con il sapore della nostra terra.",
+        "imageUrl": ""
+      }
+    ],
+    "bevande": [
+      {
+        "name": "Acqua liscia & frizzante",
+        "info": "Sempre in tavola, servita fresca.",
+        "imageUrl": ""
+      },
+      {
+        "name": "[Inserisci qui i vini della serata]",
+        "info": "Esempio: Bianco fresco per antipasti / Rosso morbido per i secondi / Bollicine per brindare.",
+        "imageUrl": ""
+      },
+      {
+        "name": "Analcolici",
+        "info": "Tonica, cola, succhi: perfetti anche per chi non beve alcol.",
+        "imageUrl": ""
+      },
+      {
+        "name": "Birre",
+        "info": "Normale, alla spina e bionda: scegli la tua e brindiamo 🍻",
+        "imageUrl": ""
+      }
+    ]
+  }
+}
