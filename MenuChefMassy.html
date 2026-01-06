@@ -53,7 +53,6 @@
             overflow-x: hidden;
         }
 
-            /* Blocca scroll pagina quando il modal è aperto */
             body.modal-open {
                 overflow: hidden;
                 height: 100%;
@@ -130,7 +129,6 @@
             letter-spacing: .02em;
         }
 
-        /* Chef */
         .chef {
             text-align: right;
             display: flex;
@@ -320,7 +318,7 @@
             max-width: 72ch;
         }
 
-        /* ✅ ora solo 2 card: Orario e Note (larghe) */
+        /* SOLO 2 card: Orario + Note */
         .metaGrid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -441,7 +439,6 @@
             font-size: 12px;
         }
 
-        /* add button in header (admin) */
         .sectionActions {
             display: flex;
             align-items: center;
@@ -676,7 +673,7 @@
             color: rgba(0,0,0,.55);
         }
 
-        /* Floating SAVE (admin) */
+        /* Floating save (admin) */
         .saveFloat {
             position: fixed;
             right: 18px;
@@ -851,7 +848,6 @@
             margin-top: 12px;
         }
 
-        /* file picker */
         .fileRow {
             display: flex;
             flex-direction: column;
@@ -975,7 +971,6 @@
             </div>
         </header>
 
-        <!-- Cover -->
         <section class="cover" aria-label="Copertina evento">
             <div class="coverInner">
                 <div>
@@ -988,7 +983,6 @@
                         ma con il calore di una serata tra amici e famiglia.
                     </p>
 
-                    <!-- ✅ SOLO ORARIO + NOTE -->
                     <div class="metaGrid" aria-label="Dettagli serata">
                         <div class="metaCard">
                             <b>Orario</b>
@@ -1012,25 +1006,26 @@
             </div>
         </section>
 
-        <!-- Menu -->
         <div id="menuRoot"></div>
 
         <footer>
-            Tip velocissimo: sostituisci i placeholder con foto reali dei tuoi piatti (anche scattate col telefono),
-            e diventa praticamente un “menu da chef”.
+            Tip velocissimo: usa foto reali dei tuoi piatti (anche scattate col telefono). Con l’admin puoi fare tutto in 2 minuti.
         </footer>
     </div>
 
-    <!-- Floating save -->
     <div class="saveFloat" id="saveFloat">
         <div class="pill" id="dirtyPill" style="display:none;">
             <span class="dot" aria-hidden="true"></span>
             Modifiche non salvate
         </div>
-        <button class="btn ok" id="saveAllBtn" type="button">Salva</button>
+
+        <!-- opzionale: esporta manuale -->
+        <button class="btn" id="exportBtn" type="button" title="Scarica menu-data.json">Esporta JSON</button>
+
+        <!-- il bottone principale -->
+        <button class="btn ok" id="saveAllBtn" type="button" title="Salva + scarica menu-data.json">Salva</button>
     </div>
 
-    <!-- Modal -->
     <div class="modalBack" id="modalBack" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="modalHead">
@@ -1042,793 +1037,828 @@
     </div>
 
     <script>
-        /******************************************************************
-         * CONFIG (MODIFICA QUI USERNAME/PASSWORD)
-         ******************************************************************/
-        const ADMIN_USERNAME = "admin";   // cambia qui
-        const ADMIN_PASSWORD = "1234";    // cambia qui
+    /******************************************************************
+     * CONFIG
+     ******************************************************************/
+    const ADMIN_USERNAME = "admin"; // cambia qui
+    const ADMIN_PASSWORD = "1234";  // cambia qui
 
-        const SESSION_KEY = "menu_admin_session_v5";
-        const MENU_KEY = "menu_data_v5";
+    // ✅ Questo file DEVE essere nella stessa cartella di index.html su GitHub
+    const REMOTE_DATA_FILE = "menu-data.json";
 
-        let MENU = null;     // persisted
-        let DRAFT = null;    // editable while admin
-        let DIRTY = false;   // unsaved changes
+    const SESSION_KEY = "menu_admin_session_v6";
+    const MENU_KEY = "menu_data_v6_localcache";
 
-        function $(id) { return document.getElementById(id); }
+    let MENU = null;
+    let DRAFT = null;
+    let DIRTY = false;
 
-        function escapeXml(s) {
-            return String(s ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#39;");
-        }
+    function $(id){ return document.getElementById(id); }
 
-        function safeParseJson(txt) { try { return JSON.parse(txt); } catch { return null; } }
-        function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
+    function escapeXml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#39;");
+    }
+    function safeParseJson(txt){ try{ return JSON.parse(txt); }catch{ return null; } }
+    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 
-        function setDirty(v) {
-            DIRTY = v;
-            $("dirtyPill").style.display = DIRTY ? "flex" : "none";
-        }
+    function setDirty(v){
+      DIRTY = v;
+      $("dirtyPill").style.display = DIRTY ? "flex" : "none";
+    }
 
-        // ✅ impedisce "scroll chaining" dal modal alla pagina (trackpad/mobile)
-        function stopWheelChaining(e) {
-            const el = $("modalBody");
-            const delta = e.deltaY;
+    function stopWheelChaining(e){
+      const el = $("modalBody");
+      const delta = e.deltaY;
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      if ((delta < 0 && atTop) || (delta > 0 && atBottom)) e.preventDefault();
+    }
 
-            const atTop = el.scrollTop <= 0;
-            const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+    function openModal(title, html){
+      $("modalTitle").textContent = title;
+      $("modalBody").innerHTML = html;
 
-            if ((delta < 0 && atTop) || (delta > 0 && atBottom)) {
-                e.preventDefault();
-            }
-        }
+      $("modalBack").classList.add("show");
+      $("modalBack").setAttribute("aria-hidden","false");
+      document.body.classList.add("modal-open");
 
-        function openModal(title, html) {
-            $("modalTitle").textContent = title;
-            $("modalBody").innerHTML = html;
+      $("modalBody").scrollTop = 0;
+      $("modalBody").addEventListener("wheel", stopWheelChaining, { passive: false });
+    }
 
-            $("modalBack").classList.add("show");
-            $("modalBack").setAttribute("aria-hidden", "false");
+    function closeModal(){
+      $("modalBack").classList.remove("show");
+      $("modalBack").setAttribute("aria-hidden","true");
+      document.body.classList.remove("modal-open");
+      $("modalBody").removeEventListener("wheel", stopWheelChaining);
+      $("modalBody").innerHTML = "";
+    }
 
-            document.body.classList.add("modal-open");
+    function nlToBr(s){
+      return String(s ?? "").split("\n").map(x=>x.trimEnd()).join("<br/>");
+    }
+    function brToNl(s){
+      return String(s ?? "").replaceAll("<br/>","\n").replaceAll("<br>","\n");
+    }
 
-            $("modalBody").scrollTop = 0;
-            $("modalBody").addEventListener("wheel", stopWheelChaining, { passive: false });
-        }
+    function placeholderSvg(title){
+      return `data:image/svg+xml;utf8,
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="%2307070a"/>
+            <stop offset="1" stop-color="%23151622"/>
+          </linearGradient>
+          <radialGradient id="r" cx="25%" cy="20%" r="70%">
+            <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(%23g)"/>
+        <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+        <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+        <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+        <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+      </svg>`;
+    }
 
-        function closeModal() {
-            $("modalBack").classList.remove("show");
-            $("modalBack").setAttribute("aria-hidden", "true");
+    function fileToDataUrl(file){
+      return new Promise((resolve, reject)=>{
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
-            document.body.classList.remove("modal-open");
-
-            $("modalBody").removeEventListener("wheel", stopWheelChaining);
-            $("modalBody").innerHTML = "";
-        }
-
-        function nlToBr(s) {
-            return String(s ?? "").split("\n").map(x => x.trimEnd()).join("<br/>");
-        }
-        function brToNl(s) {
-            return String(s ?? "").replaceAll("<br/>", "\n").replaceAll("<br>", "\n");
-        }
-
-        function placeholderSvg(title) {
-            return `data:image/svg+xml;utf8,
-          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-            <defs>
-              <linearGradient id="g" x1="0" x2="1">
-                <stop offset="0" stop-color="%2307070a"/>
-                <stop offset="1" stop-color="%23151622"/>
-              </linearGradient>
-              <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(%23g)"/>
-            <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-            <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-            <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-            <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-          </svg>`;
-        }
-
-        // ✅ legge un file immagine dal PC e lo converte in DataURL
-        function fileToDataUrl(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(String(reader.result || ""));
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // ✅ opzionale: rimpicciolisce molto grandi (semplice: limite lato max)
-        async function downscaleDataUrl(dataUrl, maxSide = 1400, quality = 0.85) {
-            // Se non è un'immagine, lascia stare
-            if (!dataUrl.startsWith("data:image/")) return dataUrl;
-
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const w = img.width, h = img.height;
-                    const scale = Math.min(1, maxSide / Math.max(w, h));
-                    if (scale >= 1) {
-                        resolve(dataUrl);
-                        return;
-                    }
-                    const canvas = document.createElement("canvas");
-                    canvas.width = Math.round(w * scale);
-                    canvas.height = Math.round(h * scale);
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    // tenta jpeg per comprimere
-                    const out = canvas.toDataURL("image/jpeg", quality);
-                    resolve(out);
-                };
-                img.onerror = () => resolve(dataUrl);
-                img.src = dataUrl;
-            });
-        }
-
-        const DEFAULT_DATA = {
-            cover: {
-                browserTitle: "Menu della Serata • Casa Edition",
-                heroPrefix: "Stasera a casa:",
-                heroGold: "cena da 3 stelle",
-                heroDesc: "Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining, ma con il calore di una serata tra amici e famiglia.",
-                chefName: "Massimiliano Giannone",
-                toast: "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate. Io cucino, voi godetevela.”",
-                metaOrario: "20:30 • Aperitivo & Antipasti<br/>21:15 • Portate principali",
-                metaNote: "Chiedimi per allergeni o alternative.<br/>Piatti serviti “a ondate”."
-            },
-            sections: [
-                { key: "antipasti", title: "Antipasti", desc: "Il benvenuto (piccoli assaggi, grande impatto)" },
-                { key: "primi", title: "Primi", desc: "La portata che fa innamorare" },
-                { key: "secondi", title: "Secondi", desc: "Il piatto protagonista" },
-                { key: "dolci", title: "Dolci", desc: "Finale morbido, felice, memorabile" },
-                { key: "bevande", title: "Bevande", desc: "Durante la serata (scegli, abbina, brinda)" }
-            ],
-            itemsBySection: {
-                antipasti: [
-                    { name: "Bruschette gourmet", info: "Croccanti, profumate, con topping ricchi e servite “a degustazione”.", imageUrl: "" },
-                    { name: "Spritz", info: "Leggero e frizzante, perfetto per aprire la serata con stile.", imageUrl: "" }
-                ],
-                primi: [
-                    { name: "Pasta con gamberi e stracciatella", info: "Gamberi cotti con vino bianco, bisk di gambero, stracciatella e gambero rosso crudo: cremoso, saporito e fresco.", imageUrl: "" }
-                ],
-                secondi: [
-                    { name: "Pesce spada in crosta di pistacchio", info: "Rosolato con vino bianco e brodo di pesce chiarificato, servito con fondo e crosta di pistacchio: delicato e sorprendente.", imageUrl: "" }
-                ],
-                dolci: [
-                    { name: "Cannolo siciliano", info: "Cremoso e croccante: un classico che chiude la serata con il sapore della nostra terra.", imageUrl: "" }
-                ],
-                bevande: [
-                    { name: "Acqua liscia & frizzante", info: "Sempre in tavola, servita fresca.", imageUrl: "" },
-                    { name: "[Inserisci qui i vini della serata]", info: "Esempio: Bianco fresco per antipasti / Rosso morbido per i secondi / Bollicine per brindare.", imageUrl: "" },
-                    { name: "Analcolici", info: "Tonica, cola, succhi: perfetti anche per chi non beve alcol.", imageUrl: "" },
-                    { name: "Birre", info: "Normale, alla spina e bionda: scegli la tua e brindiamo 🍻", imageUrl: "" }
-                ]
-            }
+    async function downscaleDataUrl(dataUrl, maxSide=1400, quality=0.86){
+      if(!dataUrl.startsWith("data:image/")) return dataUrl;
+      return new Promise((resolve)=>{
+        const img = new Image();
+        img.onload = ()=>{
+          const w = img.width, h = img.height;
+          const scale = Math.min(1, maxSide / Math.max(w,h));
+          if(scale >= 1){ resolve(dataUrl); return; }
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(w * scale);
+          canvas.height = Math.round(h * scale);
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const out = canvas.toDataURL("image/jpeg", quality);
+          resolve(out);
         };
+        img.onerror = ()=> resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
 
-        function loadMenu() {
-            const raw = localStorage.getItem(MENU_KEY);
-            if (!raw) {
-                localStorage.setItem(MENU_KEY, JSON.stringify(deepClone(DEFAULT_DATA)));
-            }
-            const parsed = safeParseJson(localStorage.getItem(MENU_KEY));
-            if (!parsed) {
-                localStorage.setItem(MENU_KEY, JSON.stringify(deepClone(DEFAULT_DATA)));
-                return deepClone(DEFAULT_DATA);
-            }
-            parsed.cover = parsed.cover || {};
-            if (!parsed.cover.browserTitle) parsed.cover.browserTitle = "Menu della Serata • Casa Edition";
-            if (!parsed.cover.chefName) parsed.cover.chefName = "Massimiliano Giannone";
-            if (!parsed.cover.metaOrario) parsed.cover.metaOrario = DEFAULT_DATA.cover.metaOrario;
-            if (!parsed.cover.metaNote) parsed.cover.metaNote = DEFAULT_DATA.cover.metaNote;
-            return parsed;
+    /******************************************************************
+     * DEFAULT DATA
+     ******************************************************************/
+    const DEFAULT_DATA = {
+      cover: {
+        browserTitle: "Menu della Serata • Casa Edition",
+        heroPrefix: "Stasera a casa:",
+        heroGold: "cena da 3 stelle",
+        heroDesc: "Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining, ma con il calore di una serata tra amici e famiglia.",
+        chefName: "Massimiliano Giannone",
+        toast: "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate. Io cucino, voi godetevela.”",
+        metaOrario: "20:30 • Aperitivo & Antipasti<br/>21:15 • Portate principali",
+        metaNote: "Chiedimi per allergeni o alternative.<br/>Piatti serviti “a ondate”."
+      },
+      sections: [
+        { key:"antipasti", title:"Antipasti", desc:"Il benvenuto (piccoli assaggi, grande impatto)" },
+        { key:"primi", title:"Primi", desc:"La portata che fa innamorare" },
+        { key:"secondi", title:"Secondi", desc:"Il piatto protagonista" },
+        { key:"dolci", title:"Dolci", desc:"Finale morbido, felice, memorabile" },
+        { key:"bevande", title:"Bevande", desc:"Durante la serata (scegli, abbina, brinda)" }
+      ],
+      itemsBySection: {
+        antipasti: [
+          { name:"Bruschette gourmet", info:"Croccanti, profumate, con topping ricchi e servite “a degustazione”.", imageUrl:"" },
+          { name:"Spritz", info:"Leggero e frizzante, perfetto per aprire la serata con stile.", imageUrl:"" }
+        ],
+        primi: [
+          { name:"Pasta con gamberi e stracciatella", info:"Gamberi cotti con vino bianco, bisk di gambero, stracciatella e gambero rosso crudo: cremoso, saporito e fresco.", imageUrl:"" }
+        ],
+        secondi: [
+          { name:"Pesce spada in crosta di pistacchio", info:"Rosolato con vino bianco e brodo di pesce chiarificato, servito con fondo e crosta di pistacchio: delicato e sorprendente.", imageUrl:"" }
+        ],
+        dolci: [
+          { name:"Cannolo siciliano", info:"Cremoso e croccante: un classico che chiude la serata con il sapore della nostra terra.", imageUrl:"" }
+        ],
+        bevande: [
+          { name:"Acqua liscia & frizzante", info:"Sempre in tavola, servita fresca.", imageUrl:"" },
+          { name:"[Inserisci qui i vini della serata]", info:"Esempio: Bianco fresco per antipasti / Rosso morbido per i secondi / Bollicine per brindare.", imageUrl:"" },
+          { name:"Analcolici", info:"Tonica, cola, succhi: perfetti anche per chi non beve alcol.", imageUrl:"" },
+          { name:"Birre", info:"Normale, alla spina e bionda: scegli la tua e brindiamo 🍻", imageUrl:"" }
+        ]
+      }
+    };
+
+    /******************************************************************
+     * STORAGE + REMOTE LOADING
+     ******************************************************************/
+    function saveMenuToLocal(data){
+      localStorage.setItem(MENU_KEY, JSON.stringify(data));
+    }
+
+    function loadMenuFromLocal(){
+      const raw = localStorage.getItem(MENU_KEY);
+      if(!raw){
+        saveMenuToLocal(deepClone(DEFAULT_DATA));
+      }
+      const parsed = safeParseJson(localStorage.getItem(MENU_KEY));
+      if(!parsed){
+        saveMenuToLocal(deepClone(DEFAULT_DATA));
+        return deepClone(DEFAULT_DATA);
+      }
+      // normalize minimal
+      parsed.cover = parsed.cover || {};
+      if(!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
+      if(!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
+      if(!parsed.cover.metaOrario) parsed.cover.metaOrario = DEFAULT_DATA.cover.metaOrario;
+      if(!parsed.cover.metaNote) parsed.cover.metaNote = DEFAULT_DATA.cover.metaNote;
+      return parsed;
+    }
+
+    async function loadMenuAsync(){
+      // 1) prova a caricare il JSON pubblico (vale per tutti i dispositivi)
+      try{
+        const res = await fetch(REMOTE_DATA_FILE, { cache: "no-store" });
+        if(res.ok){
+          const txt = await res.text();
+          const data = JSON.parse(txt);
+          saveMenuToLocal(data); // cache locale
+          return data;
         }
-        function saveMenu(data) {
-            localStorage.setItem(MENU_KEY, JSON.stringify(data));
+      }catch(e){
+        // ignore -> fallback
+      }
+      // 2) fallback locale
+      return loadMenuFromLocal();
+    }
+
+    /******************************************************************
+     * SESSION
+     ******************************************************************/
+    function isAdmin(){ return localStorage.getItem(SESSION_KEY) === "1"; }
+    function logout(){ localStorage.removeItem(SESSION_KEY); }
+
+    /******************************************************************
+     * RENDER
+     ******************************************************************/
+    function renderPublic(menu, adminMode){
+      document.title = menu.cover.browserTitle || DEFAULT_DATA.cover.browserTitle;
+
+      $("chefNameTop").textContent = menu.cover.chefName || DEFAULT_DATA.cover.chefName;
+      $("heroPrefix").textContent = menu.cover.heroPrefix || "";
+      $("heroGold").textContent = menu.cover.heroGold || "";
+      $("heroDesc").textContent = menu.cover.heroDesc || "";
+      $("toastText").textContent = menu.cover.toast || "";
+
+      $("metaOrario").innerHTML = menu.cover.metaOrario || "";
+      $("metaNote").innerHTML = menu.cover.metaNote || "";
+
+      $("editEventBtn").style.display = adminMode ? "inline-flex" : "none";
+
+      const root = $("menuRoot");
+      root.innerHTML = "";
+
+      for(const section of menu.sections){
+        const items = (menu.itemsBySection && menu.itemsBySection[section.key]) ? menu.itemsBySection[section.key] : [];
+        const sectionEl = document.createElement("section");
+        sectionEl.className = "section";
+        sectionEl.setAttribute("aria-label", section.title);
+
+        const actionsHtml = adminMode ? `
+          <div class="sectionActions">
+            <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+          </div>
+        ` : `<div></div>`;
+
+        sectionEl.innerHTML = `
+          <div class="sectionHead">
+            <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+            <div style="display:flex; align-items:baseline; gap:12px;">
+              <p class="desc">${escapeXml(section.desc || "")}</p>
+              ${actionsHtml}
+            </div>
+          </div>
+          <div class="grid" data-section="${escapeXml(section.key)}"></div>
+        `;
+
+        const grid = sectionEl.querySelector(".grid");
+
+        items.forEach((it, idx) => {
+          const img = (it.imageUrl && String(it.imageUrl).trim())
+            ? String(it.imageUrl).trim()
+            : placeholderSvg(it.name || "Piatto");
+
+          const card = document.createElement("article");
+          card.className = "card";
+          card.setAttribute("data-idx", String(idx));
+          card.setAttribute("data-sec", section.key);
+
+          card.innerHTML = `
+            <div class="img">
+              ${adminMode ? `
+                <div class="cardBtns">
+                  <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                  <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                </div>
+              ` : ``}
+              <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+            </div>
+            <div class="content">
+              <h3 class="name">${escapeXml(it.name || "")}</h3>
+              <p class="info">${escapeXml(it.info || "")}</p>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        root.appendChild(sectionEl);
+      }
+
+      // center sections with 1 or 2 items
+      document.querySelectorAll('.section .grid').forEach(grid => {
+        const count = grid.querySelectorAll('.card').length;
+        if (count > 0 && count < 3) {
+          grid.classList.add('center-few');
+          grid.style.setProperty('--cols', String(count));
+        } else {
+          grid.classList.remove('center-few');
+          grid.style.removeProperty('--cols');
         }
+      });
 
-        function isAdmin() { return localStorage.getItem(SESSION_KEY) === "1"; }
-        function logout() { localStorage.removeItem(SESSION_KEY); }
+      if(adminMode){
+        document.querySelectorAll("[data-add]").forEach(btn=>{
+          btn.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            const key = btn.getAttribute("data-add");
+            openCreateModal(key);
+          });
+        });
 
-        function renderPublic(menu, adminMode) {
-            document.title = menu.cover.browserTitle || "Menu della Serata • Casa Edition";
+        document.querySelectorAll("[data-del]").forEach(btn=>{
+          btn.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            const v = btn.getAttribute("data-del");
+            const [sec, idxStr] = v.split(":");
+            deleteItem(sec, Number(idxStr));
+          });
+        });
 
-            $("chefNameTop").textContent = menu.cover.chefName || "Chef";
-            $("heroPrefix").textContent = menu.cover.heroPrefix || "";
-            $("heroGold").textContent = menu.cover.heroGold || "";
-            $("heroDesc").textContent = menu.cover.heroDesc || "";
-            $("toastText").textContent = menu.cover.toast || "";
+        document.querySelectorAll("[data-edit]").forEach(btn=>{
+          btn.addEventListener("click", (e)=>{
+            e.stopPropagation();
+            const v = btn.getAttribute("data-edit");
+            const [sec, idxStr] = v.split(":");
+            openEditModal(sec, Number(idxStr));
+          });
+        });
+      }
+    }
 
-            $("metaOrario").innerHTML = menu.cover.metaOrario || "";
-            $("metaNote").innerHTML = menu.cover.metaNote || "";
+    function ensureDraft(){
+      if(!DRAFT) DRAFT = deepClone(MENU);
+      if(!DRAFT.itemsBySection) DRAFT.itemsBySection = {};
+      if(!DRAFT.cover) DRAFT.cover = deepClone(DEFAULT_DATA.cover);
+    }
 
-            $("editEventBtn").style.display = adminMode ? "inline-flex" : "none";
+    function openCreateModal(sectionKey){
+      ensureDraft();
+      const empty = { name:"", info:"", imageUrl:"" };
+      openItemModal("Aggiungi piatto", empty, (savedItem)=>{
+        const list = DRAFT.itemsBySection[sectionKey] || (DRAFT.itemsBySection[sectionKey] = []);
+        list.push(savedItem);
+        setDirty(true);
+        renderPublic(DRAFT, true);
+      });
+    }
 
-            const root = $("menuRoot");
-            root.innerHTML = "";
+    function openEditModal(sectionKey, idx){
+      ensureDraft();
+      const list = DRAFT.itemsBySection[sectionKey] || [];
+      const it = list[idx];
+      if(!it) return;
+      openItemModal("Modifica piatto", deepClone(it), (savedItem)=>{
+        list[idx] = savedItem;
+        setDirty(true);
+        renderPublic(DRAFT, true);
+      }, true);
+    }
 
-            for (const section of menu.sections) {
-                const items = (menu.itemsBySection && menu.itemsBySection[section.key]) ? menu.itemsBySection[section.key] : [];
-                const sectionEl = document.createElement("section");
-                sectionEl.className = "section";
-                sectionEl.setAttribute("aria-label", section.title);
+    function deleteItem(sectionKey, idx){
+      ensureDraft();
+      const list = DRAFT.itemsBySection[sectionKey] || [];
+      const it = list[idx];
+      if(!it) return;
 
-                const actionsHtml = adminMode ? `
-              <div class="sectionActions">
-                <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+      openModal("Elimina", `
+        <div class="panel">
+          <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+          <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+          <div class="right">
+            <button class="btn" id="cancelDel" type="button">Annulla</button>
+            <button class="btn danger" id="doDel" type="button">Elimina</button>
+          </div>
+        </div>
+      `);
+
+      setTimeout(()=>{
+        const c = document.getElementById("cancelDel");
+        const d = document.getElementById("doDel");
+        if(c) c.onclick = closeModal;
+        if(d) d.onclick = ()=>{
+          list.splice(idx, 1);
+          setDirty(true);
+          renderPublic(DRAFT, true);
+          closeModal();
+        };
+      },0);
+    }
+
+    function openItemModal(title, item, onSave, allowEmptyName=false){
+      const currentImg = (item.imageUrl && String(item.imageUrl).trim()) ? String(item.imageUrl).trim() : "";
+      const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
+
+      openModal(title, `
+        <div class="panel">
+          <div class="row">
+            <label>Titolo</label>
+            <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+          </div>
+
+          <div class="row">
+            <label>Descrizione</label>
+            <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+          </div>
+
+          <div class="row">
+            <label>Immagine</label>
+            <div class="fileRow">
+              <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+
+              <div class="fileActions">
+                <input id="fFile" type="file" accept="image/*" style="display:none" />
+                <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+
+                <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
               </div>
-            ` : `<div></div>`;
 
-                sectionEl.innerHTML = `
-              <div class="sectionHead">
-                <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-                <div style="display:flex; align-items:baseline; gap:12px;">
-                  <p class="desc">${escapeXml(section.desc || "")}</p>
-                  ${actionsHtml}
-                </div>
-              </div>
-              <div class="grid" data-section="${escapeXml(section.key)}"></div>
-            `;
-
-                const grid = sectionEl.querySelector(".grid");
-
-                items.forEach((it, idx) => {
-                    const img = (it.imageUrl && String(it.imageUrl).trim()) ? String(it.imageUrl).trim() : placeholderSvg(it.name || "Piatto");
-
-                    const card = document.createElement("article");
-                    card.className = "card";
-                    card.setAttribute("data-idx", String(idx));
-                    card.setAttribute("data-sec", section.key);
-
-                    card.innerHTML = `
-                <div class="img">
-                  ${adminMode ? `
-                    <div class="cardBtns">
-                      <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                      <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                    </div>
-                  ` : ``}
-                  <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
-                </div>
-                <div class="content">
-                  <h3 class="name">${escapeXml(it.name || "")}</h3>
-                  <p class="info">${escapeXml(it.info || "")}</p>
-                </div>
-              `;
-                    grid.appendChild(card);
-                });
-
-                root.appendChild(sectionEl);
-            }
-
-            // center sections with 1 or 2 items
-            document.querySelectorAll('.section .grid').forEach(grid => {
-                const count = grid.querySelectorAll('.card').length;
-                if (count > 0 && count < 3) {
-                    grid.classList.add('center-few');
-                    grid.style.setProperty('--cols', String(count));
-                } else {
-                    grid.classList.remove('center-few');
-                    grid.style.removeProperty('--cols');
-                }
-            });
-
-            if (adminMode) {
-                document.querySelectorAll("[data-add]").forEach(btn => {
-                    btn.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        const key = btn.getAttribute("data-add");
-                        openCreateModal(key);
-                    });
-                });
-
-                document.querySelectorAll("[data-del]").forEach(btn => {
-                    btn.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        const v = btn.getAttribute("data-del");
-                        const [sec, idxStr] = v.split(":");
-                        deleteItem(sec, Number(idxStr));
-                    });
-                });
-
-                document.querySelectorAll("[data-edit]").forEach(btn => {
-                    btn.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        const v = btn.getAttribute("data-edit");
-                        const [sec, idxStr] = v.split(":");
-                        openEditModal(sec, Number(idxStr));
-                    });
-                });
-            }
-        }
-
-        function ensureDraft() {
-            if (!DRAFT) DRAFT = deepClone(MENU);
-            if (!DRAFT.itemsBySection) DRAFT.itemsBySection = {};
-            if (!DRAFT.cover) DRAFT.cover = deepClone(DEFAULT_DATA.cover);
-        }
-
-        function openCreateModal(sectionKey) {
-            ensureDraft();
-            const empty = { name: "", info: "", imageUrl: "" };
-            openItemModal("Aggiungi piatto", empty, (savedItem) => {
-                const list = DRAFT.itemsBySection[sectionKey] || (DRAFT.itemsBySection[sectionKey] = []);
-                list.push(savedItem);
-                setDirty(true);
-                renderPublic(DRAFT, true);
-            });
-        }
-
-        function openEditModal(sectionKey, idx) {
-            ensureDraft();
-            const list = DRAFT.itemsBySection[sectionKey] || [];
-            const it = list[idx];
-            if (!it) return;
-            openItemModal("Modifica piatto", deepClone(it), (savedItem) => {
-                list[idx] = savedItem;
-                setDirty(true);
-                renderPublic(DRAFT, true);
-            }, true);
-        }
-
-        function deleteItem(sectionKey, idx) {
-            ensureDraft();
-            const list = DRAFT.itemsBySection[sectionKey] || [];
-            const it = list[idx];
-            if (!it) return;
-
-            openModal("Elimina", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-              <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-              <div class="right">
-                <button class="btn" id="cancelDel" type="button">Annulla</button>
-                <button class="btn danger" id="doDel" type="button">Elimina</button>
+              <div class="mini">Oppure incolla un URL (opzionale):</div>
+              <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
+              <div class="mini">
+                Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
               </div>
             </div>
-          `);
+          </div>
 
-            setTimeout(() => {
-                const c = document.getElementById("cancelDel");
-                const d = document.getElementById("doDel");
-                if (c) c.onclick = closeModal;
-                if (d) d.onclick = () => {
-                    list.splice(idx, 1);
-                    setDirty(true);
-                    renderPublic(DRAFT, true);
-                    closeModal();
-                };
-            }, 0);
-        }
+          <div class="right">
+            <button class="btn" id="cancelItem" type="button">Annulla</button>
+            <button class="btn ok" id="saveItem" type="button">Conferma</button>
+          </div>
+        </div>
+      `);
 
-        // ✅ Modal piatto: ora supporta UPLOAD da PC + URL (opzionale)
-        function openItemModal(title, item, onSave, allowEmptyName = false) {
-            const currentImg = (item.imageUrl && String(item.imageUrl).trim()) ? String(item.imageUrl).trim() : "";
-            const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
+      setTimeout(()=>{
+        const cancel = document.getElementById("cancelItem");
+        const save = document.getElementById("saveItem");
+        const nameEl = document.getElementById("fName");
 
-            openModal(title, `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo</label>
-                <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-              </div>
+        const pickFileBtn = document.getElementById("pickFile");
+        const fileInput = document.getElementById("fFile");
+        const clearBtn = document.getElementById("clearImg");
+        const previewImg = document.getElementById("imgPreview");
+        const urlInput = document.getElementById("fImgUrl");
 
-              <div class="row">
-                <label>Descrizione</label>
-                <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-              </div>
+        let modalImage = currentImg;
 
-              <div class="row">
-                <label>Immagine</label>
-                <div class="fileRow">
-                  <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+        if(cancel) cancel.onclick = closeModal;
 
-                  <div class="fileActions">
-                    <input id="fFile" type="file" accept="image/*" style="display:none" />
-                    <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
-
-                    <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
-                  </div>
-
-                  <div class="mini">
-                    Se vuoi, puoi anche incollare un URL (opzionale):
-                  </div>
-
-                  <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
-                  <div class="mini">
-                    Consiglio: per un HTML singolo senza server, “Carica dal PC” è la via migliore (salva tutto in localStorage).
+        if(pickFileBtn && fileInput){
+          pickFileBtn.onclick = ()=> fileInput.click();
+          fileInput.onchange = async ()=>{
+            const file = fileInput.files && fileInput.files[0];
+            if(!file) return;
+            try{
+              let dataUrl = await fileToDataUrl(file);
+              dataUrl = await downscaleDataUrl(dataUrl, 1400, 0.86);
+              modalImage = dataUrl;
+              previewImg.src = dataUrl;
+              urlInput.value = "";
+            }catch(e){
+              console.error(e);
+              openModal("Errore immagine", `
+                <div class="panel">
+                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Impossibile caricare</b>
+                  <p class="mini">Riprova con un file più leggero.</p>
+                  <div class="right">
+                    <button class="btn ok" id="imgErrClose" type="button">Ok</button>
                   </div>
                 </div>
-              </div>
-
-              <div class="right">
-                <button class="btn" id="cancelItem" type="button">Annulla</button>
-                <button class="btn ok" id="saveItem" type="button">Conferma</button>
-              </div>
-            </div>
-          `);
-
-            setTimeout(() => {
-                const cancel = document.getElementById("cancelItem");
-                const save = document.getElementById("saveItem");
-                const nameEl = document.getElementById("fName");
-
-                const pickFileBtn = document.getElementById("pickFile");
-                const fileInput = document.getElementById("fFile");
-                const clearBtn = document.getElementById("clearImg");
-                const previewImg = document.getElementById("imgPreview");
-                const urlInput = document.getElementById("fImgUrl");
-
-                // stato immagine in memoria del modal
-                let modalImage = currentImg; // può essere data:image/... oppure http...
-
-                if (cancel) cancel.onclick = closeModal;
-
-                if (pickFileBtn && fileInput) {
-                    pickFileBtn.onclick = () => fileInput.click();
-
-                    fileInput.onchange = async () => {
-                        const file = fileInput.files && fileInput.files[0];
-                        if (!file) return;
-                        try {
-                            let dataUrl = await fileToDataUrl(file);
-                            // downscale leggero per non uccidere localStorage
-                            dataUrl = await downscaleDataUrl(dataUrl, 1400, 0.86);
-
-                            modalImage = dataUrl;
-                            previewImg.src = dataUrl;
-
-                            // se stai usando file, svuoto URL (per non confondere)
-                            urlInput.value = "";
-                        } catch (e) {
-                            console.error(e);
-                            openModal("Errore immagine", `
-                    <div class="panel">
-                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Impossibile caricare</b>
-                      <p class="mini">Riprova con un file più leggero.</p>
-                      <div class="right">
-                        <button class="btn ok" id="imgErrClose" type="button">Ok</button>
-                      </div>
-                    </div>
-                  `);
-                            setTimeout(() => {
-                                const b = document.getElementById("imgErrClose");
-                                if (b) b.onclick = closeModal;
-                            }, 0);
-                        }
-                    };
-                }
-
-                if (clearBtn) {
-                    clearBtn.onclick = () => {
-                        modalImage = "";
-                        previewImg.src = placeholderSvg(nameEl.value || "Piatto");
-                        urlInput.value = "";
-                        if (fileInput) fileInput.value = "";
-                    };
-                }
-
-                // se scrivi un URL, aggiorno preview e stato
-                if (urlInput) {
-                    urlInput.addEventListener("input", () => {
-                        const v = urlInput.value.trim();
-                        if (v) {
-                            modalImage = v;
-                            previewImg.src = v;
-                        } else {
-                            // se non c'è URL e non c'è file, torno al placeholder
-                            if (!modalImage || modalImage.startsWith("http")) {
-                                modalImage = "";
-                                previewImg.src = placeholderSvg(nameEl.value || "Piatto");
-                            }
-                        }
-                    });
-                }
-
-                // se cambi titolo, aggiorno placeholder se non c'è immagine
-                if (nameEl) {
-                    nameEl.addEventListener("input", () => {
-                        if (!modalImage) {
-                            previewImg.src = placeholderSvg(nameEl.value || "Piatto");
-                        }
-                    });
-                }
-
-                if (save) save.onclick = () => {
-                    const name = document.getElementById("fName").value.trim();
-                    const info = document.getElementById("fInfo").value.trim();
-                    const url = (document.getElementById("fImgUrl").value || "").trim();
-
-                    // priorità: se c'è stato upload (data:) lo tengo; se no, se c'è URL uso URL
-                    let finalImg = modalImage;
-                    if (!finalImg && url) finalImg = url;
-
-                    if (!allowEmptyName && !name) {
-                        nameEl.focus();
-                        nameEl.style.borderColor = "rgba(255,91,107,.75)";
-                        return;
-                    }
-
-                    onSave({
-                        name: name || "(senza nome)",
-                        info: info || "",
-                        imageUrl: finalImg || ""
-                    });
-
-                    closeModal();
-                };
-            }, 0);
+              `);
+              setTimeout(()=>{
+                const b = document.getElementById("imgErrClose");
+                if(b) b.onclick = closeModal;
+              },0);
+            }
+          };
         }
 
-        function openEventModal() {
-            ensureDraft();
-            const c = DRAFT.cover;
-
-            openModal("Modifica evento", `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo browser</label>
-                <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" placeholder="Es: Cena a Casa • 05 Gennaio" />
-              </div>
-
-              <div class="row">
-                <label>Titolo (prima parte)</label>
-                <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" placeholder="Es: Stasera a casa:" />
-              </div>
-
-              <div class="row">
-                <label>Titolo (parte oro)</label>
-                <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" placeholder="Es: cena da 3 stelle" />
-              </div>
-
-              <div class="row">
-                <label>Descrizione evento</label>
-                <textarea id="eHeroDesc" placeholder="Testo sotto il titolo...">${escapeXml(c.heroDesc || "")}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Benvenuto</label>
-                <textarea id="eToast" placeholder="Testo del benvenuto...">${escapeXml(c.toast || "")}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Orario</label>
-                <textarea id="eOrario" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaOrario || ""))}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Note</label>
-                <textarea id="eNote" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaNote || ""))}</textarea>
-              </div>
-
-              <p class="mini">
-                Suggerimento: per Orario/Note puoi andare a capo: verrà trasformato in <b>&lt;br/&gt;</b>.
-              </p>
-
-              <div class="right">
-                <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                <button class="btn ok" id="saveEvent" type="button">Conferma</button>
-              </div>
-            </div>
-          `);
-
-            setTimeout(() => {
-                const cancel = document.getElementById("cancelEvent");
-                const save = document.getElementById("saveEvent");
-                if (cancel) cancel.onclick = closeModal;
-
-                if (save) save.onclick = () => {
-                    const browserTitle = document.getElementById("eBrowserTitle").value.trim();
-                    const heroPrefix = document.getElementById("eHeroPrefix").value.trim();
-                    const heroGold = document.getElementById("eHeroGold").value.trim();
-                    const heroDesc = document.getElementById("eHeroDesc").value.trim();
-                    const toast = document.getElementById("eToast").value.trim();
-
-                    const orario = document.getElementById("eOrario").value;
-                    const note = document.getElementById("eNote").value;
-
-                    DRAFT.cover.browserTitle = browserTitle || "Menu della Serata • Casa Edition";
-                    DRAFT.cover.heroPrefix = heroPrefix || "";
-                    DRAFT.cover.heroGold = heroGold || "";
-                    DRAFT.cover.heroDesc = heroDesc || "";
-                    DRAFT.cover.toast = toast || "";
-
-                    DRAFT.cover.metaOrario = nlToBr(orario);
-                    DRAFT.cover.metaNote = nlToBr(note);
-
-                    setDirty(true);
-                    renderPublic(DRAFT, true);
-                    closeModal();
-                };
-            }, 0);
+        if(clearBtn){
+          clearBtn.onclick = ()=>{
+            modalImage = "";
+            previewImg.src = placeholderSvg(nameEl.value || "Piatto");
+            urlInput.value = "";
+            if(fileInput) fileInput.value = "";
+          };
         }
 
-        function showLogin() {
+        if(urlInput){
+          urlInput.addEventListener("input", ()=>{
+            const v = urlInput.value.trim();
+            if(v){
+              modalImage = v;
+              previewImg.src = v;
+            }else{
+              if(!modalImage || modalImage.startsWith("http")){
+                modalImage = "";
+                previewImg.src = placeholderSvg(nameEl.value || "Piatto");
+              }
+            }
+          });
+        }
+
+        if(nameEl){
+          nameEl.addEventListener("input", ()=>{
+            if(!modalImage){
+              previewImg.src = placeholderSvg(nameEl.value || "Piatto");
+            }
+          });
+        }
+
+        if(save) save.onclick = ()=>{
+          const name = document.getElementById("fName").value.trim();
+          const info = document.getElementById("fInfo").value.trim();
+          const url = (document.getElementById("fImgUrl").value || "").trim();
+
+          let finalImg = modalImage;
+          if(!finalImg && url) finalImg = url;
+
+          if(!allowEmptyName && !name){
+            nameEl.focus();
+            nameEl.style.borderColor = "rgba(255,91,107,.75)";
+            return;
+          }
+
+          onSave({
+            name: name || "(senza nome)",
+            info: info || "",
+            imageUrl: finalImg || ""
+          });
+
+          closeModal();
+        };
+      },0);
+    }
+
+    function openEventModal(){
+      ensureDraft();
+      const c = DRAFT.cover;
+
+      openModal("Modifica evento", `
+        <div class="panel">
+          <div class="row">
+            <label>Titolo browser</label>
+            <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" placeholder="Es: Cena a Casa • 05 Gennaio" />
+          </div>
+
+          <div class="row">
+            <label>Titolo (prima parte)</label>
+            <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" placeholder="Es: Stasera a casa:" />
+          </div>
+
+          <div class="row">
+            <label>Titolo (parte oro)</label>
+            <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" placeholder="Es: cena da 3 stelle" />
+          </div>
+
+          <div class="row">
+            <label>Descrizione evento</label>
+            <textarea id="eHeroDesc" placeholder="Testo sotto il titolo...">${escapeXml(c.heroDesc || "")}</textarea>
+          </div>
+
+          <div class="row">
+            <label>Benvenuto</label>
+            <textarea id="eToast" placeholder="Testo del benvenuto...">${escapeXml(c.toast || "")}</textarea>
+          </div>
+
+          <div class="row">
+            <label>Orario</label>
+            <textarea id="eOrario" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaOrario || ""))}</textarea>
+          </div>
+
+          <div class="row">
+            <label>Note</label>
+            <textarea id="eNote" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaNote || ""))}</textarea>
+          </div>
+
+          <p class="mini">
+            Suggerimento: per Orario/Note puoi andare a capo: verrà trasformato in <b>&lt;br/&gt;</b>.
+          </p>
+
+          <div class="right">
+            <button class="btn" id="cancelEvent" type="button">Annulla</button>
+            <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+          </div>
+        </div>
+      `);
+
+      setTimeout(()=>{
+        const cancel = document.getElementById("cancelEvent");
+        const save = document.getElementById("saveEvent");
+        if(cancel) cancel.onclick = closeModal;
+
+        if(save) save.onclick = ()=>{
+          const browserTitle = document.getElementById("eBrowserTitle").value.trim();
+          const heroPrefix = document.getElementById("eHeroPrefix").value.trim();
+          const heroGold = document.getElementById("eHeroGold").value.trim();
+          const heroDesc = document.getElementById("eHeroDesc").value.trim();
+          const toast = document.getElementById("eToast").value.trim();
+
+          const orario = document.getElementById("eOrario").value;
+          const note = document.getElementById("eNote").value;
+
+          DRAFT.cover.browserTitle = browserTitle || DEFAULT_DATA.cover.browserTitle;
+          DRAFT.cover.heroPrefix = heroPrefix || "";
+          DRAFT.cover.heroGold = heroGold || "";
+          DRAFT.cover.heroDesc = heroDesc || "";
+          DRAFT.cover.toast = toast || "";
+
+          DRAFT.cover.metaOrario = nlToBr(orario);
+          DRAFT.cover.metaNote = nlToBr(note);
+
+          setDirty(true);
+          renderPublic(DRAFT, true);
+          closeModal();
+        };
+      },0);
+    }
+
+    function showLogin(){
+      openModal("Login Admin", `
+        <div class="panel">
+          <div class="row">
+            <label>Username</label>
+            <input id="loginUser" type="text" placeholder="username" autocomplete="username" />
+          </div>
+          <div class="row">
+            <label>Password</label>
+            <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" />
+          </div>
+          <div class="right">
+            <button class="btn ok" id="doLogin" type="button">Accedi</button>
+          </div>
+          <p class="mini">
+            Cambia le credenziali nel codice: <b>ADMIN_USERNAME</b> e <b>ADMIN_PASSWORD</b>.
+          </p>
+        </div>
+      `);
+
+      setTimeout(()=>{
+        const btn = document.getElementById("doLogin");
+        const u = document.getElementById("loginUser");
+        const p = document.getElementById("loginPass");
+
+        function attempt(){
+          const uu = (u.value || "").trim();
+          const pp = (p.value || "").trim();
+          if(uu === ADMIN_USERNAME && pp === ADMIN_PASSWORD){
+            localStorage.setItem(SESSION_KEY, "1");
+            closeModal();
+            enterAdmin();
+          }else{
             openModal("Login Admin", `
-            <div class="panel">
-              <div class="row">
-                <label>Username</label>
-                <input id="loginUser" type="text" placeholder="username" autocomplete="username" />
+              <div class="panel">
+                <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                <p class="mini">Riprova.</p>
+                <div class="right">
+                  <button class="btn" id="retryLogin" type="button">Riprova</button>
+                </div>
               </div>
-              <div class="row">
-                <label>Password</label>
-                <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" />
-              </div>
-              <div class="right">
-                <button class="btn ok" id="doLogin" type="button">Accedi</button>
-              </div>
-              <p class="mini">
-                Cambia le credenziali nel codice: <b>ADMIN_USERNAME</b> e <b>ADMIN_PASSWORD</b>.
-              </p>
-            </div>
-          `);
-
-            setTimeout(() => {
-                const btn = document.getElementById("doLogin");
-                const u = document.getElementById("loginUser");
-                const p = document.getElementById("loginPass");
-
-                function attempt() {
-                    const uu = (u.value || "").trim();
-                    const pp = (p.value || "").trim();
-                    if (uu === ADMIN_USERNAME && pp === ADMIN_PASSWORD) {
-                        localStorage.setItem(SESSION_KEY, "1");
-                        closeModal();
-                        enterAdmin();
-                    } else {
-                        openModal("Login Admin", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                    <p class="mini">Riprova.</p>
-                    <div class="right">
-                      <button class="btn" id="retryLogin" type="button">Riprova</button>
-                    </div>
-                  </div>
-                `);
-                        setTimeout(() => {
-                            const r = document.getElementById("retryLogin");
-                            if (r) r.onclick = showLogin;
-                        }, 0);
-                    }
-                }
-
-                if (btn) btn.onclick = attempt;
-                if (p) {
-                    p.addEventListener("keydown", (e) => {
-                        if (e.key === "Enter") attempt();
-                    });
-                }
-            }, 0);
+            `);
+            setTimeout(()=>{
+              const r = document.getElementById("retryLogin");
+              if(r) r.onclick = showLogin;
+            },0);
+          }
         }
 
-        function enterAdmin() {
-            document.body.classList.add("admin");
-            $("logoutBtn").style.display = "inline-flex";
-            $("saveFloat").style.display = "flex";
-            $("editEventBtn").style.display = "inline-flex";
-
-            MENU = loadMenu();
-            DRAFT = deepClone(MENU);
-            setDirty(false);
-            renderPublic(DRAFT, true);
+        if(btn) btn.onclick = attempt;
+        if(p){
+          p.addEventListener("keydown", (e)=>{
+            if(e.key === "Enter") attempt();
+          });
         }
+      },0);
+    }
 
-        function exitAdmin() {
-            document.body.classList.remove("admin");
-            $("logoutBtn").style.display = "none";
-            $("saveFloat").style.display = "none";
-            $("editEventBtn").style.display = "none";
-            setDirty(false);
-            DRAFT = null;
-            MENU = loadMenu();
-            renderPublic(MENU, false);
+    function enterAdmin(){
+      document.body.classList.add("admin");
+      $("logoutBtn").style.display = "inline-flex";
+      $("saveFloat").style.display = "flex";
+      $("editEventBtn").style.display = "inline-flex";
+
+      // usa quello che è già caricato in MENU e crea una bozza
+      DRAFT = deepClone(MENU || loadMenuFromLocal());
+      setDirty(false);
+      renderPublic(DRAFT, true);
+    }
+
+    function exitAdmin(){
+      document.body.classList.remove("admin");
+      $("logoutBtn").style.display = "none";
+      $("saveFloat").style.display = "none";
+      $("editEventBtn").style.display = "none";
+      setDirty(false);
+      DRAFT = null;
+      renderPublic(MENU, false);
+    }
+
+    function route(){
+      const adminRoute = (location.hash || "").toLowerCase() === "#admin";
+      if(!adminRoute){
+        if(isAdmin()) exitAdmin();
+        else {
+          document.body.classList.remove("admin");
+          $("logoutBtn").style.display = "none";
+          $("saveFloat").style.display = "none";
+          $("editEventBtn").style.display = "none";
+          renderPublic(MENU, false);
         }
+        return;
+      }
 
-        function route() {
-            const adminRoute = (location.hash || "").toLowerCase() === "#admin";
-            if (!adminRoute) {
-                if (isAdmin()) exitAdmin();
-                else {
-                    document.body.classList.remove("admin");
-                    $("logoutBtn").style.display = "none";
-                    $("saveFloat").style.display = "none";
-                    $("editEventBtn").style.display = "none";
-                    MENU = loadMenu();
-                    renderPublic(MENU, false);
-                }
-                return;
-            }
+      if(isAdmin()){
+        enterAdmin();
+      }else{
+        renderPublic(MENU, false);
+        showLogin();
+      }
+    }
 
-            if (isAdmin()) {
-                enterAdmin();
-            } else {
-                MENU = loadMenu();
-                renderPublic(MENU, false);
-                showLogin();
-            }
+    /******************************************************************
+     * EXPORT JSON (download)
+     * Nota: non può salvare sul desktop automaticamente né sovrascrivere file.
+     ******************************************************************/
+    function downloadJsonFile(data, filename="menu-data.json"){
+      const dataStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.download = filename;
+      a.href = url;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(()=> URL.revokeObjectURL(url), 500);
+    }
+
+    function exportJson(){
+      if(!isAdmin() || !DRAFT) return;
+      downloadJsonFile(DRAFT, "menu-data.json");
+    }
+
+    function saveAll(){
+      if(!isAdmin() || !DRAFT) return;
+
+      // 1) salva cache locale (utile mentre lavori)
+      saveMenuToLocal(DRAFT);
+      MENU = deepClone(DRAFT);
+      setDirty(false);
+
+      // 2) ✅ genera automaticamente il file menu-data.json (download)
+      // (questo è il modo più vicino possibile al tuo “salva sul desktop”)
+      downloadJsonFile(DRAFT, "menu-data.json");
+
+      openModal("Salvato", `
+        <div class="panel">
+          <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+          <p class="mini">
+            Ho salvato e scaricato <b>menu-data.json</b>.<br/>
+            Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti (PC/telefono/QR).
+          </p>
+          <div class="right">
+            <button class="btn ok" id="okClose" type="button">Ok</button>
+          </div>
+        </div>
+      `);
+      setTimeout(()=>{
+        const b = document.getElementById("okClose");
+        if(b) b.onclick = closeModal;
+      },0);
+
+      renderPublic(DRAFT, true);
+    }
+
+    (async function init(){
+      const d = new Date();
+      const fmt = new Intl.DateTimeFormat('it-IT', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+      $("dateText").textContent = fmt.format(d);
+
+      $("toggleTheme").addEventListener("click", ()=> document.body.classList.toggle("light"));
+      $("printBtn").addEventListener("click", ()=> window.print());
+
+      $("modalClose").addEventListener("click", closeModal);
+
+      // Non chiudere cliccando sullo sfondo (evita perdere modifiche)
+      $("modalBack").addEventListener("click", (e)=>{});
+
+      $("adminBtn").addEventListener("click", ()=>{
+        location.hash = "#admin";
+        route();
+      });
+
+      $("logoutBtn").addEventListener("click", ()=>{
+        logout();
+        location.hash = "";
+        exitAdmin();
+      });
+
+      $("saveAllBtn").addEventListener("click", saveAll);
+      $("exportBtn").addEventListener("click", exportJson);
+
+      $("editEventBtn").addEventListener("click", ()=>{
+        if(!isAdmin()) return;
+        openEventModal();
+      });
+
+      // ✅ Qui carico PRIMA il file menu-data.json dal sito.
+      // Se non esiste ancora (prima volta), fallback al local.
+      MENU = await loadMenuAsync();
+      renderPublic(MENU, false);
+
+      window.addEventListener("hashchange", route);
+      route();
+
+      window.addEventListener("beforeunload", (e)=>{
+        if(isAdmin() && DIRTY){
+          e.preventDefault();
+          e.returnValue = "";
         }
-
-        function saveAll() {
-            if (!isAdmin() || !DRAFT) return;
-
-            saveMenu(DRAFT);
-            MENU = loadMenu();
-            DRAFT = deepClone(MENU);
-            setDirty(false);
-
-            openModal("Salvato", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-              <p class="mini">Menu salvato. Ora chiunque scansiona il QR vede le modifiche.</p>
-              <div class="right">
-                <button class="btn ok" id="okClose" type="button">Ok</button>
-              </div>
-            </div>
-          `);
-            setTimeout(() => {
-                const b = document.getElementById("okClose");
-                if (b) b.onclick = closeModal;
-            }, 0);
-
-            renderPublic(DRAFT, true);
-        }
-
-        (function init() {
-            const d = new Date();
-            const fmt = new Intl.DateTimeFormat('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-            $("dateText").textContent = fmt.format(d);
-
-            $("toggleTheme").addEventListener("click", () => document.body.classList.toggle("light"));
-            $("printBtn").addEventListener("click", () => window.print());
-
-            $("modalClose").addEventListener("click", closeModal);
-
-            // Non chiudere cliccando sullo sfondo: evita perdere modifiche
-            $("modalBack").addEventListener("click", (e) => { });
-
-            $("adminBtn").addEventListener("click", () => {
-                location.hash = "#admin";
-                route();
-            });
-
-            $("logoutBtn").addEventListener("click", () => {
-                logout();
-                location.hash = "";
-                exitAdmin();
-            });
-
-            $("saveAllBtn").addEventListener("click", saveAll);
-
-            $("editEventBtn").addEventListener("click", () => {
-                if (!isAdmin()) return;
-                openEventModal();
-            });
-
-            MENU = loadMenu();
-            renderPublic(MENU, false);
-
-            window.addEventListener("hashchange", route);
-            route();
-
-            window.addEventListener("beforeunload", (e) => {
-                if (isAdmin() && DIRTY) {
-                    e.preventDefault();
-                    e.returnValue = "";
-                }
-            });
-        })();
+      });
+    })();
     </script>
 </body>
 </html>
