@@ -649,6 +649,30 @@
             min-height: 260px;
         }
 
+        /* ✅ Ghost che segue il mouse */
+        .dragGhost {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transform: translate3d(0,0,0);
+            filter: drop-shadow(0 18px 50px rgba(0,0,0,.55));
+            opacity: .92;
+        }
+
+        /* ✅ Indicatore drop STABILE (senza reflow): linea prima/dopo la card target */
+        .card.drop-before::before,
+        .card.drop-after::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(246,211,101,.2), rgba(246,211,101,.95), rgba(246,211,101,.2));
+            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25);
+            pointer-events: none;
+        }
+
         @media (max-width: 980px) {
             .dropMarker {
                 grid-column: span 6;
@@ -1244,7 +1268,7 @@
                 localStorage.setItem(MENU_KEY, JSON.stringify(data));
                 return true;
             } catch (err) {
-                console.warn("LocalStorage pieno/non disponibile:", err);
+                // Quota piena? ok, semplicemente non salviamo in cache e basta.
                 return false;
             }
         }
@@ -1287,10 +1311,13 @@
                     const txt = await res.text();
                     const data = JSON.parse(txt);
                     const norm = normalizeMenuData(data);
-                    saveMenuToLocal(norm);
+
+                    // ✅ Non cacheiamo più il menu in localStorage: GitHub è la fonte vera
                     return norm;
                 }
             } catch (e) { }
+
+            // fallback: se non c'è il json remoto, prova localStorage, altrimenti default
             return loadMenuFromLocal();
         }
 
@@ -1301,130 +1328,247 @@
         function logout() { localStorage.removeItem(SESSION_KEY); }
 
         /******************************************************************
-         * DRAG & DROP (riordino schede)
-         ******************************************************************/
-        let DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
+ * DRAG (pointer) — STABILE (niente marker nel layout)
+ ******************************************************************/
+        let DRAG = {
+            active: false,
+            sectionKey: null,
+            gridEl: null,
+            cardEl: null,
+            placeholderEl: null,
+            ghostEl: null,
+            pointerId: null,
+            offsetX: 0,
+            offsetY: 0,
+            targetCard: null,
+            insertAfter: false,
+            raf: 0
+        };
 
-        function getCardUnderPointer(x, y) {
-            const el = document.elementFromPoint(x, y);
-            if (!el) return null;
-            return el.closest?.(".card") || null;
+        function clearDropHints(grid) {
+            if (!grid) return;
+            grid.querySelectorAll(".card.drop-before, .card.drop-after").forEach(el => {
+                el.classList.remove("drop-before", "drop-after");
+            });
         }
 
-        function ensureMarker(grid, refHeight = 260) {
-            if (DRAG.markerEl && DRAG.markerEl.parentElement === grid) return DRAG.markerEl;
+        function cleanupDrag() {
+            if (DRAG.raf) cancelAnimationFrame(DRAG.raf);
+            DRAG.raf = 0;
 
-            if (DRAG.markerEl && DRAG.markerEl.parentElement) {
-                DRAG.markerEl.parentElement.removeChild(DRAG.markerEl);
-            }
+            if (DRAG.gridEl) clearDropHints(DRAG.gridEl);
 
-            const m = document.createElement("div");
-            m.className = "dropMarker";
-            m.style.minHeight = refHeight + "px";
-            DRAG.markerEl = m;
-            grid.appendChild(m);
-            return m;
+            if (DRAG.cardEl) DRAG.cardEl.style.display = "";
+
+            if (DRAG.placeholderEl?.parentElement) DRAG.placeholderEl.parentElement.removeChild(DRAG.placeholderEl);
+            if (DRAG.ghostEl?.parentElement) DRAG.ghostEl.parentElement.removeChild(DRAG.ghostEl);
+
+            window.removeEventListener("pointermove", onPointerMove, { passive: false });
+            window.removeEventListener("pointerup", onPointerUp, { passive: false });
+            window.removeEventListener("pointercancel", onPointerCancel, { passive: false });
+
+            document.body.style.userSelect = "";
+
+            DRAG = {
+                active: false,
+                sectionKey: null,
+                gridEl: null,
+                cardEl: null,
+                placeholderEl: null,
+                ghostEl: null,
+                pointerId: null,
+                offsetX: 0,
+                offsetY: 0,
+                targetCard: null,
+                insertAfter: false,
+                raf: 0
+            };
         }
 
-        function removeMarker() {
-            if (DRAG.markerEl && DRAG.markerEl.parentElement) {
-                DRAG.markerEl.parentElement.removeChild(DRAG.markerEl);
+        function positionGhost(clientX, clientY) {
+            if (!DRAG.ghostEl) return;
+            const x = clientX - DRAG.offsetX;
+            const y = clientY - DRAG.offsetY;
+            DRAG.ghostEl.style.left = x + "px";
+            DRAG.ghostEl.style.top = y + "px";
+        }
+
+        function pickTargetFromPointer(clientX, clientY) {
+            const grid = DRAG.gridEl;
+            if (!grid) return { card: null, after: false };
+
+            const cards = [...grid.querySelectorAll(".card")].filter(c => c.style.display !== "none");
+            if (cards.length === 0) return { card: null, after: false };
+
+            let best = null;
+            let bestDist = Infinity;
+
+            for (const c of cards) {
+                const r = c.getBoundingClientRect();
+                const cx = r.left + r.width / 2;
+                const cy = r.top + r.height / 2;
+                const dx = clientX - cx;
+                const dy = clientY - cy;
+                const d = dx * dx + dy * dy;
+                if (d < bestDist) { bestDist = d; best = { el: c, rect: r }; }
             }
-            DRAG.markerEl = null;
-            DRAG.lastKey = null;
+
+            if (!best) return { card: null, after: false };
+
+            const r = best.rect;
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+
+            // Regola robusta:
+            // - se sei abbastanza “sulla stessa riga” -> decide X
+            // - altrimenti decide Y
+            const sameRow = Math.abs(clientY - cy) < r.height * 0.35;
+            const after = sameRow ? (clientX > cx) : (clientY > cy);
+
+            return { card: best.el, after };
+        }
+
+        function applyDropHint(card, after) {
+            if (!DRAG.gridEl) return;
+
+            // pulisco hint precedente SOLO se serve
+            if (DRAG.targetCard && DRAG.targetCard !== card) {
+                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            } else if (DRAG.targetCard === card) {
+                // se stessa card ma cambia after/before
+                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            } else {
+                // nessun target precedente -> ok
+            }
+
+            DRAG.targetCard = card;
+            DRAG.insertAfter = !!after;
+
+            if (card) {
+                card.classList.toggle("drop-after", !!after);
+                card.classList.toggle("drop-before", !after);
+            }
+        }
+
+        function startDragFromHandle(handleEl, e) {
+            const card = handleEl.closest(".card");
+            if (!card) return;
+
+            const sec = card.getAttribute("data-sec");
+            const grid = card.closest(".grid[data-section]");
+            if (!sec || !grid) return;
+
+            if (!document.body.classList.contains("admin")) return;
+
+            e.preventDefault();
+
+            DRAG.active = true;
+            DRAG.sectionKey = sec;
+            DRAG.gridEl = grid;
+            DRAG.cardEl = card;
+            DRAG.pointerId = e.pointerId;
+
+            document.body.style.userSelect = "none";
+
+            // placeholder nello spazio originale
+            const ph = document.createElement("div");
+            ph.className = "dragPlaceholder";
+            ph.style.minHeight = (card.offsetHeight || 260) + "px";
+            grid.insertBefore(ph, card);
+            DRAG.placeholderEl = ph;
+
+            // nascondo la card vera
+            card.style.display = "none";
+
+            // ghost
+            const ghost = card.cloneNode(true);
+            ghost.classList.add("dragGhost");
+            ghost.style.width = (ph.getBoundingClientRect().width || 320) + "px";
+            document.body.appendChild(ghost);
+            DRAG.ghostEl = ghost;
+
+            // offset (prendo dal placeholder: evita salti)
+            const r = ph.getBoundingClientRect();
+            DRAG.offsetX = e.clientX - r.left;
+            DRAG.offsetY = e.clientY - r.top;
+
+            positionGhost(e.clientX, e.clientY);
+
+            try { handleEl.setPointerCapture(e.pointerId); } catch { }
+
+            // prima valutazione target
+            const t = pickTargetFromPointer(e.clientX, e.clientY);
+            applyDropHint(t.card, t.after);
+
+            window.addEventListener("pointermove", onPointerMove, { passive: false });
+            window.addEventListener("pointerup", onPointerUp, { passive: false });
+            window.addEventListener("pointercancel", onPointerCancel, { passive: false });
+        }
+
+        function onPointerMove(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            positionGhost(e.clientX, e.clientY);
+
+            if (DRAG.raf) return;
+            DRAG.raf = requestAnimationFrame(() => {
+                DRAG.raf = 0;
+                const t = pickTargetFromPointer(e.clientX, e.clientY);
+
+                // Se il target è il placeholder (non lo è mai, perché placeholder non è .card)
+                // o se non cambia nulla, applyDropHint gestisce la pulizia.
+                applyDropHint(t.card, t.after);
+            });
+        }
+
+        function onPointerUp(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            const grid = DRAG.gridEl;
+            const card = DRAG.cardEl;
+            const ph = DRAG.placeholderEl;
+            const target = DRAG.targetCard;
+            const after = DRAG.insertAfter;
+
+            if (grid && card) {
+                // rimetto visibile
+                card.style.display = "";
+
+                // rimuovo hint
+                clearDropHints(grid);
+
+                // Inserimento:
+                // - se ho un target, inserisco prima/dopo quel target
+                // - altrimenti metto in fondo
+                if (target && grid.contains(target)) {
+                    if (after) grid.insertBefore(card, target.nextSibling);
+                    else grid.insertBefore(card, target);
+                } else {
+                    grid.appendChild(card);
+                }
+
+                // tolgo placeholder
+                if (ph?.parentElement) ph.parentElement.removeChild(ph);
+
+                // commit ordine (aggiorna DRAFT + re-render con idx coerenti)
+                commitOrderFromDom(DRAG.sectionKey, grid);
+            }
+
+            cleanupDrag();
+        }
+
+        function onPointerCancel(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            cleanupDrag();
         }
 
         function attachDnDHandlers() {
             document.querySelectorAll("[data-drag-handle]").forEach(h => {
-                h.setAttribute("draggable", "true");
-
-                h.addEventListener("dragstart", (e) => {
-                    const card = h.closest(".card");
-                    if (!card) return;
-
-                    const sec = card.getAttribute("data-sec");
-                    const id = card.getAttribute("data-id");
-                    if (!sec || !id) return;
-
-                    DRAG.sec = sec;
-                    DRAG.itemId = id;
-                    DRAG.cardEl = card;
-
-                    card.classList.add("dragging");
-
-                    try {
-                        e.dataTransfer.effectAllowed = "move";
-                        e.dataTransfer.setData("text/plain", `${sec}:${id}`);
-
-                        const ghost = card.cloneNode(true);
-                        ghost.style.position = "fixed";
-                        ghost.style.top = "-9999px";
-                        ghost.style.left = "-9999px";
-                        ghost.style.width = card.offsetWidth + "px";
-                        document.body.appendChild(ghost);
-                        e.dataTransfer.setDragImage(ghost, 20, 20);
-                        setTimeout(() => ghost.remove(), 0);
-                    } catch (err) { }
-                });
-
-                h.addEventListener("dragend", () => {
-                    if (DRAG.cardEl) DRAG.cardEl.classList.remove("dragging");
-                    removeMarker();
-                    DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
-                });
-            });
-
-            document.querySelectorAll(".grid[data-section]").forEach(grid => {
-                grid.addEventListener("dragover", (e) => {
-                    if (!DRAG.cardEl) return;
-
-                    const sec = grid.getAttribute("data-section");
-                    if (sec !== DRAG.sec) return;
-
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = "move";
-
-                    const under = getCardUnderPointer(e.clientX, e.clientY);
-                    const marker = ensureMarker(grid, DRAG.cardEl.offsetHeight || 260);
-
-                    if (!under || !grid.contains(under) || under.classList.contains("dragging")) {
-                        const key = "END";
-                        if (DRAG.lastKey !== key) {
-                            DRAG.lastKey = key;
-                            grid.appendChild(marker);
-                        }
-                        return;
-                    }
-
-                    const r = under.getBoundingClientRect();
-                    const before = (e.clientY < (r.top + r.height / 2));
-
-                    const key = `${under.getAttribute("data-id") || ""}:${before ? "B" : "A"}`;
-                    if (DRAG.lastKey === key) return;
-                    DRAG.lastKey = key;
-
-                    if (before) grid.insertBefore(marker, under);
-                    else grid.insertBefore(marker, under.nextSibling);
-                });
-
-                grid.addEventListener("drop", (e) => {
-                    if (!DRAG.cardEl) return;
-
-                    const sec = grid.getAttribute("data-section");
-                    if (sec !== DRAG.sec) return;
-
-                    e.preventDefault();
-
-                    if (DRAG.markerEl && DRAG.markerEl.parentElement === grid) {
-                        grid.insertBefore(DRAG.cardEl, DRAG.markerEl);
-                    }
-
-                    removeMarker();
-                    commitOrderFromDom(sec, grid);
-
-                    if (DRAG.cardEl) DRAG.cardEl.classList.remove("dragging");
-                    DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
-                });
+                if (h.__hasDrag) return;
+                h.__hasDrag = true;
+                h.addEventListener("pointerdown", (e) => startDragFromHandle(h, e), { passive: false });
             });
         }
 
@@ -1985,26 +2129,23 @@
                 downloadJsonFile(DRAFT, "menu-data.json");
 
                 // 2) cache locale (non obbligatoria)
-                const okLocal = saveMenuToLocal(DRAFT);
-
                 MENU = deepClone(DRAFT);
                 setDirty(false);
 
                 openModal("Salvato", `
-                            <div class="panel">
-                              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-                              <p class="mini">
-                                Ho scaricato <b>menu-data.json</b>.<br/>
-                                ${okLocal ? `Cache locale aggiornata.` : `<span style="color: rgba(255,91,107,.9);">Cache locale non aggiornata (spazio browser pieno/non disponibile).</span>`}
-                                <br/><br/>
-                                Ricorda: se hai scelto un file immagine, nel JSON c’è scritto tipo <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
-                                quindi devi avere davvero quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
-                              </p>
-                              <div class="right">
-                                <button class="btn ok" id="okClose" type="button">Ok</button>
-                              </div>
-                            </div>
-                        `);
+              <div class="panel">
+                   <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                <p class="mini">
+                 Ho scaricato <b>menu-data.json</b>.<br/><br/>
+                  Ricorda: se hai scelto un file immagine, nel JSON c’è scritto tipo <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
+                  quindi devi avere davvero quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
+                </p>
+                <div class="right">
+                  <button class="btn ok" id="okClose" type="button">Ok</button>
+                </div>
+              </div>
+            `);
+
 
                 setTimeout(() => {
                     const b = document.getElementById("okClose");
