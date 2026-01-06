@@ -530,7 +530,7 @@
             background: rgba(0,0,0,.04);
         }
 
-        /* ✅ Immagini: niente tagli */
+        /* Immagini: niente tagli */
         .img {
             height: 230px;
             background: rgba(0,0,0,.20);
@@ -601,7 +601,6 @@
         .dragBtn {
             font-size: 18px;
             cursor: grab;
-            touch-action: none;
         }
 
             .dragBtn:active {
@@ -636,62 +635,30 @@
             color: rgba(0,0,0,.85);
         }
 
-        /* ✅ Placeholder nello spazio originale */
-        .dragPlaceholder {
+        /* durante drag: la card rimane nel layout ma invisibile */
+        .card.dragging {
+            opacity: 0;
+        }
+
+        /* Placeholder che indica dove verrà depositata la card */
+        .dropMarker {
             grid-column: span 4;
             border-radius: var(--radius);
-            border: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.03);
+            border: 2px dashed rgba(246,211,101,.55);
+            background: rgba(202,162,74,.08);
             min-height: 260px;
         }
 
-        body.light .dragPlaceholder {
-            border-color: rgba(0,0,0,.10);
-            background: rgba(0,0,0,.03);
-        }
-
         @media (max-width: 980px) {
-            .dragPlaceholder {
+            .dropMarker {
                 grid-column: span 6;
             }
         }
 
         @media (max-width: 560px) {
-            .dragPlaceholder {
+            .dropMarker {
                 grid-column: span 1;
             }
-        }
-
-        /* ✅ Ghost che segue il mouse */
-        .dragGhost {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
-            transform: translate3d(0,0,0);
-            filter: drop-shadow(0 18px 50px rgba(0,0,0,.55));
-            opacity: .92;
-        }
-
-        /* ✅ Indicatore drop STABILE (senza reflow): linea prima/dopo la card target */
-        .card.drop-before::before,
-        .card.drop-after::after {
-            content: "";
-            position: absolute;
-            left: 10px;
-            right: 10px;
-            height: 4px;
-            border-radius: 999px;
-            background: linear-gradient(90deg, rgba(246,211,101,.2), rgba(246,211,101,.95), rgba(246,211,101,.2));
-            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25);
-            pointer-events: none;
-        }
-
-        .card.drop-before::before {
-            top: 10px;
-        }
-
-        .card.drop-after::after {
-            bottom: 10px;
         }
 
         .content {
@@ -704,12 +671,14 @@
             letter-spacing: -0.01em;
         }
 
+        /* FIX a-capo: usa CSS */
         .info {
             margin: 8px 0 0;
             color: rgba(255,255,255,.72);
             font-size: 12px;
             line-height: 1.55;
-            white-space: normal;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
         body.light .info {
@@ -1099,8 +1068,11 @@
 
         const REMOTE_DATA_FILE = "menu-data.json";
 
-        const SESSION_KEY = "menu_admin_session_v11";
-        const MENU_KEY = "menu_data_v11_localcache";
+        const SESSION_KEY = "menu_admin_session_v12";
+        const MENU_KEY = "menu_data_v12_localcache";
+
+        // ✅ cartella immagini (come la vuoi tu)
+        const IMAGES_FOLDER = "immage/"; // <-- crea questa cartella nella repo
 
         let MENU = null;
         let DRAFT = null;
@@ -1117,12 +1089,9 @@
                 .replaceAll("'", "&#39;");
         }
 
-        function escapeXmlKeepBreaks(s) {
-            const safe = escapeXml(String(s ?? ""));
-            return safe.replace(/\r\n/g, "\n").replace(/\n/g, "<br/>");
+        function safeParseJson(txt) {
+            try { return JSON.parse(txt); } catch { return null; }
         }
-
-        function safeParseJson(txt) { try { return JSON.parse(txt); } catch { return null; } }
         function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
         function setDirty(v) {
@@ -1172,61 +1141,42 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-                <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-                  <defs>
-                    <linearGradient id="g" x1="0" x2="1">
-                      <stop offset="0" stop-color="%2307070a"/>
-                      <stop offset="1" stop-color="%23151622"/>
-                    </linearGradient>
-                    <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                      <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                      <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-                    </radialGradient>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(%23g)"/>
-                  <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-                  <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-                  <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-                  <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-                </svg>`;
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+                      <defs>
+                        <linearGradient id="g" x1="0" x2="1">
+                          <stop offset="0" stop-color="%2307070a"/>
+                          <stop offset="1" stop-color="%23151622"/>
+                        </linearGradient>
+                        <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                          <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                          <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+                        </radialGradient>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(%23g)"/>
+                      <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+                      <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+                      <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+                      <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+                    </svg>`;
         }
 
-        function fileToDataUrl(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(String(reader.result || ""));
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function downscaleDataUrl(dataUrl, maxSide = 1400, quality = 0.86) {
-            if (!dataUrl.startsWith("data:image/")) return dataUrl;
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const w = img.width, h = img.height;
-                    const scale = Math.min(1, maxSide / Math.max(w, h));
-                    if (scale >= 1) { resolve(dataUrl); return; }
-                    const canvas = document.createElement("canvas");
-                    canvas.width = Math.round(w * scale);
-                    canvas.height = Math.round(h * scale);
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const out = canvas.toDataURL("image/jpeg", quality);
-                    resolve(out);
-                };
-                img.onerror = () => resolve(dataUrl);
-                img.src = dataUrl;
-            });
+        // ✅ Normalizza URL immagini:
+        // - data:/http(s)/blob => ok
+        // - altrimenti => trattalo come path relativo (es: immage/coca.jpg)
+        function resolveImageSrc(imageUrl, fallbackTitle) {
+            const v = String(imageUrl || "").trim();
+            if (!v) return placeholderSvg(fallbackTitle || "Piatto");
+            if (v.startsWith("data:image/") || v.startsWith("http://") || v.startsWith("https://") || v.startsWith("blob:")) return v;
+            return v; // relativo (es: immage/xxx.jpg)
         }
 
         /******************************************************************
-         * ID UTILS
+         * ID UTILS (per riordinare le schede)
          ******************************************************************/
         function genId() {
-            try { if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID(); }
-            catch (e) { }
+            try {
+                if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+            } catch (e) { }
             return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
         }
 
@@ -1234,7 +1184,9 @@
             if (!menu || !menu.itemsBySection) return;
             for (const key of Object.keys(menu.itemsBySection)) {
                 const arr = Array.isArray(menu.itemsBySection[key]) ? menu.itemsBySection[key] : [];
-                for (const it of arr) if (!it.id) it.id = genId();
+                for (const it of arr) {
+                    if (!it.id) it.id = genId();
+                }
             }
         }
 
@@ -1286,7 +1238,16 @@
         /******************************************************************
          * STORAGE + REMOTE LOADING
          ******************************************************************/
-        function saveMenuToLocal(data) { localStorage.setItem(MENU_KEY, JSON.stringify(data)); }
+        // ✅ Soluzione A: non esplode più se localStorage è pieno
+        function saveMenuToLocal(data) {
+            try {
+                localStorage.setItem(MENU_KEY, JSON.stringify(data));
+                return true;
+            } catch (err) {
+                console.warn("LocalStorage pieno/non disponibile:", err);
+                return false;
+            }
+        }
 
         function normalizeMenuData(parsed) {
             if (!parsed || typeof parsed !== "object") return deepClone(DEFAULT_DATA);
@@ -1340,247 +1301,130 @@
         function logout() { localStorage.removeItem(SESSION_KEY); }
 
         /******************************************************************
-         * DRAG (pointer) — STABILE (niente marker nel layout)
+         * DRAG & DROP (riordino schede)
          ******************************************************************/
-        let DRAG = {
-            active: false,
-            sectionKey: null,
-            gridEl: null,
-            cardEl: null,
-            placeholderEl: null,
-            ghostEl: null,
-            pointerId: null,
-            offsetX: 0,
-            offsetY: 0,
-            targetCard: null,
-            insertAfter: false,
-            raf: 0
-        };
+        let DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
 
-        function clearDropHints(grid) {
-            if (!grid) return;
-            grid.querySelectorAll(".card.drop-before, .card.drop-after").forEach(el => {
-                el.classList.remove("drop-before", "drop-after");
-            });
+        function getCardUnderPointer(x, y) {
+            const el = document.elementFromPoint(x, y);
+            if (!el) return null;
+            return el.closest?.(".card") || null;
         }
 
-        function cleanupDrag() {
-            if (DRAG.raf) cancelAnimationFrame(DRAG.raf);
-            DRAG.raf = 0;
+        function ensureMarker(grid, refHeight = 260) {
+            if (DRAG.markerEl && DRAG.markerEl.parentElement === grid) return DRAG.markerEl;
 
-            if (DRAG.gridEl) clearDropHints(DRAG.gridEl);
-
-            if (DRAG.cardEl) DRAG.cardEl.style.display = "";
-
-            if (DRAG.placeholderEl?.parentElement) DRAG.placeholderEl.parentElement.removeChild(DRAG.placeholderEl);
-            if (DRAG.ghostEl?.parentElement) DRAG.ghostEl.parentElement.removeChild(DRAG.ghostEl);
-
-            window.removeEventListener("pointermove", onPointerMove, { passive: false });
-            window.removeEventListener("pointerup", onPointerUp, { passive: false });
-            window.removeEventListener("pointercancel", onPointerCancel, { passive: false });
-
-            document.body.style.userSelect = "";
-
-            DRAG = {
-                active: false,
-                sectionKey: null,
-                gridEl: null,
-                cardEl: null,
-                placeholderEl: null,
-                ghostEl: null,
-                pointerId: null,
-                offsetX: 0,
-                offsetY: 0,
-                targetCard: null,
-                insertAfter: false,
-                raf: 0
-            };
-        }
-
-        function positionGhost(clientX, clientY) {
-            if (!DRAG.ghostEl) return;
-            const x = clientX - DRAG.offsetX;
-            const y = clientY - DRAG.offsetY;
-            DRAG.ghostEl.style.left = x + "px";
-            DRAG.ghostEl.style.top = y + "px";
-        }
-
-        function pickTargetFromPointer(clientX, clientY) {
-            const grid = DRAG.gridEl;
-            if (!grid) return { card: null, after: false };
-
-            const cards = [...grid.querySelectorAll(".card")].filter(c => c.style.display !== "none");
-            if (cards.length === 0) return { card: null, after: false };
-
-            let best = null;
-            let bestDist = Infinity;
-
-            for (const c of cards) {
-                const r = c.getBoundingClientRect();
-                const cx = r.left + r.width / 2;
-                const cy = r.top + r.height / 2;
-                const dx = clientX - cx;
-                const dy = clientY - cy;
-                const d = dx * dx + dy * dy;
-                if (d < bestDist) { bestDist = d; best = { el: c, rect: r }; }
+            if (DRAG.markerEl && DRAG.markerEl.parentElement) {
+                DRAG.markerEl.parentElement.removeChild(DRAG.markerEl);
             }
 
-            if (!best) return { card: null, after: false };
-
-            const r = best.rect;
-            const cx = r.left + r.width / 2;
-            const cy = r.top + r.height / 2;
-
-            // Regola robusta:
-            // - se sei abbastanza “sulla stessa riga” -> decide X
-            // - altrimenti decide Y
-            const sameRow = Math.abs(clientY - cy) < r.height * 0.35;
-            const after = sameRow ? (clientX > cx) : (clientY > cy);
-
-            return { card: best.el, after };
+            const m = document.createElement("div");
+            m.className = "dropMarker";
+            m.style.minHeight = refHeight + "px";
+            DRAG.markerEl = m;
+            grid.appendChild(m);
+            return m;
         }
 
-        function applyDropHint(card, after) {
-            if (!DRAG.gridEl) return;
-
-            // pulisco hint precedente SOLO se serve
-            if (DRAG.targetCard && DRAG.targetCard !== card) {
-                DRAG.targetCard.classList.remove("drop-before", "drop-after");
-            } else if (DRAG.targetCard === card) {
-                // se stessa card ma cambia after/before
-                DRAG.targetCard.classList.remove("drop-before", "drop-after");
-            } else {
-                // nessun target precedente -> ok
+        function removeMarker() {
+            if (DRAG.markerEl && DRAG.markerEl.parentElement) {
+                DRAG.markerEl.parentElement.removeChild(DRAG.markerEl);
             }
-
-            DRAG.targetCard = card;
-            DRAG.insertAfter = !!after;
-
-            if (card) {
-                card.classList.toggle("drop-after", !!after);
-                card.classList.toggle("drop-before", !after);
-            }
-        }
-
-        function startDragFromHandle(handleEl, e) {
-            const card = handleEl.closest(".card");
-            if (!card) return;
-
-            const sec = card.getAttribute("data-sec");
-            const grid = card.closest(".grid[data-section]");
-            if (!sec || !grid) return;
-
-            if (!document.body.classList.contains("admin")) return;
-
-            e.preventDefault();
-
-            DRAG.active = true;
-            DRAG.sectionKey = sec;
-            DRAG.gridEl = grid;
-            DRAG.cardEl = card;
-            DRAG.pointerId = e.pointerId;
-
-            document.body.style.userSelect = "none";
-
-            // placeholder nello spazio originale
-            const ph = document.createElement("div");
-            ph.className = "dragPlaceholder";
-            ph.style.minHeight = (card.offsetHeight || 260) + "px";
-            grid.insertBefore(ph, card);
-            DRAG.placeholderEl = ph;
-
-            // nascondo la card vera
-            card.style.display = "none";
-
-            // ghost
-            const ghost = card.cloneNode(true);
-            ghost.classList.add("dragGhost");
-            ghost.style.width = (ph.getBoundingClientRect().width || 320) + "px";
-            document.body.appendChild(ghost);
-            DRAG.ghostEl = ghost;
-
-            // offset (prendo dal placeholder: evita salti)
-            const r = ph.getBoundingClientRect();
-            DRAG.offsetX = e.clientX - r.left;
-            DRAG.offsetY = e.clientY - r.top;
-
-            positionGhost(e.clientX, e.clientY);
-
-            try { handleEl.setPointerCapture(e.pointerId); } catch { }
-
-            // prima valutazione target
-            const t = pickTargetFromPointer(e.clientX, e.clientY);
-            applyDropHint(t.card, t.after);
-
-            window.addEventListener("pointermove", onPointerMove, { passive: false });
-            window.addEventListener("pointerup", onPointerUp, { passive: false });
-            window.addEventListener("pointercancel", onPointerCancel, { passive: false });
-        }
-
-        function onPointerMove(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            e.preventDefault();
-
-            positionGhost(e.clientX, e.clientY);
-
-            if (DRAG.raf) return;
-            DRAG.raf = requestAnimationFrame(() => {
-                DRAG.raf = 0;
-                const t = pickTargetFromPointer(e.clientX, e.clientY);
-
-                // Se il target è il placeholder (non lo è mai, perché placeholder non è .card)
-                // o se non cambia nulla, applyDropHint gestisce la pulizia.
-                applyDropHint(t.card, t.after);
-            });
-        }
-
-        function onPointerUp(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            e.preventDefault();
-
-            const grid = DRAG.gridEl;
-            const card = DRAG.cardEl;
-            const ph = DRAG.placeholderEl;
-            const target = DRAG.targetCard;
-            const after = DRAG.insertAfter;
-
-            if (grid && card) {
-                // rimetto visibile
-                card.style.display = "";
-
-                // rimuovo hint
-                clearDropHints(grid);
-
-                // Inserimento:
-                // - se ho un target, inserisco prima/dopo quel target
-                // - altrimenti metto in fondo
-                if (target && grid.contains(target)) {
-                    if (after) grid.insertBefore(card, target.nextSibling);
-                    else grid.insertBefore(card, target);
-                } else {
-                    grid.appendChild(card);
-                }
-
-                // tolgo placeholder
-                if (ph?.parentElement) ph.parentElement.removeChild(ph);
-
-                // commit ordine (aggiorna DRAFT + re-render con idx coerenti)
-                commitOrderFromDom(DRAG.sectionKey, grid);
-            }
-
-            cleanupDrag();
-        }
-
-        function onPointerCancel(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            cleanupDrag();
+            DRAG.markerEl = null;
+            DRAG.lastKey = null;
         }
 
         function attachDnDHandlers() {
             document.querySelectorAll("[data-drag-handle]").forEach(h => {
-                if (h.__hasDrag) return;
-                h.__hasDrag = true;
-                h.addEventListener("pointerdown", (e) => startDragFromHandle(h, e), { passive: false });
+                h.setAttribute("draggable", "true");
+
+                h.addEventListener("dragstart", (e) => {
+                    const card = h.closest(".card");
+                    if (!card) return;
+
+                    const sec = card.getAttribute("data-sec");
+                    const id = card.getAttribute("data-id");
+                    if (!sec || !id) return;
+
+                    DRAG.sec = sec;
+                    DRAG.itemId = id;
+                    DRAG.cardEl = card;
+
+                    card.classList.add("dragging");
+
+                    try {
+                        e.dataTransfer.effectAllowed = "move";
+                        e.dataTransfer.setData("text/plain", `${sec}:${id}`);
+
+                        const ghost = card.cloneNode(true);
+                        ghost.style.position = "fixed";
+                        ghost.style.top = "-9999px";
+                        ghost.style.left = "-9999px";
+                        ghost.style.width = card.offsetWidth + "px";
+                        document.body.appendChild(ghost);
+                        e.dataTransfer.setDragImage(ghost, 20, 20);
+                        setTimeout(() => ghost.remove(), 0);
+                    } catch (err) { }
+                });
+
+                h.addEventListener("dragend", () => {
+                    if (DRAG.cardEl) DRAG.cardEl.classList.remove("dragging");
+                    removeMarker();
+                    DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
+                });
+            });
+
+            document.querySelectorAll(".grid[data-section]").forEach(grid => {
+                grid.addEventListener("dragover", (e) => {
+                    if (!DRAG.cardEl) return;
+
+                    const sec = grid.getAttribute("data-section");
+                    if (sec !== DRAG.sec) return;
+
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+
+                    const under = getCardUnderPointer(e.clientX, e.clientY);
+                    const marker = ensureMarker(grid, DRAG.cardEl.offsetHeight || 260);
+
+                    if (!under || !grid.contains(under) || under.classList.contains("dragging")) {
+                        const key = "END";
+                        if (DRAG.lastKey !== key) {
+                            DRAG.lastKey = key;
+                            grid.appendChild(marker);
+                        }
+                        return;
+                    }
+
+                    const r = under.getBoundingClientRect();
+                    const before = (e.clientY < (r.top + r.height / 2));
+
+                    const key = `${under.getAttribute("data-id") || ""}:${before ? "B" : "A"}`;
+                    if (DRAG.lastKey === key) return;
+                    DRAG.lastKey = key;
+
+                    if (before) grid.insertBefore(marker, under);
+                    else grid.insertBefore(marker, under.nextSibling);
+                });
+
+                grid.addEventListener("drop", (e) => {
+                    if (!DRAG.cardEl) return;
+
+                    const sec = grid.getAttribute("data-section");
+                    if (sec !== DRAG.sec) return;
+
+                    e.preventDefault();
+
+                    if (DRAG.markerEl && DRAG.markerEl.parentElement === grid) {
+                        grid.insertBefore(DRAG.cardEl, DRAG.markerEl);
+                    }
+
+                    removeMarker();
+                    commitOrderFromDom(sec, grid);
+
+                    if (DRAG.cardEl) DRAG.cardEl.classList.remove("dragging");
+                    DRAG = { sec: null, itemId: null, cardEl: null, markerEl: null, lastKey: null };
+                });
             });
         }
 
@@ -1658,9 +1502,7 @@
                 const grid = sectionEl.querySelector(".grid");
 
                 items.forEach((it, idx) => {
-                    const img = (it.imageUrl && String(it.imageUrl).trim())
-                        ? String(it.imageUrl).trim()
-                        : placeholderSvg(it.name || "Piatto");
+                    const imgSrc = resolveImageSrc(it.imageUrl, it.name || "Piatto");
 
                     const card = document.createElement("article");
                     card.className = "card";
@@ -1669,30 +1511,29 @@
                     card.setAttribute("data-id", String(it.id || ""));
 
                     card.innerHTML = `
-                            <div class="img">
-                              ${adminMode ? `
-                                <div class="dragBtnWrap">
-                                  <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1" type="button">⠿</button>
-                                </div>
-                                <div class="cardBtnsRight">
-                                  <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}" type="button">✏️</button>
-                                  <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}" type="button">−</button>
-                                </div>
-                              ` : ``}
-                              <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+                        <div class="img">
+                          ${adminMode ? `
+                            <div class="dragBtnWrap">
+                              <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1">⠿</button>
                             </div>
-                            <div class="content">
-                              <h3 class="name">${escapeXml(it.name || "")}</h3>
-                              <p class="info">${escapeXmlKeepBreaks(it.info || "")}</p>
+                            <div class="cardBtnsRight">
+                              <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                              <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
                             </div>
-                        `;
+                          ` : ``}
+                          <img alt="${escapeXml(it.name || "Piatto")}" src="${imgSrc}">
+                        </div>
+                        <div class="content">
+                          <h3 class="name">${escapeXml(it.name || "")}</h3>
+                          <p class="info">${escapeXml(it.info || "")}</p>
+                        </div>
+                      `;
                     grid.appendChild(card);
                 });
 
                 root.appendChild(sectionEl);
             }
 
-            // centra se poche card
             document.querySelectorAll('.section .grid').forEach(grid => {
                 const count = grid.querySelectorAll('.card').length;
                 if (count > 0 && count < 3) {
@@ -1782,7 +1623,7 @@
                         <button class="btn danger" id="doDel" type="button">Elimina</button>
                       </div>
                     </div>
-                `);
+                  `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -1797,9 +1638,12 @@
             }, 0);
         }
 
+        /******************************************************************
+         * ITEM MODAL (✅ salva solo path immage/filename, NO base64)
+         ******************************************************************/
         function openItemModal(title, item, onSave, allowEmptyName = false) {
             const currentImg = (item.imageUrl && String(item.imageUrl).trim()) ? String(item.imageUrl).trim() : "";
-            const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
+            const preview = resolveImageSrc(currentImg, item.name || "Piatto");
 
             openModal(title, `
                     <div class="panel">
@@ -1820,15 +1664,18 @@
 
                           <div class="fileActions">
                             <input id="fFile" type="file" accept="image/*" style="display:none" />
-                            <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+                            <button class="btn" id="pickFile" type="button">📷 Seleziona file</button>
                             <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
                           </div>
 
-                          <div class="mini">Oppure incolla un URL (opzionale):</div>
-                          <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
                           <div class="mini">
-                            Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                            ✅ Importante: selezionando un file, nel JSON verrà salvato solo il riferimento:
+                            <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
+                            Poi devi copiare quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> del progetto prima di caricare su GitHub.
                           </div>
+
+                          <div class="mini">Oppure incolla un URL (opzionale):</div>
+                          <input id="fImgUrl" type="text" value="${escapeXml(currentImg && (currentImg.startsWith("http://") || currentImg.startsWith("https://")) ? currentImg : "")}" placeholder="https://..." />
                         </div>
                       </div>
 
@@ -1837,7 +1684,7 @@
                         <button class="btn ok" id="saveItem" type="button">Conferma</button>
                       </div>
                     </div>
-                `);
+                  `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -1850,31 +1697,55 @@
                 const previewImg = document.getElementById("imgPreview");
                 const urlInput = document.getElementById("fImgUrl");
 
-                let modalImage = currentImg;
+                // ✅ questo è ciò che verrà salvato nel JSON (path relativo o URL)
+                let modalImageValue = currentImg;
 
-                if (cancel) cancel.onclick = closeModal;
+                // ✅ anteprima locale (blob url) SOLO per vedere la preview adesso
+                let localPreviewObjectUrl = "";
+
+                function setPreview(src) {
+                    previewImg.src = resolveImageSrc(src, nameEl.value || "Piatto");
+                }
+
+                function revokeLocalPreview() {
+                    if (localPreviewObjectUrl) {
+                        try { URL.revokeObjectURL(localPreviewObjectUrl); } catch { }
+                        localPreviewObjectUrl = "";
+                    }
+                }
+
+                if (cancel) cancel.onclick = () => {
+                    revokeLocalPreview();
+                    closeModal();
+                };
 
                 if (pickFileBtn && fileInput) {
                     pickFileBtn.onclick = () => fileInput.click();
-                    fileInput.onchange = async () => {
+
+                    fileInput.onchange = () => {
                         const file = fileInput.files && fileInput.files[0];
                         if (!file) return;
-                        try {
-                            let dataUrl = await fileToDataUrl(file);
-                            dataUrl = await downscaleDataUrl(dataUrl, 1400, 0.86);
-                            modalImage = dataUrl;
-                            previewImg.src = dataUrl;
-                            urlInput.value = "";
-                        } catch (e) { console.error(e); }
+
+                        // ✅ salva solo "immage/nomefile.ext" nel JSON
+                        modalImageValue = IMAGES_FOLDER + file.name;
+
+                        // ✅ anteprima immediata dal file scelto (non finisce nel JSON)
+                        revokeLocalPreview();
+                        localPreviewObjectUrl = URL.createObjectURL(file);
+                        previewImg.src = localPreviewObjectUrl;
+
+                        // se stai usando file, svuota URL
+                        if (urlInput) urlInput.value = "";
                     };
                 }
 
                 if (clearBtn) {
                     clearBtn.onclick = () => {
-                        modalImage = "";
-                        previewImg.src = placeholderSvg(nameEl.value || "Piatto");
-                        urlInput.value = "";
+                        revokeLocalPreview();
+                        modalImageValue = "";
                         if (fileInput) fileInput.value = "";
+                        if (urlInput) urlInput.value = "";
+                        setPreview("");
                     };
                 }
 
@@ -1882,12 +1753,14 @@
                     urlInput.addEventListener("input", () => {
                         const v = urlInput.value.trim();
                         if (v) {
-                            modalImage = v;
-                            previewImg.src = v;
+                            revokeLocalPreview();
+                            modalImageValue = v;   // URL vero
+                            setPreview(v);
                         } else {
-                            if (!modalImage || modalImage.startsWith("http")) {
-                                modalImage = "";
-                                previewImg.src = placeholderSvg(nameEl.value || "Piatto");
+                            // se era un URL, svuota
+                            if (modalImageValue && (modalImageValue.startsWith("http://") || modalImageValue.startsWith("https://"))) {
+                                modalImageValue = "";
+                                setPreview("");
                             }
                         }
                     });
@@ -1895,7 +1768,8 @@
 
                 if (nameEl) {
                     nameEl.addEventListener("input", () => {
-                        if (!modalImage) previewImg.src = placeholderSvg(nameEl.value || "Piatto");
+                        // se non c'è immagine, rigenera placeholder col titolo
+                        if (!modalImageValue) setPreview("");
                     });
                 }
 
@@ -1904,8 +1778,9 @@
                     const info = document.getElementById("fInfo").value;
                     const url = (document.getElementById("fImgUrl").value || "").trim();
 
-                    let finalImg = modalImage;
-                    if (!finalImg && url) finalImg = url;
+                    // se hanno scritto un URL, preferisci quello
+                    let finalImg = modalImageValue;
+                    if (url) finalImg = url;
 
                     if (!allowEmptyName && !name) {
                         nameEl.focus();
@@ -1917,9 +1792,10 @@
                         id: item.id || genId(),
                         name: name || "(senza nome)",
                         info: String(info ?? "").replace(/\r\n/g, "\n"),
-                        imageUrl: finalImg || ""
+                        imageUrl: String(finalImg || "").trim()
                     });
 
+                    revokeLocalPreview();
                     closeModal();
                 };
             }, 0);
@@ -1971,7 +1847,7 @@
                         <button class="btn ok" id="saveEvent" type="button">Conferma</button>
                       </div>
                     </div>
-                `);
+                  `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
@@ -2019,7 +1895,7 @@
                         <button class="btn ok" id="doLogin" type="button">Accedi</button>
                       </div>
                     </div>
-                `);
+                  `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -2035,14 +1911,14 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                                <div class="panel">
-                                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                                  <p class="mini">Riprova.</p>
-                                  <div class="right">
-                                    <button class="btn ok" id="retryLogin" type="button">Riprova</button>
-                                  </div>
-                                </div>
-                            `);
+                          <div class="panel">
+                            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                            <p class="mini">Riprova.</p>
+                            <div class="right">
+                              <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                            </div>
+                          </div>
+                        `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -2076,50 +1952,89 @@
             renderPublic(MENU, false);
         }
 
+        /* download robusto */
         function downloadJsonFile(data, filename = "menu-data.json") {
             const dataStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
+            const blob = new Blob([dataStr], { type: "application/json;charset=utf-8" });
             const url = URL.createObjectURL(blob);
 
             const a = document.createElement("a");
-            a.download = filename;
             a.href = url;
+            a.download = filename;
+            a.rel = "noopener";
+            a.style.display = "none";
             document.body.appendChild(a);
-            a.click();
-            a.remove();
 
-            setTimeout(() => URL.revokeObjectURL(url), 500);
+            const ev = new MouseEvent("click", { bubbles: true, cancelable: true, view: window });
+            a.dispatchEvent(ev);
+
+            setTimeout(() => {
+                try { a.remove(); } catch { }
+                try { URL.revokeObjectURL(url); } catch { }
+            }, 600);
         }
 
+        // ✅ Salvataggio A: scarica SEMPRE json, poi prova localStorage senza bloccare
         function saveAll() {
             if (!isAdmin() || !DRAFT) return;
 
-            DRAFT = normalizeMenuData(DRAFT);
-            saveMenuToLocal(DRAFT);
-            MENU = deepClone(DRAFT);
-            setDirty(false);
+            try {
+                DRAFT = normalizeMenuData(DRAFT);
 
-            downloadJsonFile(DRAFT, "menu-data.json");
+                // 1) scarica sempre (persistenza vera)
+                downloadJsonFile(DRAFT, "menu-data.json");
 
-            openModal("Salvato", `
-                    <div class="panel">
-                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-                      <p class="mini">
-                        Ho salvato e scaricato <b>menu-data.json</b>.<br/>
-                        Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
-                      </p>
-                      <div class="right">
-                        <button class="btn ok" id="okClose" type="button">Ok</button>
-                      </div>
-                    </div>
-                `);
+                // 2) cache locale (non obbligatoria)
+                const okLocal = saveMenuToLocal(DRAFT);
 
-            setTimeout(() => {
-                const b = document.getElementById("okClose");
-                if (b) b.onclick = closeModal;
-            }, 0);
+                MENU = deepClone(DRAFT);
+                setDirty(false);
 
-            renderPublic(DRAFT, true);
+                openModal("Salvato", `
+                            <div class="panel">
+                              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                              <p class="mini">
+                                Ho scaricato <b>menu-data.json</b>.<br/>
+                                ${okLocal ? `Cache locale aggiornata.` : `<span style="color: rgba(255,91,107,.9);">Cache locale non aggiornata (spazio browser pieno/non disponibile).</span>`}
+                                <br/><br/>
+                                Ricorda: se hai scelto un file immagine, nel JSON c’è scritto tipo <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
+                                quindi devi avere davvero quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
+                              </p>
+                              <div class="right">
+                                <button class="btn ok" id="okClose" type="button">Ok</button>
+                              </div>
+                            </div>
+                        `);
+
+                setTimeout(() => {
+                    const b = document.getElementById("okClose");
+                    if (b) b.onclick = closeModal;
+                }, 0);
+
+                renderPublic(DRAFT, true);
+            } catch (err) {
+                console.error(err);
+                openModal("Errore Salvataggio", `
+                            <div class="panel">
+                              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px; color: rgba(255,91,107,.9);">Errore ❌</b>
+                              <p class="mini">
+                                Il salvataggio si è interrotto per un errore JavaScript.<br/>
+                                Apri la console (F12 → Console) e guarda l’errore stampato.
+                              </p>
+                              <div class="mini" style="margin-top:10px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.18);">
+                                ${escapeXml(String(err && (err.stack || err.message) ? (err.stack || err.message) : err))}
+                              </div>
+                              <div class="right">
+                                <button class="btn ok" id="errClose" type="button">Ok</button>
+                              </div>
+                            </div>
+                        `);
+
+                setTimeout(() => {
+                    const b = document.getElementById("errClose");
+                    if (b) b.onclick = closeModal;
+                }, 0);
+            }
         }
 
         (async function init() {
