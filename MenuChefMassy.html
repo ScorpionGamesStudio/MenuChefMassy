@@ -530,10 +530,10 @@
             background: rgba(0,0,0,.04);
         }
 
-        /* ✅ FIX IMMAGINI: niente tagli (contain) + box più alto */
+        /* ✅ Immagini: niente tagli */
         .img {
-            height: 230px; /* prima 170px */
-            background: rgba(0,0,0,.20); /* base neutra per immagini verticali/orizzontali */
+            height: 230px;
+            background: rgba(0,0,0,.20);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -548,14 +548,14 @@
         .img img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* ✅ mostra tutta l'immagine */
+            object-fit: contain;
             object-position: center;
             display: block;
             filter: contrast(1.04) saturate(1.05);
-            transform: none; /* prima: scale(1.01) -> poteva “mangiare” bordi */
+            transform: none;
         }
 
-        .cardBtns {
+        .cardBtnsRight {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -564,11 +564,23 @@
             z-index: 3;
         }
 
-        body.admin .cardBtns {
+        body.admin .cardBtnsRight {
             display: flex;
         }
 
-        .editBtn, .delBtn {
+        .dragBtnWrap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: none;
+            z-index: 3;
+        }
+
+        body.admin .dragBtnWrap {
+            display: block;
+        }
+
+        .editBtn, .delBtn, .dragBtn {
             width: 34px;
             height: 34px;
             border-radius: 999px;
@@ -586,7 +598,17 @@
             backdrop-filter: blur(6px);
         }
 
-            .editBtn:hover {
+        .dragBtn {
+            font-size: 18px;
+            cursor: grab;
+            touch-action: none;
+        }
+
+            .dragBtn:active {
+                cursor: grabbing;
+            }
+
+            .editBtn:hover, .dragBtn:hover {
                 transform: translateY(-1px);
                 border-color: rgba(246,211,101,.45);
                 background: rgba(202,162,74,.20);
@@ -604,7 +626,7 @@
                 background: rgba(255,91,107,.20);
             }
 
-        body.light .editBtn {
+        body.light .editBtn, body.light .dragBtn {
             color: rgba(0,0,0,.85);
             background: rgba(0,0,0,.03);
             border-color: rgba(0,0,0,.10);
@@ -612,6 +634,64 @@
 
         body.light .delBtn {
             color: rgba(0,0,0,.85);
+        }
+
+        /* ✅ Placeholder nello spazio originale */
+        .dragPlaceholder {
+            grid-column: span 4;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.03);
+            min-height: 260px;
+        }
+
+        body.light .dragPlaceholder {
+            border-color: rgba(0,0,0,.10);
+            background: rgba(0,0,0,.03);
+        }
+
+        @media (max-width: 980px) {
+            .dragPlaceholder {
+                grid-column: span 6;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .dragPlaceholder {
+                grid-column: span 1;
+            }
+        }
+
+        /* ✅ Ghost che segue il mouse */
+        .dragGhost {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transform: translate3d(0,0,0);
+            filter: drop-shadow(0 18px 50px rgba(0,0,0,.55));
+            opacity: .92;
+        }
+
+        /* ✅ Indicatore drop STABILE (senza reflow): linea prima/dopo la card target */
+        .card.drop-before::before,
+        .card.drop-after::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(246,211,101,.2), rgba(246,211,101,.95), rgba(246,211,101,.2));
+            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25);
+            pointer-events: none;
+        }
+
+        .card.drop-before::before {
+            top: 10px;
+        }
+
+        .card.drop-after::after {
+            bottom: 10px;
         }
 
         .content {
@@ -629,6 +709,7 @@
             color: rgba(255,255,255,.72);
             font-size: 12px;
             line-height: 1.55;
+            white-space: normal;
         }
 
         body.light .info {
@@ -805,9 +886,7 @@
             outline: none;
         }
 
-        body.light input[type="text"],
-        body.light input[type="password"],
-        body.light textarea {
+        body.light input[type="text"], body.light input[type="password"], body.light textarea {
             background: rgba(255,255,255,.75);
             color: rgba(0,0,0,.85);
             border-color: rgba(0,0,0,.10);
@@ -898,7 +977,7 @@
                 display: none !important;
             }
 
-            .cardBtns {
+            .cardBtnsRight, .dragBtnWrap {
                 display: none !important;
             }
         }
@@ -912,9 +991,7 @@
                 <div class="logo" aria-hidden="true"></div>
                 <div>
                     <h1>Menu della Serata</h1>
-                    <div class="sub">
-                        <span style="letter-spacing:.08em;">Casa Edition</span>
-                    </div>
+                    <div class="sub"><span style="letter-spacing:.08em;">Casa Edition</span></div>
                 </div>
             </div>
 
@@ -967,7 +1044,8 @@
                     </h2>
 
                     <p class="lede" id="heroDesc">
-                        Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining,
+                        Un menu completo, elegante e moderno.
+                        Presentato in modo “wow” come fosse un fine-dining,
                         ma con il calore di una serata tra amici e famiglia.
                     </p>
 
@@ -1021,8 +1099,8 @@
 
         const REMOTE_DATA_FILE = "menu-data.json";
 
-        const SESSION_KEY = "menu_admin_session_v8";
-        const MENU_KEY = "menu_data_v8_localcache";
+        const SESSION_KEY = "menu_admin_session_v11";
+        const MENU_KEY = "menu_data_v11_localcache";
 
         let MENU = null;
         let DRAFT = null;
@@ -1038,6 +1116,12 @@
                 .replaceAll('"', "&quot;")
                 .replaceAll("'", "&#39;");
         }
+
+        function escapeXmlKeepBreaks(s) {
+            const safe = escapeXml(String(s ?? ""));
+            return safe.replace(/\r\n/g, "\n").replace(/\n/g, "<br/>");
+        }
+
         function safeParseJson(txt) { try { return JSON.parse(txt); } catch { return null; } }
         function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
@@ -1078,6 +1162,7 @@
             const v = String(s ?? "").replace(/\r\n/g, "\n");
             return v.split("\n").map(x => x.trimEnd()).join("<br/>");
         }
+
         function brToNl(s) {
             return String(s ?? "")
                 .replaceAll("<br/>", "\n")
@@ -1087,23 +1172,23 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-              <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-                <defs>
-                  <linearGradient id="g" x1="0" x2="1">
-                    <stop offset="0" stop-color="%2307070a"/>
-                    <stop offset="1" stop-color="%23151622"/>
-                  </linearGradient>
-                  <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                    <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                    <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-                  </radialGradient>
-                </defs>
-                <rect width="100%" height="100%" fill="url(%23g)"/>
-                <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-                <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-                <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-                <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-              </svg>`;
+                <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+                  <defs>
+                    <linearGradient id="g" x1="0" x2="1">
+                      <stop offset="0" stop-color="%2307070a"/>
+                      <stop offset="1" stop-color="%23151622"/>
+                    </linearGradient>
+                    <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                      <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                      <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(%23g)"/>
+                  <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+                  <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+                  <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+                  <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+                </svg>`;
         }
 
         function fileToDataUrl(file) {
@@ -1137,6 +1222,23 @@
         }
 
         /******************************************************************
+         * ID UTILS
+         ******************************************************************/
+        function genId() {
+            try { if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID(); }
+            catch (e) { }
+            return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+        }
+
+        function ensureItemIds(menu) {
+            if (!menu || !menu.itemsBySection) return;
+            for (const key of Object.keys(menu.itemsBySection)) {
+                const arr = Array.isArray(menu.itemsBySection[key]) ? menu.itemsBySection[key] : [];
+                for (const it of arr) if (!it.id) it.id = genId();
+            }
+        }
+
+        /******************************************************************
          * DEFAULT DATA
          ******************************************************************/
         const DEFAULT_DATA = {
@@ -1159,23 +1261,24 @@
             ],
             itemsBySection: {
                 antipasti: [
-                    { name: "Bruschette gourmet", info: "Croccanti, profumate, con topping ricchi e servite “a degustazione”.", imageUrl: "" },
-                    { name: "Spritz", info: "Leggero e frizzante, perfetto per aprire la serata con stile.", imageUrl: "" }
+                    { id: genId(), name: "Bruschette gourmet", info: "Croccanti, profumate, con topping ricchi e servite “a degustazione”.", imageUrl: "" },
+                    { id: genId(), name: "Spritz", info: "Leggero e frizzante, perfetto per aprire la serata con stile.", imageUrl: "" }
                 ],
                 primi: [
-                    { name: "Pasta con gamberi e stracciatella", info: "Gamberi cotti con vino bianco, bisk di gambero, stracciatella e gambero rosso crudo: cremoso, saporito e fresco.", imageUrl: "" }
+                    { id: genId(), name: "Pasta con gamberi e stracciatella", info: "Gamberi cotti con vino bianco, bisk di gambero, stracciatella e gambero rosso crudo: cremoso, saporito e fresco.", imageUrl: "" }
                 ],
                 secondi: [
-                    { name: "Pesce spada in crosta di pistacchio", info: "Rosolato con vino bianco e brodo di pesce chiarificato, servito con fondo e crosta di pistacchio: delicato e sorprendente.", imageUrl: "" }
+                    { id: genId(), name: "Pesce spada in crosta di pistacchio", info: "Rosolato con vino bianco e brodo di pesce chiarificato, servito con fondo e crosta di pistacchio: delicato e sorprendente.", imageUrl: "" }
                 ],
                 dolci: [
-                    { name: "Cannolo siciliano", info: "Cremoso e croccante: un classico che chiude la serata con il sapore della nostra terra.", imageUrl: "" }
+                    { id: genId(), name: "Cannolo siciliano", info: "Cremoso e croccante: un classico che chiude la serata con il sapore della nostra terra.", imageUrl: "" }
                 ],
                 bevande: [
-                    { name: "Acqua liscia & frizzante", info: "Sempre in tavola, servita fresca.", imageUrl: "" },
-                    { name: "[Inserisci qui i vini della serata]", info: "Esempio: Bianco fresco per antipasti / Rosso morbido per i secondi / Bollicine per brindare.", imageUrl: "" },
-                    { name: "Analcolici", info: "Tonica, cola, succhi: perfetti anche per chi non beve alcol.", imageUrl: "" },
-                    { name: "Birre", info: "Normale, alla spina e bionda: scegli la tua e brindiamo 🍻", imageUrl: "" }
+                    { id: genId(), name: "Acqua liscia", info: "Sempre in tavola, servita fresca.", imageUrl: "" },
+                    { id: genId(), name: "[Inserisci qui i vini della serata]", info: "Esempio:\nBianco fresco per antipasti\nRosso morbido per i secondi\nBollicine per brindare", imageUrl: "" },
+                    { id: genId(), name: "Coca-Cola", info: "Classica e fresca.", imageUrl: "" },
+                    { id: genId(), name: "Birre", info: "Birre presenti:\nPeroni\nBirra Messina", imageUrl: "" },
+                    { id: genId(), name: "Acqua frizzante", info: "Per chi la preferisce frizzante.", imageUrl: "" }
                 ]
             }
         };
@@ -1183,9 +1286,7 @@
         /******************************************************************
          * STORAGE + REMOTE LOADING
          ******************************************************************/
-        function saveMenuToLocal(data) {
-            localStorage.setItem(MENU_KEY, JSON.stringify(data));
-        }
+        function saveMenuToLocal(data) { localStorage.setItem(MENU_KEY, JSON.stringify(data)); }
 
         function normalizeMenuData(parsed) {
             if (!parsed || typeof parsed !== "object") return deepClone(DEFAULT_DATA);
@@ -1194,7 +1295,6 @@
             if (!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
             if (!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
 
-            // mantieni testo con \n ma accetta vecchi <br/>
             parsed.cover.heroDesc = brToNl(parsed.cover.heroDesc ?? DEFAULT_DATA.cover.heroDesc);
             parsed.cover.toast = brToNl(parsed.cover.toast ?? DEFAULT_DATA.cover.toast);
             parsed.cover.metaOrario = brToNl(parsed.cover.metaOrario ?? DEFAULT_DATA.cover.metaOrario);
@@ -1202,6 +1302,8 @@
 
             parsed.sections = Array.isArray(parsed.sections) ? parsed.sections : deepClone(DEFAULT_DATA.sections);
             parsed.itemsBySection = parsed.itemsBySection || deepClone(DEFAULT_DATA.itemsBySection);
+
+            ensureItemIds(parsed);
             return parsed;
         }
 
@@ -1238,6 +1340,276 @@
         function logout() { localStorage.removeItem(SESSION_KEY); }
 
         /******************************************************************
+         * DRAG (pointer) — STABILE (niente marker nel layout)
+         ******************************************************************/
+        let DRAG = {
+            active: false,
+            sectionKey: null,
+            gridEl: null,
+            cardEl: null,
+            placeholderEl: null,
+            ghostEl: null,
+            pointerId: null,
+            offsetX: 0,
+            offsetY: 0,
+            targetCard: null,
+            insertAfter: false,
+            raf: 0
+        };
+
+        function clearDropHints(grid) {
+            if (!grid) return;
+            grid.querySelectorAll(".card.drop-before, .card.drop-after").forEach(el => {
+                el.classList.remove("drop-before", "drop-after");
+            });
+        }
+
+        function cleanupDrag() {
+            if (DRAG.raf) cancelAnimationFrame(DRAG.raf);
+            DRAG.raf = 0;
+
+            if (DRAG.gridEl) clearDropHints(DRAG.gridEl);
+
+            if (DRAG.cardEl) DRAG.cardEl.style.display = "";
+
+            if (DRAG.placeholderEl?.parentElement) DRAG.placeholderEl.parentElement.removeChild(DRAG.placeholderEl);
+            if (DRAG.ghostEl?.parentElement) DRAG.ghostEl.parentElement.removeChild(DRAG.ghostEl);
+
+            window.removeEventListener("pointermove", onPointerMove, { passive: false });
+            window.removeEventListener("pointerup", onPointerUp, { passive: false });
+            window.removeEventListener("pointercancel", onPointerCancel, { passive: false });
+
+            document.body.style.userSelect = "";
+
+            DRAG = {
+                active: false,
+                sectionKey: null,
+                gridEl: null,
+                cardEl: null,
+                placeholderEl: null,
+                ghostEl: null,
+                pointerId: null,
+                offsetX: 0,
+                offsetY: 0,
+                targetCard: null,
+                insertAfter: false,
+                raf: 0
+            };
+        }
+
+        function positionGhost(clientX, clientY) {
+            if (!DRAG.ghostEl) return;
+            const x = clientX - DRAG.offsetX;
+            const y = clientY - DRAG.offsetY;
+            DRAG.ghostEl.style.left = x + "px";
+            DRAG.ghostEl.style.top = y + "px";
+        }
+
+        function pickTargetFromPointer(clientX, clientY) {
+            const grid = DRAG.gridEl;
+            if (!grid) return { card: null, after: false };
+
+            const cards = [...grid.querySelectorAll(".card")].filter(c => c.style.display !== "none");
+            if (cards.length === 0) return { card: null, after: false };
+
+            let best = null;
+            let bestDist = Infinity;
+
+            for (const c of cards) {
+                const r = c.getBoundingClientRect();
+                const cx = r.left + r.width / 2;
+                const cy = r.top + r.height / 2;
+                const dx = clientX - cx;
+                const dy = clientY - cy;
+                const d = dx * dx + dy * dy;
+                if (d < bestDist) { bestDist = d; best = { el: c, rect: r }; }
+            }
+
+            if (!best) return { card: null, after: false };
+
+            const r = best.rect;
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+
+            // Regola robusta:
+            // - se sei abbastanza “sulla stessa riga” -> decide X
+            // - altrimenti decide Y
+            const sameRow = Math.abs(clientY - cy) < r.height * 0.35;
+            const after = sameRow ? (clientX > cx) : (clientY > cy);
+
+            return { card: best.el, after };
+        }
+
+        function applyDropHint(card, after) {
+            if (!DRAG.gridEl) return;
+
+            // pulisco hint precedente SOLO se serve
+            if (DRAG.targetCard && DRAG.targetCard !== card) {
+                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            } else if (DRAG.targetCard === card) {
+                // se stessa card ma cambia after/before
+                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            } else {
+                // nessun target precedente -> ok
+            }
+
+            DRAG.targetCard = card;
+            DRAG.insertAfter = !!after;
+
+            if (card) {
+                card.classList.toggle("drop-after", !!after);
+                card.classList.toggle("drop-before", !after);
+            }
+        }
+
+        function startDragFromHandle(handleEl, e) {
+            const card = handleEl.closest(".card");
+            if (!card) return;
+
+            const sec = card.getAttribute("data-sec");
+            const grid = card.closest(".grid[data-section]");
+            if (!sec || !grid) return;
+
+            if (!document.body.classList.contains("admin")) return;
+
+            e.preventDefault();
+
+            DRAG.active = true;
+            DRAG.sectionKey = sec;
+            DRAG.gridEl = grid;
+            DRAG.cardEl = card;
+            DRAG.pointerId = e.pointerId;
+
+            document.body.style.userSelect = "none";
+
+            // placeholder nello spazio originale
+            const ph = document.createElement("div");
+            ph.className = "dragPlaceholder";
+            ph.style.minHeight = (card.offsetHeight || 260) + "px";
+            grid.insertBefore(ph, card);
+            DRAG.placeholderEl = ph;
+
+            // nascondo la card vera
+            card.style.display = "none";
+
+            // ghost
+            const ghost = card.cloneNode(true);
+            ghost.classList.add("dragGhost");
+            ghost.style.width = (ph.getBoundingClientRect().width || 320) + "px";
+            document.body.appendChild(ghost);
+            DRAG.ghostEl = ghost;
+
+            // offset (prendo dal placeholder: evita salti)
+            const r = ph.getBoundingClientRect();
+            DRAG.offsetX = e.clientX - r.left;
+            DRAG.offsetY = e.clientY - r.top;
+
+            positionGhost(e.clientX, e.clientY);
+
+            try { handleEl.setPointerCapture(e.pointerId); } catch { }
+
+            // prima valutazione target
+            const t = pickTargetFromPointer(e.clientX, e.clientY);
+            applyDropHint(t.card, t.after);
+
+            window.addEventListener("pointermove", onPointerMove, { passive: false });
+            window.addEventListener("pointerup", onPointerUp, { passive: false });
+            window.addEventListener("pointercancel", onPointerCancel, { passive: false });
+        }
+
+        function onPointerMove(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            positionGhost(e.clientX, e.clientY);
+
+            if (DRAG.raf) return;
+            DRAG.raf = requestAnimationFrame(() => {
+                DRAG.raf = 0;
+                const t = pickTargetFromPointer(e.clientX, e.clientY);
+
+                // Se il target è il placeholder (non lo è mai, perché placeholder non è .card)
+                // o se non cambia nulla, applyDropHint gestisce la pulizia.
+                applyDropHint(t.card, t.after);
+            });
+        }
+
+        function onPointerUp(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            const grid = DRAG.gridEl;
+            const card = DRAG.cardEl;
+            const ph = DRAG.placeholderEl;
+            const target = DRAG.targetCard;
+            const after = DRAG.insertAfter;
+
+            if (grid && card) {
+                // rimetto visibile
+                card.style.display = "";
+
+                // rimuovo hint
+                clearDropHints(grid);
+
+                // Inserimento:
+                // - se ho un target, inserisco prima/dopo quel target
+                // - altrimenti metto in fondo
+                if (target && grid.contains(target)) {
+                    if (after) grid.insertBefore(card, target.nextSibling);
+                    else grid.insertBefore(card, target);
+                } else {
+                    grid.appendChild(card);
+                }
+
+                // tolgo placeholder
+                if (ph?.parentElement) ph.parentElement.removeChild(ph);
+
+                // commit ordine (aggiorna DRAFT + re-render con idx coerenti)
+                commitOrderFromDom(DRAG.sectionKey, grid);
+            }
+
+            cleanupDrag();
+        }
+
+        function onPointerCancel(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            cleanupDrag();
+        }
+
+        function attachDnDHandlers() {
+            document.querySelectorAll("[data-drag-handle]").forEach(h => {
+                if (h.__hasDrag) return;
+                h.__hasDrag = true;
+                h.addEventListener("pointerdown", (e) => startDragFromHandle(h, e), { passive: false });
+            });
+        }
+
+        function commitOrderFromDom(sectionKey, gridEl) {
+            ensureDraft();
+
+            const idsInDom = [...gridEl.querySelectorAll(".card")]
+                .map(c => c.getAttribute("data-id"))
+                .filter(Boolean);
+
+            const current = DRAFT.itemsBySection[sectionKey] || [];
+            const map = new Map(current.map(it => [String(it.id), it]));
+
+            const next = [];
+            for (const id of idsInDom) {
+                const it = map.get(String(id));
+                if (it) next.push(it);
+            }
+            for (const it of current) {
+                if (!idsInDom.includes(String(it.id))) next.push(it);
+            }
+
+            DRAFT.itemsBySection[sectionKey] = next;
+            setDirty(true);
+
+            renderPublic(DRAFT, true);
+        }
+
+        /******************************************************************
          * RENDER
          ******************************************************************/
         function renderPublic(menu, adminMode) {
@@ -1261,6 +1633,7 @@
 
             for (const section of menu.sections) {
                 const items = (menu.itemsBySection && menu.itemsBySection[section.key]) ? menu.itemsBySection[section.key] : [];
+
                 const sectionEl = document.createElement("section");
                 sectionEl.className = "section";
                 sectionEl.setAttribute("aria-label", section.title);
@@ -1293,21 +1666,25 @@
                     card.className = "card";
                     card.setAttribute("data-idx", String(idx));
                     card.setAttribute("data-sec", section.key);
+                    card.setAttribute("data-id", String(it.id || ""));
 
                     card.innerHTML = `
-                          <div class="img">
-                            ${adminMode ? `
-                              <div class="cardBtns">
-                                <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                                <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                              </div>
-                            ` : ``}
-                            <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
-                          </div>
-                          <div class="content">
-                            <h3 class="name">${escapeXml(it.name || "")}</h3>
-                            <p class="info">${escapeXml(it.info || "")}</p>
-                          </div>
+                            <div class="img">
+                              ${adminMode ? `
+                                <div class="dragBtnWrap">
+                                  <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1" type="button">⠿</button>
+                                </div>
+                                <div class="cardBtnsRight">
+                                  <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}" type="button">✏️</button>
+                                  <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}" type="button">−</button>
+                                </div>
+                              ` : ``}
+                              <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+                            </div>
+                            <div class="content">
+                              <h3 class="name">${escapeXml(it.name || "")}</h3>
+                              <p class="info">${escapeXmlKeepBreaks(it.info || "")}</p>
+                            </div>
                         `;
                     grid.appendChild(card);
                 });
@@ -1315,6 +1692,7 @@
                 root.appendChild(sectionEl);
             }
 
+            // centra se poche card
             document.querySelectorAll('.section .grid').forEach(grid => {
                 const count = grid.querySelectorAll('.card').length;
                 if (count > 0 && count < 3) {
@@ -1352,6 +1730,8 @@
                         openEditModal(sec, Number(idxStr));
                     });
                 });
+
+                attachDnDHandlers();
             }
         }
 
@@ -1360,11 +1740,12 @@
             DRAFT = normalizeMenuData(DRAFT);
             if (!DRAFT.itemsBySection) DRAFT.itemsBySection = {};
             if (!DRAFT.cover) DRAFT.cover = deepClone(DEFAULT_DATA.cover);
+            ensureItemIds(DRAFT);
         }
 
         function openCreateModal(sectionKey) {
             ensureDraft();
-            const empty = { name: "", info: "", imageUrl: "" };
+            const empty = { id: genId(), name: "", info: "", imageUrl: "" };
             openItemModal("Aggiungi piatto", empty, (savedItem) => {
                 const list = DRAFT.itemsBySection[sectionKey] || (DRAFT.itemsBySection[sectionKey] = []);
                 list.push(savedItem);
@@ -1379,6 +1760,7 @@
             const it = list[idx];
             if (!it) return;
             openItemModal("Modifica piatto", deepClone(it), (savedItem) => {
+                savedItem.id = it.id || savedItem.id || genId();
                 list[idx] = savedItem;
                 setDirty(true);
                 renderPublic(DRAFT, true);
@@ -1392,14 +1774,14 @@
             if (!it) return;
 
             openModal("Elimina", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-                    <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-                    <div class="right">
-                      <button class="btn" id="cancelDel" type="button">Annulla</button>
-                      <button class="btn danger" id="doDel" type="button">Elimina</button>
+                    <div class="panel">
+                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+                      <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+                      <div class="right">
+                        <button class="btn" id="cancelDel" type="button">Annulla</button>
+                        <button class="btn danger" id="doDel" type="button">Elimina</button>
+                      </div>
                     </div>
-                  </div>
                 `);
 
             setTimeout(() => {
@@ -1420,42 +1802,41 @@
             const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
 
             openModal(title, `
-                  <div class="panel">
-                    <div class="row">
-                      <label>Titolo</label>
-                      <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-                    </div>
+                    <div class="panel">
+                      <div class="row">
+                        <label>Titolo</label>
+                        <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+                      </div>
 
-                    <div class="row">
-                      <label>Descrizione</label>
-                      <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-                    </div>
+                      <div class="row">
+                        <label>Descrizione</label>
+                        <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+                      </div>
 
-                    <div class="row">
-                      <label>Immagine</label>
-                      <div class="fileRow">
-                        <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+                      <div class="row">
+                        <label>Immagine</label>
+                        <div class="fileRow">
+                          <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
 
-                        <div class="fileActions">
-                          <input id="fFile" type="file" accept="image/*" style="display:none" />
-                          <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+                          <div class="fileActions">
+                            <input id="fFile" type="file" accept="image/*" style="display:none" />
+                            <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
+                            <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                          </div>
 
-                          <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
-                        </div>
-
-                        <div class="mini">Oppure incolla un URL (opzionale):</div>
-                        <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
-                        <div class="mini">
-                          Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                          <div class="mini">Oppure incolla un URL (opzionale):</div>
+                          <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
+                          <div class="mini">
+                            Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div class="right">
-                      <button class="btn" id="cancelItem" type="button">Annulla</button>
-                      <button class="btn ok" id="saveItem" type="button">Conferma</button>
+                      <div class="right">
+                        <button class="btn" id="cancelItem" type="button">Annulla</button>
+                        <button class="btn ok" id="saveItem" type="button">Conferma</button>
+                      </div>
                     </div>
-                  </div>
                 `);
 
             setTimeout(() => {
@@ -1484,9 +1865,7 @@
                             modalImage = dataUrl;
                             previewImg.src = dataUrl;
                             urlInput.value = "";
-                        } catch (e) {
-                            console.error(e);
-                        }
+                        } catch (e) { console.error(e); }
                     };
                 }
 
@@ -1516,15 +1895,13 @@
 
                 if (nameEl) {
                     nameEl.addEventListener("input", () => {
-                        if (!modalImage) {
-                            previewImg.src = placeholderSvg(nameEl.value || "Piatto");
-                        }
+                        if (!modalImage) previewImg.src = placeholderSvg(nameEl.value || "Piatto");
                     });
                 }
 
                 if (save) save.onclick = () => {
                     const name = document.getElementById("fName").value.trim();
-                    const info = document.getElementById("fInfo").value.trim();
+                    const info = document.getElementById("fInfo").value;
                     const url = (document.getElementById("fImgUrl").value || "").trim();
 
                     let finalImg = modalImage;
@@ -1537,8 +1914,9 @@
                     }
 
                     onSave({
+                        id: item.id || genId(),
                         name: name || "(senza nome)",
-                        info: info || "",
+                        info: String(info ?? "").replace(/\r\n/g, "\n"),
                         imageUrl: finalImg || ""
                     });
 
@@ -1552,47 +1930,47 @@
             const c = DRAFT.cover;
 
             openModal("Modifica evento", `
-                  <div class="panel">
-                    <div class="row">
-                      <label>Titolo browser</label>
-                      <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
-                    </div>
+                    <div class="panel">
+                      <div class="row">
+                        <label>Titolo browser</label>
+                        <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
+                      </div>
 
-                    <div class="row">
-                      <label>Titolo (prima parte)</label>
-                      <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
-                    </div>
+                      <div class="row">
+                        <label>Titolo (prima parte)</label>
+                        <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+                      </div>
 
-                    <div class="row">
-                      <label>Titolo (parte oro)</label>
-                      <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
-                    </div>
+                      <div class="row">
+                        <label>Titolo (parte oro)</label>
+                        <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+                      </div>
 
-                    <div class="row">
-                      <label>Descrizione evento</label>
-                      <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
-                    </div>
+                      <div class="row">
+                        <label>Descrizione evento</label>
+                        <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+                      </div>
 
-                    <div class="row">
-                      <label>Dettagli serata</label>
-                      <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
-                    </div>
+                      <div class="row">
+                        <label>Dettagli serata</label>
+                        <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+                      </div>
 
-                    <div class="row">
-                      <label>Data & Orario</label>
-                      <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
-                    </div>
+                      <div class="row">
+                        <label>Data & Orario</label>
+                        <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+                      </div>
 
-                    <div class="row">
-                      <label>Note</label>
-                      <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
-                    </div>
+                      <div class="row">
+                        <label>Note</label>
+                        <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+                      </div>
 
-                    <div class="right">
-                      <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                      <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+                      <div class="right">
+                        <button class="btn" id="cancelEvent" type="button">Annulla</button>
+                        <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+                      </div>
                     </div>
-                  </div>
                 `);
 
             setTimeout(() => {
@@ -1628,19 +2006,19 @@
 
         function showLogin() {
             openModal("Login Admin", `
-                  <div class="panel">
-                    <div class="row">
-                      <label>Username</label>
-                      <input id="loginUser" type="text" autocomplete="username" />
+                    <div class="panel">
+                      <div class="row">
+                        <label>Username</label>
+                        <input id="loginUser" type="text" autocomplete="username" />
+                      </div>
+                      <div class="row">
+                        <label>Password</label>
+                        <input id="loginPass" type="password" autocomplete="current-password" />
+                      </div>
+                      <div class="right">
+                        <button class="btn ok" id="doLogin" type="button">Accedi</button>
+                      </div>
                     </div>
-                    <div class="row">
-                      <label>Password</label>
-                      <input id="loginPass" type="password" autocomplete="current-password" />
-                    </div>
-                    <div class="right">
-                      <button class="btn ok" id="doLogin" type="button">Accedi</button>
-                    </div>
-                  </div>
                 `);
 
             setTimeout(() => {
@@ -1657,13 +2035,13 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                              <div class="panel">
-                                <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                                <p class="mini">Riprova.</p>
-                                <div class="right">
-                                  <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                                <div class="panel">
+                                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                                  <p class="mini">Riprova.</p>
+                                  <div class="right">
+                                    <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                                  </div>
                                 </div>
-                              </div>
                             `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
@@ -1724,17 +2102,18 @@
             downloadJsonFile(DRAFT, "menu-data.json");
 
             openModal("Salvato", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-                    <p class="mini">
-                      Ho salvato e scaricato <b>menu-data.json</b>.<br/>
-                      Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
-                    </p>
-                    <div class="right">
-                      <button class="btn ok" id="okClose" type="button">Ok</button>
+                    <div class="panel">
+                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                      <p class="mini">
+                        Ho salvato e scaricato <b>menu-data.json</b>.<br/>
+                        Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti.
+                      </p>
+                      <div class="right">
+                        <button class="btn ok" id="okClose" type="button">Ok</button>
+                      </div>
                     </div>
-                  </div>
                 `);
+
             setTimeout(() => {
                 const b = document.getElementById("okClose");
                 if (b) b.onclick = closeModal;
@@ -1744,7 +2123,6 @@
         }
 
         (async function init() {
-            // ✅ se l’URL ha ancora un hash (tipo #admin), lo rimuovo per evitare comportamenti strani
             if (location.hash) {
                 history.replaceState(null, "", location.pathname + location.search);
             }
@@ -1753,10 +2131,8 @@
             $("printBtn").addEventListener("click", () => window.print());
             $("modalClose").addEventListener("click", closeModal);
 
-            // Non chiudere cliccando sullo sfondo
             $("modalBack").addEventListener("click", (e) => { });
 
-            // ✅ Admin SOLO se clicchi
             $("adminBtn").addEventListener("click", () => {
                 if (isAdmin()) enterAdmin();
                 else showLogin();
