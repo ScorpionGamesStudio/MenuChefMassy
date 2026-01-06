@@ -38,30 +38,30 @@
         }
 
         * {
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         html, body {
-            height: 100%
+            height: 100%;
         }
 
         body {
             margin: 0;
             font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
             color: var(--text);
-            background: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, var(--bg) 100%);
+            background: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg,var(--bg) 0%,var(--bg2) 40%,var(--bg) 100%);
             overflow-x: hidden;
         }
 
             body.modal-open {
                 overflow: hidden;
-                height: 100%
+                height: 100%;
             }
 
         .wrap {
             max-width: var(--max);
             margin: 0 auto;
-            padding: 26px 18px 90px
+            padding: 26px 18px 90px;
         }
 
         /* Top bar */
@@ -83,13 +83,13 @@
         }
 
         body.light .topbar {
-            background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.70))
+            background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.70));
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px
+            gap: 12px;
         }
 
         .logo {
@@ -119,14 +119,14 @@
         }
 
         body.light .brand h1 {
-            color: rgba(0,0,0,.78)
+            color: rgba(0,0,0,.78);
         }
 
         .brand .sub {
             font-size: 12px;
             margin-top: 2px;
             color: var(--muted);
-            letter-spacing: .02em
+            letter-spacing: .02em;
         }
 
         .chef {
@@ -147,27 +147,27 @@
             font-size: 10px;
             letter-spacing: .26em;
             text-transform: uppercase;
-            color: rgba(255,255,255,.72)
+            color: rgba(255,255,255,.72);
         }
 
         .chefName {
             font-size: 12px;
             letter-spacing: .06em;
             color: rgba(255,255,255,.92);
-            font-weight: 600
+            font-weight: 600;
         }
 
         body.light .chef {
             background: rgba(0,0,0,.03);
-            border-color: rgba(0,0,0,.10)
+            border-color: rgba(0,0,0,.10);
         }
 
         body.light .chefLabel {
-            color: rgba(0,0,0,.60)
+            color: rgba(0,0,0,.60);
         }
 
         body.light .chefName {
-            color: rgba(0,0,0,.80)
+            color: rgba(0,0,0,.80);
         }
 
         .actions {
@@ -175,7 +175,7 @@
             gap: 10px;
             flex-wrap: wrap;
             justify-content: flex-end;
-            align-items: center
+            align-items: center;
         }
 
         .btn {
@@ -196,48 +196,48 @@
 
         body.light .btn {
             background: rgba(0,0,0,.03);
-            color: rgba(0,0,0,.78)
+            color: rgba(0,0,0,.78);
         }
 
         .btn:hover {
             transform: translateY(-1px);
             background: rgba(255,255,255,.07);
-            border-color: rgba(246,211,101,.35)
+            border-color: rgba(246,211,101,.35);
         }
 
         body.light .btn:hover {
-            background: rgba(0,0,0,.05)
+            background: rgba(0,0,0,.05);
         }
 
         .btn.danger {
-            border-color: rgba(255,91,107,.35)
+            border-color: rgba(255,91,107,.35);
         }
 
             .btn.danger:hover {
-                border-color: rgba(255,91,107,.55)
+                border-color: rgba(255,91,107,.55);
             }
 
         .btn.ok {
-            border-color: rgba(56,214,165,.35)
+            border-color: rgba(56,214,165,.35);
         }
 
             .btn.ok:hover {
-                border-color: rgba(56,214,165,.55)
+                border-color: rgba(56,214,165,.55);
             }
 
         .dot {
             width: 8px;
             height: 8px;
             border-radius: 999px;
-            background: linear-gradient(180deg,var(--gold1),var(--gold2));
-            box-shadow: 0 0 0 4px rgba(202,162,74,.12)
+            background: linear-gradient(180deg, var(--gold1), var(--gold2));
+            box-shadow: 0 0 0 4px rgba(202,162,74,.12);
         }
 
         .ico {
             width: 16px;
             height: 16px;
             display: inline-block;
-            vertical-align: -3px
+            vertical-align: -3px;
         }
 
         @media (max-width:720px) {
@@ -246,13 +246,13 @@
                 width: 100%;
                 text-align: left;
                 margin-left: 0;
-                min-width: unset
+                min-width: unset;
             }
 
             .actions {
                 order: 4;
                 width: 100%;
-                justify-content: flex-start
+                justify-content: flex-start;
             }
         }
 
@@ -269,7 +269,7 @@
         }
 
         body.light .cover {
-            background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.76))
+            background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.76));
         }
 
         .cover:before {
@@ -286,24 +286,24 @@
             display: grid;
             grid-template-columns: 1.2fr .8fr;
             gap: 16px;
-            align-items: stretch
+            align-items: stretch;
         }
 
         @media (max-width:960px) {
             .coverInner {
-                grid-template-columns: 1fr
+                grid-template-columns: 1fr;
             }
         }
 
         .headline {
             margin: 0;
-            font-size: clamp(28px,3.4vw,46px);
+            font-size: clamp(28px, 3.4vw, 46px);
             line-height: 1.06;
-            letter-spacing: -0.02em
+            letter-spacing: -0.02em;
         }
 
             .headline .gold {
-                background: linear-gradient(135deg,var(--gold1),var(--gold2));
+                background: linear-gradient(135deg, var(--gold1), var(--gold2));
                 -webkit-background-clip: text;
                 background-clip: text;
                 color: transparent;
@@ -315,19 +315,21 @@
             color: var(--muted);
             font-size: 14px;
             line-height: 1.6;
-            max-width: 72ch
+            max-width: 72ch;
+            white-space: normal;
         }
 
+        /* SOLO 2 card: Orario + Note */
         .metaGrid {
             display: grid;
             grid-template-columns: repeat(2,1fr);
             gap: 10px;
-            margin-top: 14px
+            margin-top: 14px;
         }
 
         @media (max-width:520px) {
             .metaGrid {
-                grid-template-columns: 1fr
+                grid-template-columns: 1fr;
             }
         }
 
@@ -340,7 +342,7 @@
 
         body.light .metaCard {
             border-color: rgba(0,0,0,.10);
-            background: rgba(0,0,0,.03)
+            background: rgba(0,0,0,.03);
         }
 
         .metaCard b {
@@ -348,7 +350,7 @@
             font-size: 12px;
             letter-spacing: .18em;
             text-transform: uppercase;
-            opacity: .9
+            opacity: .9;
         }
 
         .metaCard span {
@@ -356,7 +358,7 @@
             margin-top: 6px;
             color: var(--muted);
             font-size: 12px;
-            line-height: 1.45
+            line-height: 1.45;
         }
 
         .toastNote {
@@ -371,18 +373,19 @@
                 margin: 0;
                 font-size: 13px;
                 letter-spacing: .22em;
-                text-transform: uppercase
+                text-transform: uppercase;
             }
 
             .toastNote p {
                 margin: 10px 0 0;
                 color: var(--muted);
                 font-size: 13px;
-                line-height: 1.6
+                line-height: 1.6;
+                white-space: normal;
             }
 
         body.light .toastNote p {
-            color: rgba(0,0,0,.62)
+            color: rgba(0,0,0,.62);
         }
 
         /* Sections */
@@ -398,7 +401,7 @@
         }
 
         body.light .section {
-            background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78))
+            background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
         }
 
         .sectionHead {
@@ -413,7 +416,7 @@
 
         body.light .sectionHead {
             border-bottom-color: rgba(0,0,0,.08);
-            background: rgba(0,0,0,.02)
+            background: rgba(0,0,0,.02);
         }
 
         .sectionHead h2 {
@@ -423,19 +426,19 @@
             text-transform: uppercase;
             display: flex;
             align-items: center;
-            gap: 10px
+            gap: 10px;
         }
 
         .sectionHead .desc {
             margin: 0;
             color: var(--muted);
-            font-size: 12px
+            font-size: 12px;
         }
 
         .sectionActions {
             display: flex;
             align-items: center;
-            gap: 10px
+            gap: 10px;
         }
 
         .miniBtn {
@@ -458,36 +461,37 @@
             .miniBtn:hover {
                 transform: translateY(-1px);
                 border-color: rgba(246,211,101,.35);
-                background: rgba(202,162,74,.16)
+                background: rgba(202,162,74,.16);
             }
 
         body.light .miniBtn {
             background: rgba(0,0,0,.03);
             border-color: rgba(0,0,0,.10);
-            color: rgba(0,0,0,.78)
+            color: rgba(0,0,0,.78);
         }
 
             body.light .miniBtn:hover {
                 background: rgba(0,0,0,.05);
-                border-color: rgba(0,0,0,.16)
+                border-color: rgba(0,0,0,.16);
             }
 
+        /* default 3 per riga */
         .grid {
             padding: 16px;
             display: grid;
             grid-template-columns: repeat(12,1fr);
-            gap: 14px
+            gap: 14px;
         }
 
         @media (max-width:980px) {
             .grid {
-                grid-template-columns: repeat(6,1fr)
+                grid-template-columns: repeat(6,1fr);
             }
         }
 
         @media (max-width:560px) {
             .grid {
-                grid-template-columns: repeat(1,1fr)
+                grid-template-columns: repeat(1,1fr);
             }
         }
 
@@ -503,40 +507,40 @@
 
         body.light .card {
             border-color: rgba(0,0,0,.10);
-            background: rgba(0,0,0,.02)
+            background: rgba(0,0,0,.02);
         }
 
         @media (max-width:980px) {
             .card {
-                grid-column: span 6
+                grid-column: span 6;
             }
         }
 
         @media (max-width:560px) {
             .card {
-                grid-column: span 1
+                grid-column: span 1;
             }
         }
 
         .card:hover {
             transform: translateY(-2px);
             border-color: rgba(246,211,101,.28);
-            background: rgba(255,255,255,.055)
+            background: rgba(255,255,255,.055);
         }
 
         body.light .card:hover {
-            background: rgba(0,0,0,.04)
+            background: rgba(0,0,0,.04);
         }
 
         .img {
             height: 170px;
             background: #0b0b0f;
             position: relative;
-            overflow: hidden
+            overflow: hidden;
         }
 
         body.light .img {
-            background: #f0eee9
+            background: #f0eee9;
         }
 
         .img img {
@@ -545,20 +549,21 @@
             object-fit: cover;
             display: block;
             filter: contrast(1.04) saturate(1.05);
-            transform: scale(1.01)
+            transform: scale(1.01);
         }
 
+        /* Admin buttons on card */
         .cardBtns {
             position: absolute;
             top: 10px;
             right: 10px;
             display: none;
             gap: 8px;
-            z-index: 3
+            z-index: 3;
         }
 
         body.admin .cardBtns {
-            display: flex
+            display: flex;
         }
 
         .editBtn, .delBtn {
@@ -582,72 +587,73 @@
             .editBtn:hover {
                 transform: translateY(-1px);
                 border-color: rgba(246,211,101,.45);
-                background: rgba(202,162,74,.20)
+                background: rgba(202,162,74,.20);
             }
 
         .delBtn {
             border: 1px solid rgba(255,91,107,.35);
             background: rgba(255,91,107,.14);
-            font-size: 18px
+            font-size: 18px;
         }
 
             .delBtn:hover {
                 transform: translateY(-1px);
                 border-color: rgba(255,91,107,.55);
-                background: rgba(255,91,107,.20)
+                background: rgba(255,91,107,.20);
             }
 
         body.light .editBtn {
             color: rgba(0,0,0,.85);
             background: rgba(0,0,0,.03);
-            border-color: rgba(0,0,0,.10)
+            border-color: rgba(0,0,0,.10);
         }
 
         body.light .delBtn {
-            color: rgba(0,0,0,.85)
+            color: rgba(0,0,0,.85);
         }
 
         .content {
-            padding: 14px 14px 16px
+            padding: 14px 14px 16px;
         }
 
         .name {
             margin: 0;
             font-size: 15px;
-            letter-spacing: -0.01em
+            letter-spacing: -0.01em;
         }
 
         .info {
             margin: 8px 0 0;
             color: rgba(255,255,255,.72);
             font-size: 12px;
-            line-height: 1.55
+            line-height: 1.55;
         }
 
         body.light .info {
-            color: rgba(0,0,0,.62)
+            color: rgba(0,0,0,.62);
         }
 
+        /* Center mode (1 o 2 card) */
         .grid.center-few {
-            grid-template-columns: repeat(var(--cols, 1), minmax(280px, 360px));
+            grid-template-columns: repeat(var(--cols,1), minmax(280px,360px));
             justify-content: center;
-            justify-items: stretch
+            justify-items: stretch;
         }
 
             .grid.center-few .card {
                 grid-column: auto;
                 max-width: 360px;
-                width: 100%
+                width: 100%;
             }
 
         @media (max-width:980px) {
             .grid.center-few {
                 grid-template-columns: 1fr;
-                justify-content: stretch
+                justify-content: stretch;
             }
 
                 .grid.center-few .card {
-                    max-width: none
+                    max-width: none;
                 }
         }
 
@@ -656,11 +662,11 @@
             color: rgba(255,255,255,.55);
             font-size: 12px;
             line-height: 1.5;
-            text-align: center
+            text-align: center;
         }
 
         body.light footer {
-            color: rgba(0,0,0,.55)
+            color: rgba(0,0,0,.55);
         }
 
         /* Floating save (admin) */
@@ -676,7 +682,7 @@
         }
 
         body.admin .saveFloat {
-            display: flex
+            display: flex;
         }
 
         .pill {
@@ -695,7 +701,7 @@
         body.light .pill {
             background: rgba(255,255,255,.8);
             color: rgba(0,0,0,.75);
-            border-color: rgba(0,0,0,.10)
+            border-color: rgba(0,0,0,.10);
         }
 
         /* Modal */
@@ -711,11 +717,11 @@
         }
 
             .modalBack.show {
-                display: flex
+                display: flex;
             }
 
         .modal {
-            width: min(860px, 100%);
+            width: min(860px,100%);
             border: 1px solid rgba(255,255,255,.14);
             background: linear-gradient(180deg, rgba(20,20,30,.88), rgba(10,10,16,.88));
             border-radius: 22px;
@@ -729,7 +735,7 @@
 
         body.light .modal {
             background: rgba(255,255,255,.95);
-            border-color: rgba(0,0,0,.12)
+            border-color: rgba(0,0,0,.12);
         }
 
         .modalHead {
@@ -745,14 +751,14 @@
 
         body.light .modalHead {
             border-bottom-color: rgba(0,0,0,.08);
-            background: rgba(0,0,0,.02)
+            background: rgba(0,0,0,.02);
         }
 
         .modalHead h3 {
             margin: 0;
             font-size: 13px;
             letter-spacing: .22em;
-            text-transform: uppercase
+            text-transform: uppercase;
         }
 
         .modalBody {
@@ -763,16 +769,17 @@
             max-height: calc(100vh - 40px - 60px);
         }
 
+        /* form */
         .panel {
             border: 1px solid rgba(255,255,255,.10);
             background: rgba(255,255,255,.04);
             border-radius: 18px;
-            padding: 14px
+            padding: 14px;
         }
 
         body.light .panel {
             border-color: rgba(0,0,0,.10);
-            background: rgba(0,0,0,.02)
+            background: rgba(0,0,0,.02);
         }
 
         .row {
@@ -780,12 +787,12 @@
             grid-template-columns: 180px 1fr;
             gap: 10px;
             align-items: center;
-            margin-top: 10px
+            margin-top: 10px;
         }
 
         @media (max-width:720px) {
             .row {
-                grid-template-columns: 1fr
+                grid-template-columns: 1fr;
             }
         }
 
@@ -793,11 +800,11 @@
             font-size: 12px;
             letter-spacing: .18em;
             text-transform: uppercase;
-            color: rgba(255,255,255,.80)
+            color: rgba(255,255,255,.80);
         }
 
         body.light label {
-            color: rgba(0,0,0,.70)
+            color: rgba(0,0,0,.70);
         }
 
         input[type="text"], input[type="password"], textarea {
@@ -813,19 +820,20 @@
         body.light input[type="text"], body.light input[type="password"], body.light textarea {
             background: rgba(255,255,255,.75);
             color: rgba(0,0,0,.85);
-            border-color: rgba(0,0,0,.10)
+            border-color: rgba(0,0,0,.10);
         }
 
         textarea {
             min-height: 90px;
-            resize: vertical
+            resize: vertical;
+            white-space: pre-wrap;
         }
 
         .mini {
             font-size: 12px;
             color: var(--muted);
             line-height: 1.5;
-            margin-top: 10px
+            margin-top: 10px;
         }
 
         .right {
@@ -834,21 +842,21 @@
             justify-content: flex-end;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 12px
+            margin-top: 12px;
         }
 
         .fileRow {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 10px
+            margin-top: 10px;
         }
 
         .fileActions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            align-items: center
+            align-items: center;
         }
 
         .thumb {
@@ -867,41 +875,41 @@
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
-                display: block
+                display: block;
             }
 
         body.light .thumb {
             background: rgba(0,0,0,.02);
-            border-color: rgba(0,0,0,.10)
+            border-color: rgba(0,0,0,.10);
         }
 
         @media print {
             .topbar, .actions, .saveFloat {
-                display: none !important
+                display: none !important;
             }
 
             body {
-                background: white !important
+                background: white !important;
             }
 
             .wrap {
-                padding: 0
+                padding: 0;
             }
 
             .section, .cover {
-                box-shadow: none !important
+                box-shadow: none !important;
             }
 
             .chef {
-                display: none !important
+                display: none !important;
             }
 
             .modalBack {
-                display: none !important
+                display: none !important;
             }
 
             .cardBtns {
-                display: none !important
+                display: none !important;
             }
         }
     </style>
@@ -914,7 +922,6 @@
                 <div class="logo" aria-hidden="true"></div>
                 <div>
                     <h1>Menu della Serata</h1>
-                    <!-- ✅ DATA RIMOSSA: resta solo Casa Edition -->
                     <div class="sub">
                         <span style="letter-spacing:.08em;">Casa Edition</span>
                     </div>
@@ -968,6 +975,7 @@
                         <span id="heroPrefix">Stasera a casa con Chef Massy:</span>
                         <span class="gold" id="heroGold">cena da 3 stelle</span>
                     </h2>
+
                     <p class="lede" id="heroDesc">
                         Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining,
                         ma con il calore di una serata tra amici e famiglia.
@@ -988,8 +996,9 @@
                 <aside class="toastNote" aria-label="Dettagli serata">
                     <h3>Dettagli serata</h3>
                     <p id="toastText">
-                        “Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate.
-                        Io cucino, voi godetevela.”
+                        1) Giochi<br />
+                        2) Giochi da tavola<br />
+                        3) Altro
                     </p>
                 </aside>
             </div>
@@ -998,12 +1007,13 @@
         <div id="menuRoot"></div>
     </div>
 
-    <!-- ✅ Esporta JSON rimosso: resta solo Salva -->
     <div class="saveFloat" id="saveFloat">
         <div class="pill" id="dirtyPill" style="display:none;">
             <span class="dot" aria-hidden="true"></span>
             Modifiche non salvate
         </div>
+
+        <!-- unico bottone (come richiesto): salva + scarica JSON -->
         <button class="btn ok" id="saveAllBtn" type="button" title="Salva + scarica menu-data.json">Salva</button>
     </div>
 
@@ -1024,11 +1034,11 @@
         const ADMIN_USERNAME = "admin"; // cambia qui
         const ADMIN_PASSWORD = "1234";  // cambia qui
 
-        // ✅ Questo file DEVE essere nella stessa cartella su GitHub
+        // ✅ Questo file DEVE essere nella stessa cartella di index.html su GitHub
         const REMOTE_DATA_FILE = "menu-data.json";
 
-        const SESSION_KEY = "menu_admin_session_v6";
-        const MENU_KEY = "menu_data_v6_localcache";
+        const SESSION_KEY = "menu_admin_session_v7";
+        const MENU_KEY = "menu_data_v7_localcache";
 
         let MENU = null;
         let DRAFT = null;
@@ -1080,39 +1090,38 @@
             $("modalBody").innerHTML = "";
         }
 
-        // ✅ FIX: gestisci \n e \r\n (Windows) correttamente
+        // ✅ NEWLINES -> <br/>
         function nlToBr(s) {
-            return String(s ?? "")
-                .replace(/\r\n/g, "\n")
-                .split("\n")
-                .map(x => x.trimEnd())
-                .join("<br/>");
+            const v = String(s ?? "").replace(/\r\n/g, "\n");
+            return v.split("\n").map(x => x.trimEnd()).join("<br/>");
         }
+        // ✅ <br/> -> newlines
         function brToNl(s) {
             return String(s ?? "")
                 .replaceAll("<br/>", "\n")
-                .replaceAll("<br>", "\n");
+                .replaceAll("<br>", "\n")
+                .replaceAll("<br />", "\n");
         }
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-          <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-            <defs>
-              <linearGradient id="g" x1="0" x2="1">
-                <stop offset="0" stop-color="%2307070a"/>
-                <stop offset="1" stop-color="%23151622"/>
-              </linearGradient>
-              <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(%23g)"/>
-            <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-            <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-            <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-            <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-          </svg>`;
+        <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="%2307070a"/>
+              <stop offset="1" stop-color="%23151622"/>
+            </linearGradient>
+            <radialGradient id="r" cx="25%" cy="20%" r="70%">
+              <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+              <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(%23g)"/>
+          <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+          <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+          <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+          <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+        </svg>`;
         }
 
         function fileToDataUrl(file) {
@@ -1153,11 +1162,11 @@
                 browserTitle: "Menu della Serata • Casa Edition",
                 heroPrefix: "Stasera a casa con Chef Massy:",
                 heroGold: "cena da 3 stelle",
-                heroDesc: "Un menu completo, elegante e moderno. Presentato in modo “wow” come fosse un fine-dining, ma con il calore di una serata tra amici e famiglia.",
+                heroDesc: "Un menu completo, elegante e moderno.\nPresentato in modo “wow” come fosse un fine-dining,\nma con il calore di una serata tra amici e famiglia.",
                 chefName: "Massimiliano Giannone",
-                toast: "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate. Io cucino, voi godetevela.”",
-                metaOrario: "06/01/2026<br/>alle ore 20:30",
-                metaNote: "Chiedimi per allergeni o alternative.<br/>Piatti serviti “a ondate”."
+                toast: "1) Giochi\n2) Giochi da tavola\n3) Altro",
+                metaOrario: "06/01/2026\nalle ore 20:30",
+                metaNote: "Chiedimi per allergeni o alternative.\nPiatti serviti “a ondate”."
             },
             sections: [
                 { key: "antipasti", title: "Antipasti", desc: "Il benvenuto (piccoli assaggi, grande impatto)" },
@@ -1196,6 +1205,25 @@
             localStorage.setItem(MENU_KEY, JSON.stringify(data));
         }
 
+        function normalizeMenuData(parsed) {
+            if (!parsed || typeof parsed !== "object") return deepClone(DEFAULT_DATA);
+            parsed.cover = parsed.cover || {};
+
+            // fallback minimi
+            if (!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
+            if (!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
+
+            // IMPORTANTISSIMO: manteniamo SEMPRE testo con newline, ma accettiamo anche vecchi <br/>
+            parsed.cover.heroDesc = brToNl(parsed.cover.heroDesc ?? DEFAULT_DATA.cover.heroDesc);
+            parsed.cover.toast = brToNl(parsed.cover.toast ?? DEFAULT_DATA.cover.toast);
+            parsed.cover.metaOrario = brToNl(parsed.cover.metaOrario ?? DEFAULT_DATA.cover.metaOrario);
+            parsed.cover.metaNote = brToNl(parsed.cover.metaNote ?? DEFAULT_DATA.cover.metaNote);
+
+            parsed.sections = Array.isArray(parsed.sections) ? parsed.sections : deepClone(DEFAULT_DATA.sections);
+            parsed.itemsBySection = parsed.itemsBySection || deepClone(DEFAULT_DATA.itemsBySection);
+            return parsed;
+        }
+
         function loadMenuFromLocal() {
             const raw = localStorage.getItem(MENU_KEY);
             if (!raw) {
@@ -1206,24 +1234,24 @@
                 saveMenuToLocal(deepClone(DEFAULT_DATA));
                 return deepClone(DEFAULT_DATA);
             }
-            parsed.cover = parsed.cover || {};
-            if (!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
-            if (!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
-            if (!parsed.cover.metaOrario) parsed.cover.metaOrario = DEFAULT_DATA.cover.metaOrario;
-            if (!parsed.cover.metaNote) parsed.cover.metaNote = DEFAULT_DATA.cover.metaNote;
-            return parsed;
+            return normalizeMenuData(parsed);
         }
 
         async function loadMenuAsync() {
+            // 1) prova a caricare il JSON pubblico (vale per tutti i dispositivi)
             try {
                 const res = await fetch(REMOTE_DATA_FILE, { cache: "no-store" });
                 if (res.ok) {
                     const txt = await res.text();
                     const data = JSON.parse(txt);
-                    saveMenuToLocal(data);
-                    return data;
+                    const norm = normalizeMenuData(data);
+                    saveMenuToLocal(norm); // cache locale
+                    return norm;
                 }
-            } catch (e) { }
+            } catch (e) {
+                // ignore -> fallback
+            }
+            // 2) fallback locale
             return loadMenuFromLocal();
         }
 
@@ -1237,20 +1265,19 @@
          * RENDER
          ******************************************************************/
         function renderPublic(menu, adminMode) {
+            menu = normalizeMenuData(menu);
             document.title = menu.cover.browserTitle || DEFAULT_DATA.cover.browserTitle;
 
             $("chefNameTop").textContent = menu.cover.chefName || DEFAULT_DATA.cover.chefName;
             $("heroPrefix").textContent = menu.cover.heroPrefix || "";
             $("heroGold").textContent = menu.cover.heroGold || "";
-            $("heroDesc").textContent = menu.cover.heroDesc || "";
 
-            // ✅ FIX: Dettagli serata deve rispettare gli a-capo
-            // Mostriamo i newline come <br/> senza rompere l'admin
-            const toastRaw = String(menu.cover.toast || "");
-            $("toastText").innerHTML = nlToBr(toastRaw);
+            // ✅ NEWLINES VISIBILI IN ANTEPRIMA
+            $("heroDesc").innerHTML = nlToBr(menu.cover.heroDesc || "");
+            $("toastText").innerHTML = nlToBr(menu.cover.toast || "");
 
-            $("metaOrario").innerHTML = menu.cover.metaOrario || "";
-            $("metaNote").innerHTML = menu.cover.metaNote || "";
+            $("metaOrario").innerHTML = nlToBr(menu.cover.metaOrario || "");
+            $("metaNote").innerHTML = nlToBr(menu.cover.metaNote || "");
 
             $("editEventBtn").style.display = adminMode ? "inline-flex" : "none";
 
@@ -1264,21 +1291,21 @@
                 sectionEl.setAttribute("aria-label", section.title);
 
                 const actionsHtml = adminMode ? `
-              <div class="sectionActions">
-                <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
-              </div>
-            ` : `<div></div>`;
+            <div class="sectionActions">
+              <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+            </div>
+          ` : `<div></div>`;
 
                 sectionEl.innerHTML = `
-              <div class="sectionHead">
-                <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-                <div style="display:flex; align-items:baseline; gap:12px;">
-                  <p class="desc">${escapeXml(section.desc || "")}</p>
-                  ${actionsHtml}
-                </div>
+            <div class="sectionHead">
+              <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+              <div style="display:flex; align-items:baseline; gap:12px;">
+                <p class="desc">${escapeXml(section.desc || "")}</p>
+                ${actionsHtml}
               </div>
-              <div class="grid" data-section="${escapeXml(section.key)}"></div>
-            `;
+            </div>
+            <div class="grid" data-section="${escapeXml(section.key)}"></div>
+          `;
 
                 const grid = sectionEl.querySelector(".grid");
 
@@ -1293,26 +1320,27 @@
                     card.setAttribute("data-sec", section.key);
 
                     card.innerHTML = `
-                <div class="img">
-                  ${adminMode ? `
-                    <div class="cardBtns">
-                      <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                      <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                    </div>
-                  ` : ``}
-                  <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
-                </div>
-                <div class="content">
-                  <h3 class="name">${escapeXml(it.name || "")}</h3>
-                  <p class="info">${escapeXml(it.info || "")}</p>
-                </div>
-              `;
+              <div class="img">
+                ${adminMode ? `
+                  <div class="cardBtns">
+                    <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                    <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                  </div>
+                ` : ``}
+                <img alt="${escapeXml(it.name || "Piatto")}" src="${img}">
+              </div>
+              <div class="content">
+                <h3 class="name">${escapeXml(it.name || "")}</h3>
+                <p class="info">${escapeXml(it.info || "")}</p>
+              </div>
+            `;
                     grid.appendChild(card);
                 });
 
                 root.appendChild(sectionEl);
             }
 
+            // center sections with 1 or 2 items
             document.querySelectorAll('.section .grid').forEach(grid => {
                 const count = grid.querySelectorAll('.card').length;
                 if (count > 0 && count < 3) {
@@ -1355,6 +1383,7 @@
 
         function ensureDraft() {
             if (!DRAFT) DRAFT = deepClone(MENU);
+            DRAFT = normalizeMenuData(DRAFT);
             if (!DRAFT.itemsBySection) DRAFT.itemsBySection = {};
             if (!DRAFT.cover) DRAFT.cover = deepClone(DEFAULT_DATA.cover);
         }
@@ -1389,15 +1418,15 @@
             if (!it) return;
 
             openModal("Elimina", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-              <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-              <div class="right">
-                <button class="btn" id="cancelDel" type="button">Annulla</button>
-                <button class="btn danger" id="doDel" type="button">Elimina</button>
-              </div>
+          <div class="panel">
+            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+            <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+            <div class="right">
+              <button class="btn" id="cancelDel" type="button">Annulla</button>
+              <button class="btn danger" id="doDel" type="button">Elimina</button>
             </div>
-          `);
+          </div>
+        `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -1417,42 +1446,43 @@
             const preview = currentImg ? currentImg : placeholderSvg(item.name || "Piatto");
 
             openModal(title, `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo</label>
-                <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-              </div>
+          <div class="panel">
+            <div class="row">
+              <label>Titolo</label>
+              <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+            </div>
 
-              <div class="row">
-                <label>Descrizione</label>
-                <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-              </div>
+            <div class="row">
+              <label>Descrizione</label>
+              <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+            </div>
 
-              <div class="row">
-                <label>Immagine</label>
-                <div class="fileRow">
-                  <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+            <div class="row">
+              <label>Immagine</label>
+              <div class="fileRow">
+                <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
 
-                  <div class="fileActions">
-                    <input id="fFile" type="file" accept="image/*" style="display:none" />
-                    <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
-                    <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
-                  </div>
+                <div class="fileActions">
+                  <input id="fFile" type="file" accept="image/*" style="display:none" />
+                  <button class="btn" id="pickFile" type="button">📷 Carica dal PC</button>
 
-                  <div class="mini">Oppure incolla un URL (opzionale):</div>
-                  <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
-                  <div class="mini">
-                    Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
-                  </div>
+                  <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                </div>
+
+                <div class="mini">Oppure incolla un URL (opzionale):</div>
+                <input id="fImgUrl" type="text" value="${escapeXml(currentImg && currentImg.startsWith("http") ? currentImg : "")}" placeholder="https://..." />
+                <div class="mini">
+                  Nota: se carichi dal PC, l’immagine viene salvata nel JSON (base64). Tienile leggere.
                 </div>
               </div>
-
-              <div class="right">
-                <button class="btn" id="cancelItem" type="button">Annulla</button>
-                <button class="btn ok" id="saveItem" type="button">Conferma</button>
-              </div>
             </div>
-          `);
+
+            <div class="right">
+              <button class="btn" id="cancelItem" type="button">Annulla</button>
+              <button class="btn ok" id="saveItem" type="button">Conferma</button>
+            </div>
+          </div>
+        `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -1483,14 +1513,14 @@
                         } catch (e) {
                             console.error(e);
                             openModal("Errore immagine", `
-                    <div class="panel">
-                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Impossibile caricare</b>
-                      <p class="mini">Riprova con un file più leggero.</p>
-                      <div class="right">
-                        <button class="btn ok" id="imgErrClose" type="button">Ok</button>
-                      </div>
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Impossibile caricare</b>
+                    <p class="mini">Riprova con un file più leggero.</p>
+                    <div class="right">
+                      <button class="btn ok" id="imgErrClose" type="button">Ok</button>
                     </div>
-                  `);
+                  </div>
+                `);
                             setTimeout(() => {
                                 const b = document.getElementById("imgErrClose");
                                 if (b) b.onclick = closeModal;
@@ -1561,52 +1591,52 @@
             const c = DRAFT.cover;
 
             openModal("Modifica evento", `
-            <div class="panel">
-              <div class="row">
-                <label>Titolo browser</label>
-                <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" placeholder="Es: Cena a Casa • 05 Gennaio" />
-              </div>
-
-              <div class="row">
-                <label>Titolo (prima parte)</label>
-                <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
-              </div>
-
-              <div class="row">
-                <label>Titolo (parte oro)</label>
-                <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
-              </div>
-
-              <div class="row">
-                <label>Descrizione evento</label>
-                <textarea id="eHeroDesc">${escapeXml(c.heroDesc || "")}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Dettagli serata</label>
-                <textarea id="eToast" placeholder="Scrivi una riga per ogni punto...">${escapeXml(brToNl(nlToBr(c.toast || "")))}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Data & Orario</label>
-                <textarea id="eOrario" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaOrario || ""))}</textarea>
-              </div>
-
-              <div class="row">
-                <label>Note</label>
-                <textarea id="eNote" placeholder="Usa invio per andare a capo...">${escapeXml(brToNl(c.metaNote || ""))}</textarea>
-              </div>
-
-              <p class="mini">
-                Nota: Vai a capo (Enter) e verrà convertito in <b>&lt;br/&gt;</b>.
-              </p>
-
-              <div class="right">
-                <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                <button class="btn ok" id="saveEvent" type="button">Conferma</button>
-              </div>
+          <div class="panel">
+            <div class="row">
+              <label>Titolo browser</label>
+              <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" placeholder="Es: Cena a Casa • 05 Gennaio" />
             </div>
-          `);
+
+            <div class="row">
+              <label>Titolo (prima parte)</label>
+              <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" placeholder="Es: Stasera a casa:" />
+            </div>
+
+            <div class="row">
+              <label>Titolo (parte oro)</label>
+              <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" placeholder="Es: cena da 3 stelle" />
+            </div>
+
+            <div class="row">
+              <label>Descrizione evento</label>
+              <textarea id="eHeroDesc" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+            </div>
+
+            <div class="row">
+              <label>Dettagli serata</label>
+              <textarea id="eToast" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+            </div>
+
+            <div class="row">
+              <label>Data & Orario</label>
+              <textarea id="eOrario" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+            </div>
+
+            <div class="row">
+              <label>Note</label>
+              <textarea id="eNote" placeholder="Vai a capo con INVIO...">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+            </div>
+
+            <p class="mini">
+              Qui puoi usare semplicemente <b>INVIO</b>: in anteprima verrà mostrato su più righe.
+            </p>
+
+            <div class="right">
+              <button class="btn" id="cancelEvent" type="button">Annulla</button>
+              <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+            </div>
+          </div>
+        `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
@@ -1617,23 +1647,22 @@
                     const browserTitle = document.getElementById("eBrowserTitle").value.trim();
                     const heroPrefix = document.getElementById("eHeroPrefix").value.trim();
                     const heroGold = document.getElementById("eHeroGold").value.trim();
-                    const heroDesc = document.getElementById("eHeroDesc").value.trim();
 
-                    // ✅ Dettagli serata: salvo come testo con newline (non <br/>),
-                    // e poi in renderPublic lo trasformo in <br/>
+                    // ✅ NON facciamo trim, per non rompere i capi
+                    const heroDesc = document.getElementById("eHeroDesc").value;
                     const toast = document.getElementById("eToast").value;
-
                     const orario = document.getElementById("eOrario").value;
                     const note = document.getElementById("eNote").value;
 
                     DRAFT.cover.browserTitle = browserTitle || DEFAULT_DATA.cover.browserTitle;
                     DRAFT.cover.heroPrefix = heroPrefix || "";
                     DRAFT.cover.heroGold = heroGold || "";
-                    DRAFT.cover.heroDesc = heroDesc || "";
 
-                    DRAFT.cover.toast = String(toast ?? "").replace(/\r\n/g, "\n"); // conserva a-capo
-                    DRAFT.cover.metaOrario = nlToBr(orario);
-                    DRAFT.cover.metaNote = nlToBr(note);
+                    // ✅ salviamo in formato testo con \n (non <br/>)
+                    DRAFT.cover.heroDesc = String(heroDesc ?? "").replace(/\r\n/g, "\n");
+                    DRAFT.cover.toast = String(toast ?? "").replace(/\r\n/g, "\n");
+                    DRAFT.cover.metaOrario = String(orario ?? "").replace(/\r\n/g, "\n");
+                    DRAFT.cover.metaNote = String(note ?? "").replace(/\r\n/g, "\n");
 
                     setDirty(true);
                     renderPublic(DRAFT, true);
@@ -1644,23 +1673,23 @@
 
         function showLogin() {
             openModal("Login Admin", `
-            <div class="panel">
-              <div class="row">
-                <label>Username</label>
-                <input id="loginUser" type="text" placeholder="username" autocomplete="username" />
-              </div>
-              <div class="row">
-                <label>Password</label>
-                <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" />
-              </div>
-              <div class="right">
-                <button class="btn ok" id="doLogin" type="button">Accedi</button>
-              </div>
-              <p class="mini">
-                Cambia le credenziali nel codice: <b>ADMIN_USERNAME</b> e <b>ADMIN_PASSWORD</b>.
-              </p>
+          <div class="panel">
+            <div class="row">
+              <label>Username</label>
+              <input id="loginUser" type="text" placeholder="username" autocomplete="username" />
             </div>
-          `);
+            <div class="row">
+              <label>Password</label>
+              <input id="loginPass" type="password" placeholder="password" autocomplete="current-password" />
+            </div>
+            <div class="right">
+              <button class="btn ok" id="doLogin" type="button">Accedi</button>
+            </div>
+            <p class="mini">
+              Cambia le credenziali nel codice: <b>ADMIN_USERNAME</b> e <b>ADMIN_PASSWORD</b>.
+            </p>
+          </div>
+        `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -1676,14 +1705,14 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                    <p class="mini">Riprova.</p>
-                    <div class="right">
-                      <button class="btn" id="retryLogin" type="button">Riprova</button>
-                    </div>
+                <div class="panel">
+                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                  <p class="mini">Riprova.</p>
+                  <div class="right">
+                    <button class="btn" id="retryLogin" type="button">Riprova</button>
                   </div>
-                `);
+                </div>
+              `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -1706,7 +1735,7 @@
             $("saveFloat").style.display = "flex";
             $("editEventBtn").style.display = "inline-flex";
 
-            DRAFT = deepClone(MENU || loadMenuFromLocal());
+            DRAFT = normalizeMenuData(deepClone(MENU || loadMenuFromLocal()));
             setDirty(false);
             renderPublic(DRAFT, true);
         }
@@ -1764,25 +1793,27 @@
         function saveAll() {
             if (!isAdmin() || !DRAFT) return;
 
+            // 1) salva cache locale
+            DRAFT = normalizeMenuData(DRAFT);
             saveMenuToLocal(DRAFT);
             MENU = deepClone(DRAFT);
             setDirty(false);
 
-            // ✅ Salva = scarica JSON (unico bottone)
+            // 2) scarica JSON (da caricare su GitHub)
             downloadJsonFile(DRAFT, "menu-data.json");
 
             openModal("Salvato", `
-            <div class="panel">
-              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-              <p class="mini">
-                Ho salvato e scaricato <b>menu-data.json</b>.<br/>
-                Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti (PC/telefono/QR).
-              </p>
-              <div class="right">
-                <button class="btn ok" id="okClose" type="button">Ok</button>
-              </div>
+          <div class="panel">
+            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+            <p class="mini">
+              Ho salvato e scaricato <b>menu-data.json</b>.<br/>
+              Caricalo su GitHub (root della repo) per far vedere gli stessi dati a tutti (PC/telefono/QR).
+            </p>
+            <div class="right">
+              <button class="btn ok" id="okClose" type="button">Ok</button>
             </div>
-          `);
+          </div>
+        `);
             setTimeout(() => {
                 const b = document.getElementById("okClose");
                 if (b) b.onclick = closeModal;
@@ -1792,15 +1823,12 @@
         }
 
         (async function init() {
-            // ✅ DATA RIMOSSA: non serve più dateText
-            // (nessun set di dateText)
-
             $("toggleTheme").addEventListener("click", () => document.body.classList.toggle("light"));
             $("printBtn").addEventListener("click", () => window.print());
 
             $("modalClose").addEventListener("click", closeModal);
 
-            // Non chiudere cliccando sullo sfondo (evita perdere modifiche)
+            // Non chiudere cliccando sullo sfondo
             $("modalBack").addEventListener("click", (e) => { });
 
             $("adminBtn").addEventListener("click", () => {
@@ -1821,6 +1849,7 @@
                 openEventModal();
             });
 
+            // ✅ carico PRIMA menu-data.json
             MENU = await loadMenuAsync();
             renderPublic(MENU, false);
 
