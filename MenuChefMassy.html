@@ -1042,8 +1042,45 @@
         }
 
         @media (max-width: 980px) {
+            /* ✅ MOBILE: non nascondo le foto laterali, le sposto in alto (via JS) e le rendo "card" responsive */
             .sidePortrait {
-                display: none !important;
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                transform: none;
+                width: min(44vw, 220px);
+                height: auto;
+                aspect-ratio: 3 / 4;
+                border-radius: 26px;
+                z-index: 5;
+                display: none; /* verrà mostrata solo se c'è una foto e solo dopo che il JS le ha riposizionate */
+                margin: 10px 0;
+            }
+
+            .sidePortrait img {
+                object-fit: cover;
+            }
+
+            /* contenitore mobile creato via JS */
+            .sidePortraitMobileRow {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+                align-items: stretch;
+                flex-wrap: nowrap;
+                margin-top: 12px;
+            }
+
+            /* ✅ MOBILE: lo sfondo tema lo gestisco direttamente sul body per evitare lag/bug di iOS con ::before fixed */
+            body::before { display: none !important; }
+
+            body {
+                background-image: var(--themePattern);
+                background-repeat: repeat;
+                background-size: var(--themePatternSize) auto;
+                background-attachment: scroll;
+                background-position: 0 0;
             }
         }
 
@@ -1199,6 +1236,8 @@
     <script>
         /******************************************************************
          * CONFIG
+        /******************************************************************
+         * SIDE PORTRAITS
          ******************************************************************/
         const ADMIN_USERNAME = "admin";
         const ADMIN_PASSWORD = "1234";
@@ -1322,6 +1361,14 @@
 
         function setupThemeScrollMotion() {
             let ticking = false;
+
+            // ✅ MOBILE: lo sfondo tema viene applicato direttamente su <body> (vedi CSS @media),
+            // quindi evito l'animazione JS che su iOS/Android può "laggare".
+            const isMobile = window.matchMedia("(max-width: 980px)").matches;
+            if (isMobile) {
+                document.documentElement.style.setProperty("--themeScrollY", "0px");
+                return;
+            }
 
             function update() {
                 ticking = false;
@@ -1527,9 +1574,50 @@
                 document.documentElement.style.setProperty("--themePatternSize", `${DEFAULT_DATA.cover.themePatternSize}px`);
             }
         }
-/******************************************************************
-         * SIDE PORTRAITS
+
+        /******************************************************************
+         * MOBILE LAYOUT HELPERS
          ******************************************************************/
+        function relocateSidePortraitsForMobile() {
+            const left = document.getElementById("sideLeft");
+            const right = document.getElementById("sideRight");
+            const wrap = document.querySelector(".wrap");
+            const topbar = document.querySelector(".topbar");
+            if (!left || !right || !wrap || !topbar) return;
+
+            const isMobile = window.matchMedia("(max-width: 980px)").matches;
+            let row = document.querySelector(".sidePortraitMobileRow");
+
+            if (isMobile) {
+                if (!row) {
+                    row = document.createElement("div");
+                    row.className = "sidePortraitMobileRow";
+                    // subito sotto la topbar, così le vedi anche da telefono
+                    topbar.insertAdjacentElement("afterend", row);
+                }
+
+                // sposta in alto, dentro la riga mobile
+                row.appendChild(left);
+                row.appendChild(right);
+
+                // mostra solo se c'è una src valida (setSidePortrait gestisce display)
+                // qui non forzo display: lascio quello già impostato.
+            } else {
+                // desktop: riportale fuori dal wrap (prima del floating save, se esiste)
+                if (row) row.remove();
+
+                const saveFloat = document.getElementById("saveFloat");
+                if (saveFloat) {
+                    document.body.insertBefore(left, saveFloat);
+                    document.body.insertBefore(right, saveFloat);
+                } else {
+                    document.body.appendChild(left);
+                    document.body.appendChild(right);
+                }
+            }
+        }
+
+
         function setSidePortrait(which, url) {
             const box = document.getElementById(which === "L" ? "sideLeft" : "sideRight");
             const img = document.getElementById(which === "L" ? "sideLeftImg" : "sideRightImg");
@@ -1539,11 +1627,13 @@
             if (!v) {
                 box.style.display = "none";
                 img.removeAttribute("src");
+                relocateSidePortraitsForMobile();
                 return;
             }
 
             img.src = resolveImageSrc(v, which === "L" ? "Foto sinistra" : "Foto destra");
             box.style.display = "block";
+            relocateSidePortraitsForMobile();
         }
 
         /******************************************************************
@@ -2738,6 +2828,8 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
             MENU = await loadMenuAsync();
             renderPublic(MENU, false);
             setupThemeScrollMotion();
+            relocateSidePortraitsForMobile();
+            window.addEventListener('resize', () => { relocateSidePortraitsForMobile(); }, { passive: true });
 
             window.addEventListener("beforeunload", (e) => {
                 if (isAdmin() && DIRTY) {
