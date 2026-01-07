@@ -1509,6 +1509,39 @@
 .sidePortrait img:not([src]),
 .sidePortrait img[src=""]{ display:none !important; }
 
+
+/* =========================
+   FIX DEFINITIVO: CARD CENTRATE SU MOBILE (ultima riga)
+   - usa flex-wrap così 1 o 2 card finiscono al centro automaticamente
+   - mantiene 3 card per riga su telefoni “grandi” (es. iPhone 11 Pro Max)
+   - 2 card per riga su schermi stretti
+   ========================= */
+@media (max-width: 600px){
+  .grid{
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;  /* ✅ centra le card (soprattutto l’ultima riga) */
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  /* 3 per riga */
+  .grid .card{
+    flex: 0 0 calc((100% - 16px) / 3) !important; /* 2 gap * 8px = 16px */
+    max-width: none !important;
+    width: auto !important;
+    grid-column: unset !important;
+  }
+}
+
+/* 2 per riga su schermi piccoli */
+@media (max-width: 380px){
+  .grid .card{
+    flex: 0 0 calc((100% - 8px) / 2) !important; /* 1 gap */
+  }
+}
+
 </style>
 </head>
 
@@ -1518,8 +1551,8 @@
             <div class="brand">
                 <div class="logo" aria-hidden="true"></div>
                 <div>
-                    <h1 id="topTitle">Menu della Serata</h1>
-                    <div class="sub"><span id="topSubtitle" style="letter-spacing:.08em;">Casa Edition</span></div>
+                    <h1>Menu della Serata</h1>
+                    <div class="sub"><span style="letter-spacing:.08em;">Casa Edition</span></div>
                 </div>
             </div>
 
@@ -2021,21 +2054,7 @@
         /******************************************************************
          * RENDER
          ******************************************************************/
-        
-        function applyTopBarTitleFromBrowserTitle(browserTitle) {
-            const t = String(browserTitle || DEFAULT_DATA.cover.browserTitle || "").trim();
-            const parts = t.split("•");
-            const main = (parts[0] || "").trim();
-            const sub  = (parts[1] || "").trim();
-
-            const elMain = document.getElementById("topTitle");
-            const elSub  = document.getElementById("topSubtitle");
-
-            if (elMain) elMain.textContent = main || "Menu";
-            if (elSub)  elSub.textContent  = sub  || "";
-        }
-
-function setBrowserTitle(title) {
+        function setBrowserTitle(title) {
             const t = String(title || DEFAULT_DATA.cover.browserTitle);
             document.title = t;
             const titleEl = document.querySelector("head title");
@@ -2046,9 +2065,6 @@ function setBrowserTitle(title) {
             menu = normalizeMenuData(menu);
 
             setBrowserTitle(menu.cover.browserTitle);
-
-            // ✅ aggiorna anche il titolo visibile in alto (topbar)
-            applyTopBarTitleFromBrowserTitle(menu.cover.browserTitle);
 
             // roles
             $("role1Label").textContent = menu.cover.role1Label || DEFAULT_DATA.cover.role1Label;
