@@ -1551,8 +1551,8 @@
             <div class="brand">
                 <div class="logo" aria-hidden="true"></div>
                 <div>
-                    <h1>Menu della Serata</h1>
-                    <div class="sub"><span style="letter-spacing:.08em;">Casa Edition</span></div>
+                    <h1 id="topTitle">Menu della Serata</h1>
+                    <div class="sub"><span id="topSubtitle" style="letter-spacing:.08em;">Casa Edition</span></div>
                 </div>
             </div>
 
@@ -2054,11 +2054,31 @@
         /******************************************************************
          * RENDER
          ******************************************************************/
+
+        // =========================
+        // TOPBAR TITLE SYNC (da browserTitle)
+        // =========================
+        function applyTopBarTitleFromBrowserTitle(browserTitle) {
+            const t = String(browserTitle || DEFAULT_DATA?.cover?.browserTitle || "").trim();
+            const parts = t.split("•");
+            const main = (parts[0] || "").trim();
+            const sub  = (parts[1] || "").trim();
+
+            const elMain = document.getElementById("topTitle");
+            const elSub  = document.getElementById("topSubtitle");
+
+            if (elMain) elMain.textContent = main || "Menu";
+            if (elSub)  elSub.textContent  = sub  || "";
+        }
+
+
         function setBrowserTitle(title) {
             const t = String(title || DEFAULT_DATA.cover.browserTitle);
             document.title = t;
             const titleEl = document.querySelector("head title");
             if (titleEl) titleEl.textContent = t;
+            try { applyTopBarTitleFromBrowserTitle(title); } catch(e) {}
+
         }
 
         function renderPublic(menu, adminMode) {
@@ -3241,6 +3261,7 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
             });
 
             MENU = await loadMenuAsync();
+                try { applyTopBarTitleFromBrowserTitle(MENU?.cover?.browserTitle); } catch(e) {}
             renderPublic(MENU, false);
             setupThemeScrollMotion();
             relocateSidePortraitsForMobile();
