@@ -1518,8 +1518,8 @@
             <div class="brand">
                 <div class="logo" aria-hidden="true"></div>
                 <div>
-                    <h1>Menu della Serata</h1>
-                    <div class="sub"><span style="letter-spacing:.08em;">Casa Edition</span></div>
+                    <h1 id="topTitle">Menu della Serata</h1>
+                    <div class="sub"><span id="topSubtitle" style="letter-spacing:.08em;">Casa Edition</span></div>
                 </div>
             </div>
 
@@ -2021,7 +2021,21 @@
         /******************************************************************
          * RENDER
          ******************************************************************/
-        function setBrowserTitle(title) {
+        
+        function applyTopBarTitleFromBrowserTitle(browserTitle) {
+            const t = String(browserTitle || DEFAULT_DATA.cover.browserTitle || "").trim();
+            const parts = t.split("•");
+            const main = (parts[0] || "").trim();
+            const sub  = (parts[1] || "").trim();
+
+            const elMain = document.getElementById("topTitle");
+            const elSub  = document.getElementById("topSubtitle");
+
+            if (elMain) elMain.textContent = main || "Menu";
+            if (elSub)  elSub.textContent  = sub  || "";
+        }
+
+function setBrowserTitle(title) {
             const t = String(title || DEFAULT_DATA.cover.browserTitle);
             document.title = t;
             const titleEl = document.querySelector("head title");
@@ -2032,6 +2046,9 @@
             menu = normalizeMenuData(menu);
 
             setBrowserTitle(menu.cover.browserTitle);
+
+            // ✅ aggiorna anche il titolo visibile in alto (topbar)
+            applyTopBarTitleFromBrowserTitle(menu.cover.browserTitle);
 
             // roles
             $("role1Label").textContent = menu.cover.role1Label || DEFAULT_DATA.cover.role1Label;
