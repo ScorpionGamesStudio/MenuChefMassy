@@ -39,16 +39,16 @@
   "itemsBySection": {
     "antipasti": [
       {
-        "name": "Bruschette gourmet",
-        "info": "Croccanti, profumate, con topping ricchi e servite “a degustazione”.",
-        "imageUrl": "",
-        "id": "120270b5-6b07-466a-b5b0-18274507217c"
-      },
-      {
         "id": "c4d0279c-ea5b-476e-b928-851e60affc1e",
         "name": "Spritz",
         "info": "Leggero e frizzante, perfetto per aprire la serata con stile.",
         "imageUrl": "immage/AperolSpritz.png"
+      },
+      {
+        "id": "120270b5-6b07-466a-b5b0-18274507217c",
+        "name": "Bruschette gourmet",
+        "info": "Croccanti, profumate, con topping ricchi e servite “a degustazione”.",
+        "imageUrl": "immage/Patatine500g.png"
       }
     ],
     "primi": [
