@@ -1032,21 +1032,23 @@
             transform: translateY(-50%);
             width: 500px; /* ✅ 500 */
             height: 1000px; /* ✅ 500 */
-            border-radius: 36px;
+            border-radius: 0px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,.14);
-            background: rgba(0,0,0,.18);
+            border: 0px solid rgba(255,255,255,.14);
+            background: rgba(0,0,0,.0);
             box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-            z-index: 20;
+            backdrop-filter: blur(0px);
+            z-index: 0;
             display: none;
         }
 
             .sidePortrait img {
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
+                object-fit: contain; /* ← NON taglia */
+                object-position: center; /* ← CENTRATA */
                 display: block;
+                background: transparent; /* ← niente riempimento finto */
             }
 
         .sideLeft {
@@ -1338,11 +1340,11 @@
    ========================= */
 @media (max-width: 430px) {
 
-  /* laterali: più larghe e davvero centrate nello schermo */
+  /* laterali: più larghe e davvero centrate nello schermo */ /*Questo modifica la larghezza delle foto destra e sinistra*/
   body.hasSidePortraits .sidePortrait{
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
 
     height: 10vh !important;           /* meno “barra lunga” */
     max-height: 10vh !important;
@@ -1381,6 +1383,131 @@
     max-width: 100vw !important;
   }
 }
+
+
+/* =========================
+   OVERRIDE SIDE PORTRAITS (MOBILE FIRST) - vFinal
+   Obiettivi:
+   1) Se NON c’è foto => NON mostrare nulla (niente “foto sinistra/destra”)
+   2) Se ci sono foto => stanno a filo bordo schermo (left=0 / right=0)
+   3) Il contenuto centrale arriva fino a “toccare” le foto (padding = larghezza foto + gap)
+   ========================= */
+
+/* Variabili (puoi regolarle qui) */
+:root{
+  --sideW: 110px;     /* larghezza striscia foto su iPhone 11 Pro Max */
+  --sideGap: 10px;    /* spazio tra foto e contenuto centrale */
+  --sideTop: 50%;     /* centratura verticale */
+}
+
+/* Base: i ritratti NON devono mai mostrare placeholder/alt text */
+.sidePortrait img{ display:block; }
+.sidePortrait[data-empty="1"]{ display:none !important; } /* JS marca vuoto */
+
+/* MOBILE: foto ai bordi + contenuto “a contatto” */
+@media (max-width: 560px){
+  body.hasSidePortraits .wrap{
+    max-width: 100vw !important;
+    padding-left: calc(var(--sideW) + var(--sideGap)) !important;
+    padding-right: calc(var(--sideW) + var(--sideGap)) !important;
+  }
+
+  body.hasSidePortraits .sidePortrait{
+    position: fixed !important;
+    top: var(--sideTop) !important;
+    transform: translateY(-50%) !important;
+
+    width: var(--sideW) !important;
+    height: calc(100vh - 4px) !important;  /* quasi tutta altezza */
+    max-height: calc(100vh - 24px) !important;
+
+    border-radius: 22px !important;
+
+    /* a filo bordo */
+    left: auto !important;
+    right: auto !important;
+    margin: 0 !important;
+  }
+
+  body.hasSidePortraits .sideLeft{ left: 0 !important; }
+  body.hasSidePortraits .sideRight{ right: 0 !important; }
+
+  /* non tagliare le persone */
+  body.hasSidePortraits .sidePortrait img{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    background: rgba(0,0,0,.10);
+  }
+}
+
+/* Schermi molto stretti: riduci leggermente la larghezza per non strozzare il centro */
+@media (max-width: 390px){
+  :root{ --sideW: 96px; --sideGap: 8px; }
+}
+
+
+
+/* =========================
+   MOBILE SIDE PORTRAITS (v3)
+   - immagini ai bordi schermo (sinistra/destra)
+   - centrate verticalmente
+   - più piccole
+   - NESSUN blur / cornici / sfondi
+   - contenuto centrale più largo (tocca quasi le foto)
+   ========================= */
+@media (max-width: 560px) {
+  :root{ --sideW: 96px; --sideGap: 6px; }
+
+        body.hasSidePortraits .wrap {
+            padding-left: 60px !important;
+            padding-right: 60px !important;
+        }
+
+  body.hasSidePortraits .sidePortrait{
+    position: fixed !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+
+    width: var(--sideW) !important;
+    height: min(78vh, 620px) !important;
+
+    border-radius: 18px !important;
+    overflow: visible !important;
+
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    pointer-events: none !important;
+  }
+
+  body.hasSidePortraits .sideLeft{ left: 0 !important; }
+  body.hasSidePortraits .sideRight{ right: 0 !important; }
+
+  body.hasSidePortraits .sidePortrait img{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    background: transparent !important;
+    filter: none !important;
+  }
+}
+
+/* telefoni molto stretti: riduci leggermente le foto laterali */
+@media (max-width: 390px) {
+  :root{ --sideW: 84px; }
+}
+
+
+/* non mostrare testo alt quando non c'è src */
+.sidePortrait img:not([src]),
+.sidePortrait img[src=""]{ display:none !important; }
 
 </style>
 </head>
@@ -1850,74 +1977,19 @@
         function relocateSidePortraitsForMobile() {
             const left = document.getElementById("sideLeft");
             const right = document.getElementById("sideRight");
-            const wrap = document.querySelector(".wrap");
-            const topbar = document.querySelector(".topbar");
-            if (!left || !right || !wrap || !topbar) return;
 
-            const isMobile = window.matchMedia("(max-width: 980px)").matches;
-            const isPhone = window.matchMedia("(max-width: 560px)").matches;
-
-            let row = document.querySelector(".sidePortraitMobileRow");
-
-            // helper: rileva se esiste davvero un'immagine valida
             const hasValidImg = (el) => {
                 const img = el ? el.querySelector("img") : null;
                 const src = img ? (img.getAttribute("src") || "") : "";
-                return !!src && src.trim().length > 20; // dataURL o URL
+                return !!src && src.trim().length > 0 && !src.startsWith("data:image/svg+xml");; // dataURL o URL
             };
 
-            // ✅ TELEFONO: prova a tenere le foto ai lati (strette) e stringi il contenuto
-            if (isPhone) {
-                if (row) row.remove();
+            // Non spostare mai le foto: restano FIXED ai bordi (desktop + mobile)
+            const anySide = hasValidImg(left) || hasValidImg(right);
+            document.body.classList.toggle("hasSidePortraits", anySide);
 
-                // assicurati che siano nel body (fixed)
-                const saveFloat = document.getElementById("saveFloat");
-                if (saveFloat) {
-                    document.body.insertBefore(left, saveFloat);
-                    document.body.insertBefore(right, saveFloat);
-                } else {
-                    document.body.appendChild(left);
-                    document.body.appendChild(right);
-                }
-
-                // attiva layout "con foto laterali" solo se almeno una è presente
-                const anySide = hasValidImg(left) || hasValidImg(right);
-                document.body.classList.toggle("hasSidePortraits", anySide);
-
-                return;
-            }
-
-            // ✅ TABLET/MOBILE: mettile in alto in una riga (sotto la topbar)
-            if (isMobile) {
-                if (!row) {
-                    row = document.createElement("div");
-                    row.className = "sidePortraitMobileRow";
-                    // subito sotto la topbar, così le vedi anche da telefono
-                    topbar.insertAdjacentElement("afterend", row);
-                }
-
-                document.body.classList.remove("hasSidePortraits");
-
-                // sposta in alto, dentro la riga mobile
-                row.appendChild(left);
-                row.appendChild(right);
-
-                // qui non forzo display: setSidePortrait gestisce display
-                return;
-            }
-
-            // ✅ DESKTOP: riportale fuori dal wrap
-            if (row) row.remove();
-            document.body.classList.remove("hasSidePortraits");
-
-            const saveFloat = document.getElementById("saveFloat");
-            if (saveFloat) {
-                document.body.insertBefore(left, saveFloat);
-                document.body.insertBefore(right, saveFloat);
-            } else {
-                document.body.appendChild(left);
-                document.body.appendChild(right);
-            }
+            if (left) left.style.display = hasValidImg(left) ? "block" : "none";
+            if (right) right.style.display = hasValidImg(right) ? "block" : "none";
         }
 
 
@@ -1927,15 +1999,22 @@
             if (!box || !img) return;
 
             const v = String(url || "").trim();
+
+            // ✅ Se non c'è una foto: NASCONDI COMPLETAMENTE (evita testo alt "foto sinistra/destra")
             if (!v) {
                 box.style.display = "none";
+                box.setAttribute("data-empty", "1");
                 img.removeAttribute("src");
                 relocateSidePortraitsForMobile();
                 return;
             }
 
-            img.src = resolveImageSrc(v, which === "L" ? "Foto sinistra" : "Foto destra");
+            // ✅ Se c'è una foto: mostra e usa l'URL così com'è (Niente placeholder)
             box.style.display = "block";
+            box.removeAttribute("data-empty");
+
+            // supporta data:image / http(s) / blob / path locale (immage/...)
+            img.src = resolveImageSrc(v, ""); // fallback title vuoto: per side portraits non vogliamo placeholder
             relocateSidePortraitsForMobile();
         }
 
