@@ -24,6 +24,17 @@
             --max: 1180px;
             --danger: #ff5b6b;
             --ok: #38d6a5;
+            /* ✅ NEW: background base (default vs themed) */
+            --baseBgDefault: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, var(--bg) 100%);
+            --baseBgThemed: radial-gradient(1200px 700px at 20% 0%, rgba(255,255,255,.06), transparent 60%), radial-gradient(900px 600px at 90% 20%, rgba(255,255,255,.05), transparent 55%), linear-gradient(180deg, #050507 0%, #0a0a12 55%, #050507 100%);
+            --baseBg: var(--baseBgDefault);
+            /* ✅ NEW: base background actually applied (can be customized from admin) */
+            --baseBgApplied: var(--baseBgDefault);
+            --baseBgColor: ""; /* e.g. #ff7a00 */
+            /* NEW: pattern theme layer (default = none) */
+            --themePattern: none; /* set to: url("...") via JS */
+            --themePatternSize: 420px; /* set via JS */
+            --themePatternOpacity: 1; /* 1 = colori reali, nessuna tinta dal background */ /* puoi aumentare se vuoi il pattern più visibile */
         }
 
         body.light {
@@ -35,6 +46,9 @@
             --text: rgba(0,0,0,.88);
             --muted: rgba(0,0,0,.62);
             --shadow: 0 20px 60px rgba(0,0,0,.12);
+            --themePatternOpacity: 1;
+            /* ✅ in light mode: themed background anche chiaro (se vuoi) */
+            --baseBgThemed: radial-gradient(1200px 700px at 20% 0%, rgba(0,0,0,.04), transparent 60%), radial-gradient(900px 600px at 90% 20%, rgba(0,0,0,.03), transparent 55%), linear-gradient(180deg, #ffffff 0%, #f7f5f0 55%, #ffffff 100%);
         }
 
         * {
@@ -42,23 +56,50 @@
         }
 
         html, body {
-            height: 100%;
+            min-height: 100%;
+        }
+
+        html {
+            /* ✅ sfondo base (può essere custom) */
+            background: var(--baseBgApplied, var(--baseBg));
+            position: relative;
         }
 
         body {
+            min-height: 100%;
             margin: 0;
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+            position: relative;
+            background: transparent;
             color: var(--text);
-            background: radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.20), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.18), transparent 55%), radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.10), transparent 55%), linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, var(--bg) 100%);
-            overflow-x: hidden;
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-            body.modal-open {
+        /* ✅ Pattern layer: fixed, always covers viewport; moves with scroll via CSS var */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image: var(--themePattern);
+            background-repeat: repeat;
+            background-size: var(--themePatternSize) auto;
+            /* ✅ scroll motion (updated via JS) */
+            background-position: left var(--themeScrollY);
+            opacity: var(--themePatternOpacity);
+            filter: saturate(1.08) contrast(1.02);
+        }
+
+        body.modal-open {
                 overflow: hidden;
                 height: 100%;
             }
 
         .wrap {
+            position: relative;
+            z-index: 1;
             max-width: var(--max);
             margin: 0 auto;
             padding: 26px 18px 90px;
@@ -72,7 +113,7 @@
             gap: 14px;
             padding: 14px 16px;
             border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+            background: linear-gradient(180deg, rgb(18,18,26), rgb(10,10,18));
             border-radius: var(--radius2);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
@@ -129,44 +170,59 @@
             letter-spacing: .02em;
         }
 
-        .chef {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        /* roles (2 colonne) */
+        .roles {
+            margin-left: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             padding: 6px 10px;
             border-radius: 14px;
             border: 1px solid rgba(246,211,101,.22);
             background: rgba(202,162,74,.10);
             backdrop-filter: blur(8px);
-            margin-left: auto;
-            min-width: 220px;
+            min-width: 360px;
         }
 
-        .chefLabel {
+        .roleCard {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgb(10,10,18);
+        }
+
+        .roleLabel {
             font-size: 10px;
             letter-spacing: .26em;
             text-transform: uppercase;
             color: rgba(255,255,255,.72);
         }
 
-        .chefName {
+        .roleName {
             font-size: 12px;
             letter-spacing: .06em;
             color: rgba(255,255,255,.92);
             font-weight: 600;
         }
 
-        body.light .chef {
+        body.light .roles {
             background: rgba(0,0,0,.03);
             border-color: rgba(0,0,0,.10);
         }
 
-        body.light .chefLabel {
+        body.light .roleCard {
+            background: rgba(255,255,255,.65);
+            border-color: rgba(0,0,0,.08);
+        }
+
+        body.light .roleLabel {
             color: rgba(0,0,0,.60);
         }
 
-        body.light .chefName {
+        body.light .roleName {
             color: rgba(0,0,0,.80);
         }
 
@@ -180,7 +236,7 @@
 
         .btn {
             border: 1px solid var(--border);
-            background: rgba(255,255,255,.05);
+            background: rgb(14,14,20);
             color: rgba(255,255,255,.84);
             padding: 10px 12px;
             border-radius: 999px;
@@ -241,12 +297,12 @@
         }
 
         @media (max-width: 720px) {
-            .chef {
+            .roles {
                 order: 3;
                 width: 100%;
-                text-align: left;
                 margin-left: 0;
                 min-width: unset;
+                grid-template-columns: 1fr;
             }
 
             .actions {
@@ -260,7 +316,7 @@
         .cover {
             margin-top: 18px;
             border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+            background: linear-gradient(180deg, rgb(18,18,26), rgb(10,10,18));
             border-radius: var(--radius2);
             box-shadow: var(--shadow);
             overflow: hidden;
@@ -334,7 +390,7 @@
 
         .metaCard {
             border: 1px solid rgba(255,255,255,.12);
-            background: rgba(255,255,255,.04);
+            background: rgb(10,10,18);
             border-radius: 16px;
             padding: 12px;
         }
@@ -391,7 +447,7 @@
         .section {
             margin-top: 18px;
             border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+            background: linear-gradient(180deg, rgb(18,18,26), rgb(10,10,18));
             border-radius: var(--radius2);
             overflow: hidden;
             box-shadow: var(--shadow);
@@ -410,7 +466,7 @@
             justify-content: space-between;
             gap: 12px;
             border-bottom: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.03);
+            background: rgb(12,12,18);
         }
 
         body.light .sectionHead {
@@ -496,7 +552,7 @@
         .card {
             grid-column: span 4;
             border: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.04);
+            background: rgb(10,10,18);
             border-radius: var(--radius);
             overflow: hidden;
             transition: transform .12s ease, border-color .12s ease, background .12s ease;
@@ -530,7 +586,6 @@
             background: rgba(0,0,0,.04);
         }
 
-        /* Immagini: niente tagli */
         .img {
             height: 230px;
             background: rgba(0,0,0,.20);
@@ -552,7 +607,6 @@
             object-position: center;
             display: block;
             filter: contrast(1.04) saturate(1.05);
-            transform: none;
         }
 
         .cardBtnsRight {
@@ -635,21 +689,10 @@
             color: rgba(0,0,0,.85);
         }
 
-        /* durante drag: la card rimane nel layout ma invisibile */
         .card.dragging {
             opacity: 0;
         }
 
-        /* Placeholder che indica dove verrà depositata la card */
-        .dropMarker {
-            grid-column: span 4;
-            border-radius: var(--radius);
-            border: 2px dashed rgba(246,211,101,.55);
-            background: rgba(202,162,74,.08);
-            min-height: 260px;
-        }
-
-        /* ✅ Ghost che segue il mouse */
         .dragGhost {
             position: fixed;
             z-index: 9999;
@@ -659,7 +702,6 @@
             opacity: .92;
         }
 
-        /* ✅ Indicatore drop STABILE (senza reflow): linea prima/dopo la card target */
         .card.drop-before::before,
         .card.drop-after::after {
             content: "";
@@ -673,16 +715,12 @@
             pointer-events: none;
         }
 
-        @media (max-width: 980px) {
-            .dropMarker {
-                grid-column: span 6;
-            }
+        .card.drop-before::before {
+            top: 8px;
         }
 
-        @media (max-width: 560px) {
-            .dropMarker {
-                grid-column: span 1;
-            }
+        .card.drop-after::after {
+            bottom: 8px;
         }
 
         .content {
@@ -695,7 +733,6 @@
             letter-spacing: -0.01em;
         }
 
-        /* FIX a-capo: usa CSS */
         .info {
             margin: 8px 0 0;
             color: rgba(255,255,255,.72);
@@ -750,7 +787,7 @@
 
         .pill {
             border: 1px solid rgba(255,255,255,.12);
-            background: rgba(0,0,0,.26);
+            background: rgb(12,12,18);
             backdrop-filter: blur(10px);
             color: rgba(255,255,255,.82);
             border-radius: 999px;
@@ -786,7 +823,7 @@
         .modal {
             width: min(860px, 100%);
             border: 1px solid rgba(255,255,255,.14);
-            background: linear-gradient(180deg, rgba(20,20,30,.88), rgba(10,10,16,.88));
+            background: linear-gradient(180deg, rgb(20,20,30), rgb(10,10,16));
             border-radius: 22px;
             box-shadow: 0 40px 120px rgba(0,0,0,.65);
             overflow: hidden;
@@ -808,7 +845,7 @@
             align-items: center;
             gap: 10px;
             border-bottom: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.03);
+            background: rgb(12,12,18);
             flex: 0 0 auto;
         }
 
@@ -834,7 +871,7 @@
 
         .panel {
             border: 1px solid rgba(255,255,255,.10);
-            background: rgba(255,255,255,.04);
+            background: rgb(10,10,18);
             border-radius: 18px;
             padding: 14px;
         }
@@ -869,7 +906,7 @@
             color: rgba(0,0,0,.70);
         }
 
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"], textarea, select, input[type="number"] {
             width: 100%;
             padding: 10px 12px;
             border-radius: 14px;
@@ -879,7 +916,7 @@
             outline: none;
         }
 
-        body.light input[type="text"], body.light input[type="password"], body.light textarea {
+        body.light input[type="text"], body.light input[type="password"], body.light textarea, body.light select, body.light input[type="number"] {
             background: rgba(255,255,255,.75);
             color: rgba(0,0,0,.85);
             border-color: rgba(0,0,0,.10);
@@ -945,8 +982,73 @@
             border-color: rgba(0,0,0,.10);
         }
 
+        /* Side portraits (500px) */
+        .sidePortrait {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px; /* ✅ 500 */
+            height: 500px; /* ✅ 500 */
+            border-radius: 36px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.14);
+            background: rgba(0,0,0,.18);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            z-index: 20;
+            display: none;
+        }
+
+            .sidePortrait img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+        .sideLeft {
+            left: 14px;
+        }
+
+        .sideRight {
+            right: 14px;
+        }
+
+        body.light .sidePortrait {
+            background: rgba(255,255,255,.75);
+            border-color: rgba(0,0,0,.12);
+        }
+
+        /* su schermi più piccoli, riduco un po' */
+        @media (max-width: 1600px) {
+            .sidePortrait {
+                width: 420px;
+                height: 420px;
+            }
+        }
+
+        @media (max-width: 1240px) {
+            .sidePortrait {
+                width: 340px;
+                height: 340px;
+            }
+        }
+
+        @media (max-width: 1040px) {
+            .sidePortrait {
+                width: 280px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .sidePortrait {
+                display: none !important;
+            }
+        }
+
         @media print {
-            .topbar, .actions, .saveFloat {
+            .topbar, .actions, .saveFloat, .sidePortrait {
                 display: none !important;
             }
 
@@ -954,16 +1056,16 @@
                 background: white !important;
             }
 
+                body::before {
+                    display: none !important;
+                }
+
             .wrap {
                 padding: 0;
             }
 
             .section, .cover {
                 box-shadow: none !important;
-            }
-
-            .chef {
-                display: none !important;
             }
 
             .modalBack {
@@ -988,9 +1090,15 @@
                 </div>
             </div>
 
-            <div class="chef" aria-label="Chef">
-                <span class="chefLabel">Chef della serata</span>
-                <span class="chefName" id="chefNameTop">Massimiliano Giannone</span>
+            <div class="roles" aria-label="Ruoli serata">
+                <div class="roleCard">
+                    <span class="roleLabel" id="role1Label">Chef della serata</span>
+                    <span class="roleName" id="role1Name">Massimiliano Giannone</span>
+                </div>
+                <div class="roleCard">
+                    <span class="roleLabel" id="role2Label">Animazione della serata</span>
+                    <span class="roleName" id="role2Name">Anna Maria</span>
+                </div>
             </div>
 
             <div class="actions">
@@ -1038,8 +1146,6 @@
 
                     <p class="lede" id="heroDesc">
                         Un menu completo, elegante e moderno.
-                        Presentato in modo “wow” come fosse un fine-dining,
-                        ma con il calore di una serata tra amici e famiglia.
                     </p>
 
                     <div class="metaGrid" aria-label="Dettagli serata">
@@ -1049,7 +1155,7 @@
                         </div>
                         <div class="metaCard">
                             <b>Note</b>
-                            <span id="metaNote">Chiedimi per allergeni o alternative.<br />Piatti serviti “a ondate”.</span>
+                            <span id="metaNote">Chiedimi per allergeni o alternative.</span>
                         </div>
                     </div>
                 </div>
@@ -1064,12 +1170,19 @@
         <div id="menuRoot"></div>
     </div>
 
+    <!-- Side portraits -->
+    <div class="sidePortrait sideLeft" id="sideLeft" aria-hidden="true">
+        <img id="sideLeftImg" alt="Foto sinistra" />
+    </div>
+    <div class="sidePortrait sideRight" id="sideRight" aria-hidden="true">
+        <img id="sideRightImg" alt="Foto destra" />
+    </div>
+
     <div class="saveFloat" id="saveFloat">
         <div class="pill" id="dirtyPill" style="display:none;">
             <span class="dot" aria-hidden="true"></span>
             Modifiche non salvate
         </div>
-
         <button class="btn ok" id="saveAllBtn" type="button" title="Salva + scarica menu-data.json">Salva</button>
     </div>
 
@@ -1092,11 +1205,11 @@
 
         const REMOTE_DATA_FILE = "menu-data.json";
 
-        const SESSION_KEY = "menu_admin_session_v12";
-        const MENU_KEY = "menu_data_v12_localcache";
+        const SESSION_KEY = "menu_admin_session_v13";
+        const MENU_KEY = "menu_data_v13_localcache";
 
-        // ✅ cartella immagini (come la vuoi tu)
-        const IMAGES_FOLDER = "immage/"; // <-- crea questa cartella nella repo
+        // cartella immagini
+        const IMAGES_FOLDER = "immage/";
 
         let MENU = null;
         let DRAFT = null;
@@ -1113,9 +1226,7 @@
                 .replaceAll("'", "&#39;");
         }
 
-        function safeParseJson(txt) {
-            try { return JSON.parse(txt); } catch { return null; }
-        }
+        function safeParseJson(txt) { try { return JSON.parse(txt); } catch { return null; } }
         function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
         function setDirty(v) {
@@ -1165,42 +1276,37 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-                      <defs>
-                        <linearGradient id="g" x1="0" x2="1">
-                          <stop offset="0" stop-color="%2307070a"/>
-                          <stop offset="1" stop-color="%23151622"/>
-                        </linearGradient>
-                        <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                          <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                          <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-                        </radialGradient>
-                      </defs>
-                      <rect width="100%" height="100%" fill="url(%23g)"/>
-                      <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-                      <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-                      <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-                      <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-                    </svg>`;
+                <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+                  <defs>
+                    <linearGradient id="g" x1="0" x2="1">
+                      <stop offset="0" stop-color="%2307070a"/>
+                      <stop offset="1" stop-color="%23151622"/>
+                    </linearGradient>
+                    <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                      <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                      <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(%23g)"/>
+                  <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+                  <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+                  <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+                  <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+                </svg>`;
         }
 
-        // ✅ Normalizza URL immagini:
-        // - data:/http(s)/blob => ok
-        // - altrimenti => trattalo come path relativo (es: immage/coca.jpg)
         function resolveImageSrc(imageUrl, fallbackTitle) {
             const v = String(imageUrl || "").trim();
             if (!v) return placeholderSvg(fallbackTitle || "Piatto");
             if (v.startsWith("data:image/") || v.startsWith("http://") || v.startsWith("https://") || v.startsWith("blob:")) return v;
-            return v; // relativo (es: immage/xxx.jpg)
+            return v;
         }
 
         /******************************************************************
-         * ID UTILS (per riordinare le schede)
+         * ID UTILS
          ******************************************************************/
         function genId() {
-            try {
-                if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
-            } catch (e) { }
+            try { if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID(); } catch (e) { }
             return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
         }
 
@@ -1214,6 +1320,27 @@
             }
         }
 
+        function setupThemeScrollMotion() {
+            let ticking = false;
+
+            function update() {
+                ticking = false;
+                // muovi verso l’alto mentre scrolli verso il basso (effetto “loop”)
+                const y = window.scrollY || 0;
+                document.documentElement.style.setProperty("--themeScrollY", `${-y}px`);
+            }
+
+            window.addEventListener("scroll", () => {
+                if (!ticking) {
+                    ticking = true;
+                    requestAnimationFrame(update);
+                }
+            }, { passive: true });
+
+            update();
+        }
+
+
         /******************************************************************
          * DEFAULT DATA
          ******************************************************************/
@@ -1223,7 +1350,21 @@
                 heroPrefix: "Stasera a casa con Chef Massy:",
                 heroGold: "cena da 3 stelle",
                 heroDesc: "Un menu completo, elegante e moderno.\nPresentato in modo “wow” come fosse un fine-dining,\nma con il calore di una serata tra amici e famiglia.",
-                chefName: "Massimiliano Giannone",
+
+                role1Label: "Chef della serata",
+                role1Name: "Massimiliano Giannone",
+                role2Label: "Animazione della serata",
+                role2Name: "Anna Maria",
+
+                sideLeftImageUrl: "",
+                sideRightImageUrl: "",
+
+                /* ✅ theme pattern */
+                themePatternUrl: "",
+                themePatternSize: 420,
+                /* ✅ base background color (optional, e.g. halloween orange) */
+                baseBgColor: "",
+
                 toast: "“Questa sera ci prendiamo un momento per stare insieme, mangiare bene e fare due risate.\nIo cucino, voi godetevela.”",
                 metaOrario: "06/01/2026\nalle ore 20:30",
                 metaNote: "Chiedimi per allergeni o alternative.\nPiatti serviti “a ondate”."
@@ -1262,28 +1403,40 @@
         /******************************************************************
          * STORAGE + REMOTE LOADING
          ******************************************************************/
-        // ✅ Soluzione A: non esplode più se localStorage è pieno
         function saveMenuToLocal(data) {
-            try {
-                localStorage.setItem(MENU_KEY, JSON.stringify(data));
-                return true;
-            } catch (err) {
-                // Quota piena? ok, semplicemente non salviamo in cache e basta.
-                return false;
-            }
+            try { localStorage.setItem(MENU_KEY, JSON.stringify(data)); return true; }
+            catch (err) { return false; }
         }
 
         function normalizeMenuData(parsed) {
             if (!parsed || typeof parsed !== "object") return deepClone(DEFAULT_DATA);
+
             parsed.cover = parsed.cover || {};
 
             if (!parsed.cover.browserTitle) parsed.cover.browserTitle = DEFAULT_DATA.cover.browserTitle;
-            if (!parsed.cover.chefName) parsed.cover.chefName = DEFAULT_DATA.cover.chefName;
 
             parsed.cover.heroDesc = brToNl(parsed.cover.heroDesc ?? DEFAULT_DATA.cover.heroDesc);
             parsed.cover.toast = brToNl(parsed.cover.toast ?? DEFAULT_DATA.cover.toast);
             parsed.cover.metaOrario = brToNl(parsed.cover.metaOrario ?? DEFAULT_DATA.cover.metaOrario);
             parsed.cover.metaNote = brToNl(parsed.cover.metaNote ?? DEFAULT_DATA.cover.metaNote);
+
+            if (!parsed.cover.role1Label) parsed.cover.role1Label = DEFAULT_DATA.cover.role1Label;
+            if (parsed.cover.role1Name == null) parsed.cover.role1Name = DEFAULT_DATA.cover.role1Name;
+
+            if (!parsed.cover.role2Label) parsed.cover.role2Label = DEFAULT_DATA.cover.role2Label;
+            if (parsed.cover.role2Name == null) parsed.cover.role2Name = DEFAULT_DATA.cover.role2Name;
+
+            if (parsed.cover.sideLeftImageUrl == null) parsed.cover.sideLeftImageUrl = DEFAULT_DATA.cover.sideLeftImageUrl;
+            if (parsed.cover.sideRightImageUrl == null) parsed.cover.sideRightImageUrl = DEFAULT_DATA.cover.sideRightImageUrl;
+
+            /* ✅ theme pattern */
+            if (parsed.cover.themePatternUrl == null) parsed.cover.themePatternUrl = DEFAULT_DATA.cover.themePatternUrl;
+            const sizeNum = Number(parsed.cover.themePatternSize ?? DEFAULT_DATA.cover.themePatternSize);
+            parsed.cover.themePatternSize = Number.isFinite(sizeNum) && sizeNum >= 80 ? Math.round(sizeNum) : DEFAULT_DATA.cover.themePatternSize;
+
+            /* ✅ base background color (optional) */
+            if (parsed.cover.baseBgColor == null) parsed.cover.baseBgColor = DEFAULT_DATA.cover.baseBgColor;
+            parsed.cover.baseBgColor = String(parsed.cover.baseBgColor || "").trim();
 
             parsed.sections = Array.isArray(parsed.sections) ? parsed.sections : deepClone(DEFAULT_DATA.sections);
             parsed.itemsBySection = parsed.itemsBySection || deepClone(DEFAULT_DATA.itemsBySection);
@@ -1311,13 +1464,9 @@
                     const txt = await res.text();
                     const data = JSON.parse(txt);
                     const norm = normalizeMenuData(data);
-
-                    // ✅ Non cacheiamo più il menu in localStorage: GitHub è la fonte vera
                     return norm;
                 }
             } catch (e) { }
-
-            // fallback: se non c'è il json remoto, prova localStorage, altrimenti default
             return loadMenuFromLocal();
         }
 
@@ -1328,289 +1477,108 @@
         function logout() { localStorage.removeItem(SESSION_KEY); }
 
         /******************************************************************
- * DRAG (pointer) — STABILE (niente marker nel layout)
- ******************************************************************/
-        let DRAG = {
-            active: false,
-            sectionKey: null,
-            gridEl: null,
-            cardEl: null,
-            placeholderEl: null,
-            ghostEl: null,
-            pointerId: null,
-            offsetX: 0,
-            offsetY: 0,
-            targetCard: null,
-            insertAfter: false,
-            raf: 0
-        };
-
-        function clearDropHints(grid) {
-            if (!grid) return;
-            grid.querySelectorAll(".card.drop-before, .card.drop-after").forEach(el => {
-                el.classList.remove("drop-before", "drop-after");
-            });
+         * APPLY THEME PATTERN + ✅ CHANGE BASE BACKGROUND
+         ******************************************************************/
+        function buildColorBg(color) {
+            // colore base + un minimo di profondità (senza “spaccare” lo stile)
+            const c = String(color || "").trim();
+            if (!c) return "";
+            return `radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.14), transparent 60%),
+                    radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.12), transparent 55%),
+                    radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.08), transparent 55%),
+                    linear-gradient(180deg, ${c} 0%, ${c} 100%)`;
         }
 
-        function cleanupDrag() {
-            if (DRAG.raf) cancelAnimationFrame(DRAG.raf);
-            DRAG.raf = 0;
+        /******************************************************************
+         * APPLY THEME PATTERN + ✅ CHANGE BASE BACKGROUND (NOW WITH CUSTOM COLOR)
+         ******************************************************************/
+        function applyThemePattern(url, sizePx, baseBgColor) {
+            const u = String(url || "").trim();
+            const baseColor = String(baseBgColor || "").trim();
 
-            if (DRAG.gridEl) clearDropHints(DRAG.gridEl);
-
-            if (DRAG.cardEl) DRAG.cardEl.style.display = "";
-
-            if (DRAG.placeholderEl?.parentElement) DRAG.placeholderEl.parentElement.removeChild(DRAG.placeholderEl);
-            if (DRAG.ghostEl?.parentElement) DRAG.ghostEl.parentElement.removeChild(DRAG.ghostEl);
-
-            window.removeEventListener("pointermove", onPointerMove, { passive: false });
-            window.removeEventListener("pointerup", onPointerUp, { passive: false });
-            window.removeEventListener("pointercancel", onPointerCancel, { passive: false });
-
-            document.body.style.userSelect = "";
-
-            DRAG = {
-                active: false,
-                sectionKey: null,
-                gridEl: null,
-                cardEl: null,
-                placeholderEl: null,
-                ghostEl: null,
-                pointerId: null,
-                offsetX: 0,
-                offsetY: 0,
-                targetCard: null,
-                insertAfter: false,
-                raf: 0
-            };
-        }
-
-        function positionGhost(clientX, clientY) {
-            if (!DRAG.ghostEl) return;
-            const x = clientX - DRAG.offsetX;
-            const y = clientY - DRAG.offsetY;
-            DRAG.ghostEl.style.left = x + "px";
-            DRAG.ghostEl.style.top = y + "px";
-        }
-
-        function pickTargetFromPointer(clientX, clientY) {
-            const grid = DRAG.gridEl;
-            if (!grid) return { card: null, after: false };
-
-            const cards = [...grid.querySelectorAll(".card")].filter(c => c.style.display !== "none");
-            if (cards.length === 0) return { card: null, after: false };
-
-            let best = null;
-            let bestDist = Infinity;
-
-            for (const c of cards) {
-                const r = c.getBoundingClientRect();
-                const cx = r.left + r.width / 2;
-                const cy = r.top + r.height / 2;
-                const dx = clientX - cx;
-                const dy = clientY - cy;
-                const d = dx * dx + dy * dy;
-                if (d < bestDist) { bestDist = d; best = { el: c, rect: r }; }
-            }
-
-            if (!best) return { card: null, after: false };
-
-            const r = best.rect;
-            const cx = r.left + r.width / 2;
-            const cy = r.top + r.height / 2;
-
-            // Regola robusta:
-            // - se sei abbastanza “sulla stessa riga” -> decide X
-            // - altrimenti decide Y
-            const sameRow = Math.abs(clientY - cy) < r.height * 0.35;
-            const after = sameRow ? (clientX > cx) : (clientY > cy);
-
-            return { card: best.el, after };
-        }
-
-        function applyDropHint(card, after) {
-            if (!DRAG.gridEl) return;
-
-            // pulisco hint precedente SOLO se serve
-            if (DRAG.targetCard && DRAG.targetCard !== card) {
-                DRAG.targetCard.classList.remove("drop-before", "drop-after");
-            } else if (DRAG.targetCard === card) {
-                // se stessa card ma cambia after/before
-                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            // 1) pattern
+            if (!u) {
+                document.documentElement.style.setProperty("--themePattern", "none");
             } else {
-                // nessun target precedente -> ok
+                const src = resolveImageSrc(u, "Tema");
+                document.documentElement.style.setProperty("--themePattern", `url("${src}")`);
             }
 
-            DRAG.targetCard = card;
-            DRAG.insertAfter = !!after;
-
-            if (card) {
-                card.classList.toggle("drop-after", !!after);
-                card.classList.toggle("drop-before", !after);
-            }
-        }
-
-        function startDragFromHandle(handleEl, e) {
-            const card = handleEl.closest(".card");
-            if (!card) return;
-
-            const sec = card.getAttribute("data-sec");
-            const grid = card.closest(".grid[data-section]");
-            if (!sec || !grid) return;
-
-            if (!document.body.classList.contains("admin")) return;
-
-            e.preventDefault();
-
-            DRAG.active = true;
-            DRAG.sectionKey = sec;
-            DRAG.gridEl = grid;
-            DRAG.cardEl = card;
-            DRAG.pointerId = e.pointerId;
-
-            document.body.style.userSelect = "none";
-
-            // placeholder nello spazio originale
-            const ph = document.createElement("div");
-            ph.className = "dragPlaceholder";
-            ph.style.minHeight = (card.offsetHeight || 260) + "px";
-            grid.insertBefore(ph, card);
-            DRAG.placeholderEl = ph;
-
-            // nascondo la card vera
-            card.style.display = "none";
-
-            // ghost
-            const ghost = card.cloneNode(true);
-            ghost.classList.add("dragGhost");
-            ghost.style.width = (ph.getBoundingClientRect().width || 320) + "px";
-            document.body.appendChild(ghost);
-            DRAG.ghostEl = ghost;
-
-            // offset (prendo dal placeholder: evita salti)
-            const r = ph.getBoundingClientRect();
-            DRAG.offsetX = e.clientX - r.left;
-            DRAG.offsetY = e.clientY - r.top;
-
-            positionGhost(e.clientX, e.clientY);
-
-            try { handleEl.setPointerCapture(e.pointerId); } catch { }
-
-            // prima valutazione target
-            const t = pickTargetFromPointer(e.clientX, e.clientY);
-            applyDropHint(t.card, t.after);
-
-            window.addEventListener("pointermove", onPointerMove, { passive: false });
-            window.addEventListener("pointerup", onPointerUp, { passive: false });
-            window.addEventListener("pointercancel", onPointerCancel, { passive: false });
-        }
-
-        function onPointerMove(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            e.preventDefault();
-
-            positionGhost(e.clientX, e.clientY);
-
-            if (DRAG.raf) return;
-            DRAG.raf = requestAnimationFrame(() => {
-                DRAG.raf = 0;
-                const t = pickTargetFromPointer(e.clientX, e.clientY);
-
-                // Se il target è il placeholder (non lo è mai, perché placeholder non è .card)
-                // o se non cambia nulla, applyDropHint gestisce la pulizia.
-                applyDropHint(t.card, t.after);
-            });
-        }
-
-        function onPointerUp(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            e.preventDefault();
-
-            const grid = DRAG.gridEl;
-            const card = DRAG.cardEl;
-            const ph = DRAG.placeholderEl;
-            const target = DRAG.targetCard;
-            const after = DRAG.insertAfter;
-
-            if (grid && card) {
-                // rimetto visibile
-                card.style.display = "";
-
-                // rimuovo hint
-                clearDropHints(grid);
-
-                // Inserimento:
-                // - se ho un target, inserisco prima/dopo quel target
-                // - altrimenti metto in fondo
-                if (target && grid.contains(target)) {
-                    if (after) grid.insertBefore(card, target.nextSibling);
-                    else grid.insertBefore(card, target);
-                } else {
-                    grid.appendChild(card);
-                }
-
-                // tolgo placeholder
-                if (ph?.parentElement) ph.parentElement.removeChild(ph);
-
-                // commit ordine (aggiorna DRAFT + re-render con idx coerenti)
-                commitOrderFromDom(DRAG.sectionKey, grid);
+            // 2) base background (default / themed / custom color)
+            const custom = buildColorBg(baseColor);
+            if (custom) {
+                document.documentElement.style.setProperty("--baseBgApplied", custom);
+                document.documentElement.style.setProperty("--baseBgColor", baseColor);
+            } else {
+                // se non hai un colore custom, scegli in base alla presenza del tema
+                const fallback = u ? "var(--baseBgThemed)" : "var(--baseBgDefault)";
+                document.documentElement.style.setProperty("--baseBgApplied", fallback);
+                document.documentElement.style.setProperty("--baseBgColor", "");
             }
 
-            cleanupDrag();
-        }
+            // manteniamo anche --baseBg per compatibilità (non obbligatorio, ma utile se hai CSS che lo usa)
+            document.documentElement.style.setProperty("--baseBg", "var(--baseBgApplied)");
 
-        function onPointerCancel(e) {
-            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
-            cleanupDrag();
-        }
-
-        function attachDnDHandlers() {
-            document.querySelectorAll("[data-drag-handle]").forEach(h => {
-                if (h.__hasDrag) return;
-                h.__hasDrag = true;
-                h.addEventListener("pointerdown", (e) => startDragFromHandle(h, e), { passive: false });
-            });
-        }
-
-        function commitOrderFromDom(sectionKey, gridEl) {
-            ensureDraft();
-
-            const idsInDom = [...gridEl.querySelectorAll(".card")]
-                .map(c => c.getAttribute("data-id"))
-                .filter(Boolean);
-
-            const current = DRAFT.itemsBySection[sectionKey] || [];
-            const map = new Map(current.map(it => [String(it.id), it]));
-
-            const next = [];
-            for (const id of idsInDom) {
-                const it = map.get(String(id));
-                if (it) next.push(it);
+            // 3) size
+            const s = Number(sizePx);
+            if (Number.isFinite(s) && s >= 80) {
+                document.documentElement.style.setProperty("--themePatternSize", `${Math.round(s)}px`);
+            } else {
+                document.documentElement.style.setProperty("--themePatternSize", `${DEFAULT_DATA.cover.themePatternSize}px`);
             }
-            for (const it of current) {
-                if (!idsInDom.includes(String(it.id))) next.push(it);
+        }
+/******************************************************************
+         * SIDE PORTRAITS
+         ******************************************************************/
+        function setSidePortrait(which, url) {
+            const box = document.getElementById(which === "L" ? "sideLeft" : "sideRight");
+            const img = document.getElementById(which === "L" ? "sideLeftImg" : "sideRightImg");
+            if (!box || !img) return;
+
+            const v = String(url || "").trim();
+            if (!v) {
+                box.style.display = "none";
+                img.removeAttribute("src");
+                return;
             }
 
-            DRAFT.itemsBySection[sectionKey] = next;
-            setDirty(true);
-
-            renderPublic(DRAFT, true);
+            img.src = resolveImageSrc(v, which === "L" ? "Foto sinistra" : "Foto destra");
+            box.style.display = "block";
         }
 
         /******************************************************************
          * RENDER
          ******************************************************************/
+        function setBrowserTitle(title) {
+            const t = String(title || DEFAULT_DATA.cover.browserTitle);
+            document.title = t;
+            const titleEl = document.querySelector("head title");
+            if (titleEl) titleEl.textContent = t;
+        }
+
         function renderPublic(menu, adminMode) {
             menu = normalizeMenuData(menu);
-            document.title = menu.cover.browserTitle || DEFAULT_DATA.cover.browserTitle;
 
-            $("chefNameTop").textContent = menu.cover.chefName || DEFAULT_DATA.cover.chefName;
+            setBrowserTitle(menu.cover.browserTitle);
+
+            // roles
+            $("role1Label").textContent = menu.cover.role1Label || DEFAULT_DATA.cover.role1Label;
+            $("role1Name").textContent = menu.cover.role1Name || "";
+            $("role2Label").textContent = menu.cover.role2Label || DEFAULT_DATA.cover.role2Label;
+            $("role2Name").textContent = menu.cover.role2Name || "";
+
+            // side portraits
+            setSidePortrait("L", menu.cover.sideLeftImageUrl);
+            setSidePortrait("R", menu.cover.sideRightImageUrl);
+
+            // ✅ theme
+            applyThemePattern(menu.cover.themePatternUrl, menu.cover.themePatternSize, menu.cover.baseBgColor);
+
             $("heroPrefix").textContent = menu.cover.heroPrefix || "";
             $("heroGold").textContent = menu.cover.heroGold || "";
 
             $("heroDesc").innerHTML = nlToBr(menu.cover.heroDesc || "");
             $("toastText").innerHTML = nlToBr(menu.cover.toast || "");
-
             $("metaOrario").innerHTML = nlToBr(menu.cover.metaOrario || "");
             $("metaNote").innerHTML = nlToBr(menu.cover.metaNote || "");
 
@@ -1627,21 +1595,21 @@
                 sectionEl.setAttribute("aria-label", section.title);
 
                 const actionsHtml = adminMode ? `
-                      <div class="sectionActions">
-                        <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
-                      </div>
-                    ` : `<div></div>`;
+                  <div class="sectionActions">
+                    <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+                  </div>
+                ` : `<div></div>`;
 
                 sectionEl.innerHTML = `
-                      <div class="sectionHead">
-                        <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-                        <div style="display:flex; align-items:baseline; gap:12px;">
-                          <p class="desc">${escapeXml(section.desc || "")}</p>
-                          ${actionsHtml}
-                        </div>
-                      </div>
-                      <div class="grid" data-section="${escapeXml(section.key)}"></div>
-                    `;
+                  <div class="sectionHead">
+                    <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+                    <div style="display:flex; align-items:baseline; gap:12px;">
+                      <p class="desc">${escapeXml(section.desc || "")}</p>
+                      ${actionsHtml}
+                    </div>
+                  </div>
+                  <div class="grid" data-section="${escapeXml(section.key)}"></div>
+                `;
 
                 const grid = sectionEl.querySelector(".grid");
 
@@ -1655,23 +1623,23 @@
                     card.setAttribute("data-id", String(it.id || ""));
 
                     card.innerHTML = `
-                        <div class="img">
-                          ${adminMode ? `
-                            <div class="dragBtnWrap">
-                              <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1">⠿</button>
-                            </div>
-                            <div class="cardBtnsRight">
-                              <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                              <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
-                            </div>
-                          ` : ``}
-                          <img alt="${escapeXml(it.name || "Piatto")}" src="${imgSrc}">
+                    <div class="img">
+                      ${adminMode ? `
+                        <div class="dragBtnWrap">
+                          <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1">⠿</button>
                         </div>
-                        <div class="content">
-                          <h3 class="name">${escapeXml(it.name || "")}</h3>
-                          <p class="info">${escapeXml(it.info || "")}</p>
+                        <div class="cardBtnsRight">
+                          <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                          <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
                         </div>
-                      `;
+                      ` : ``}
+                      <img alt="${escapeXml(it.name || "Piatto")}" src="${imgSrc}">
+                    </div>
+                    <div class="content">
+                      <h3 class="name">${escapeXml(it.name || "")}</h3>
+                      <p class="info">${escapeXml(it.info || "")}</p>
+                    </div>
+                  `;
                     grid.appendChild(card);
                 });
 
@@ -1728,6 +1696,225 @@
             ensureItemIds(DRAFT);
         }
 
+        /******************************************************************
+         * (DRAG + CRUD ITEMS)  (UNCHANGED)
+         ******************************************************************/
+        let DRAG = {
+            active: false, sectionKey: null, gridEl: null, cardEl: null, placeholderEl: null, ghostEl: null,
+            pointerId: null, offsetX: 0, offsetY: 0, targetCard: null, insertAfter: false, raf: 0
+        };
+
+        function clearDropHints(grid) {
+            if (!grid) return;
+            grid.querySelectorAll(".card.drop-before, .card.drop-after").forEach(el => {
+                el.classList.remove("drop-before", "drop-after");
+            });
+        }
+
+        function cleanupDrag() {
+            if (DRAG.raf) cancelAnimationFrame(DRAG.raf);
+            DRAG.raf = 0;
+
+            if (DRAG.gridEl) clearDropHints(DRAG.gridEl);
+            if (DRAG.cardEl) DRAG.cardEl.style.display = "";
+
+            if (DRAG.placeholderEl?.parentElement) DRAG.placeholderEl.parentElement.removeChild(DRAG.placeholderEl);
+            if (DRAG.ghostEl?.parentElement) DRAG.ghostEl.parentElement.removeChild(DRAG.ghostEl);
+
+            window.removeEventListener("pointermove", onPointerMove, { passive: false });
+            window.removeEventListener("pointerup", onPointerUp, { passive: false });
+            window.removeEventListener("pointercancel", onPointerCancel, { passive: false });
+
+            document.body.style.userSelect = "";
+
+            DRAG = {
+                active: false, sectionKey: null, gridEl: null, cardEl: null, placeholderEl: null, ghostEl: null,
+                pointerId: null, offsetX: 0, offsetY: 0, targetCard: null, insertAfter: false, raf: 0
+            };
+        }
+
+        function positionGhost(clientX, clientY) {
+            if (!DRAG.ghostEl) return;
+            const x = clientX - DRAG.offsetX;
+            const y = clientY - DRAG.offsetY;
+            DRAG.ghostEl.style.left = x + "px";
+            DRAG.ghostEl.style.top = y + "px";
+        }
+
+        function pickTargetFromPointer(clientX, clientY) {
+            const grid = DRAG.gridEl;
+            if (!grid) return { card: null, after: false };
+
+            const cards = [...grid.querySelectorAll(".card")].filter(c => c.style.display !== "none");
+            if (cards.length === 0) return { card: null, after: false };
+
+            let best = null;
+            let bestDist = Infinity;
+
+            for (const c of cards) {
+                const r = c.getBoundingClientRect();
+                const cx = r.left + r.width / 2;
+                const cy = r.top + r.height / 2;
+                const dx = clientX - cx;
+                const dy = clientY - cy;
+                const d = dx * dx + dy * dy;
+                if (d < bestDist) { bestDist = d; best = { el: c, rect: r }; }
+            }
+
+            if (!best) return { card: null, after: false };
+
+            const r = best.rect;
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+
+            const sameRow = Math.abs(clientY - cy) < r.height * 0.35;
+            const after = sameRow ? (clientX > cx) : (clientY > cy);
+
+            return { card: best.el, after };
+        }
+
+        function applyDropHint(card, after) {
+            if (DRAG.targetCard) {
+                DRAG.targetCard.classList.remove("drop-before", "drop-after");
+            }
+            DRAG.targetCard = card;
+            DRAG.insertAfter = !!after;
+
+            if (card) {
+                card.classList.toggle("drop-after", !!after);
+                card.classList.toggle("drop-before", !after);
+            }
+        }
+
+        function startDragFromHandle(handleEl, e) {
+            const card = handleEl.closest(".card");
+            if (!card) return;
+
+            const sec = card.getAttribute("data-sec");
+            const grid = card.closest(".grid[data-section]");
+            if (!sec || !grid) return;
+            if (!document.body.classList.contains("admin")) return;
+
+            e.preventDefault();
+
+            DRAG.active = true;
+            DRAG.sectionKey = sec;
+            DRAG.gridEl = grid;
+            DRAG.cardEl = card;
+            DRAG.pointerId = e.pointerId;
+
+            document.body.style.userSelect = "none";
+
+            const ph = document.createElement("div");
+            ph.className = "dragPlaceholder";
+            ph.style.minHeight = (card.offsetHeight || 260) + "px";
+            grid.insertBefore(ph, card);
+            DRAG.placeholderEl = ph;
+
+            card.style.display = "none";
+
+            const ghost = card.cloneNode(true);
+            ghost.classList.add("dragGhost");
+            ghost.style.width = (ph.getBoundingClientRect().width || 320) + "px";
+            document.body.appendChild(ghost);
+            DRAG.ghostEl = ghost;
+
+            const r = ph.getBoundingClientRect();
+            DRAG.offsetX = e.clientX - r.left;
+            DRAG.offsetY = e.clientY - r.top;
+
+            positionGhost(e.clientX, e.clientY);
+
+            try { handleEl.setPointerCapture(e.pointerId); } catch { }
+
+            const t = pickTargetFromPointer(e.clientX, e.clientY);
+            applyDropHint(t.card, t.after);
+
+            window.addEventListener("pointermove", onPointerMove, { passive: false });
+            window.addEventListener("pointerup", onPointerUp, { passive: false });
+            window.addEventListener("pointercancel", onPointerCancel, { passive: false });
+        }
+
+        function onPointerMove(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            positionGhost(e.clientX, e.clientY);
+
+            if (DRAG.raf) return;
+            DRAG.raf = requestAnimationFrame(() => {
+                DRAG.raf = 0;
+                const t = pickTargetFromPointer(e.clientX, e.clientY);
+                applyDropHint(t.card, t.after);
+            });
+        }
+
+        function onPointerUp(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            e.preventDefault();
+
+            const grid = DRAG.gridEl;
+            const card = DRAG.cardEl;
+            const ph = DRAG.placeholderEl;
+            const target = DRAG.targetCard;
+            const after = DRAG.insertAfter;
+
+            if (grid && card) {
+                card.style.display = "";
+                clearDropHints(grid);
+
+                if (target && grid.contains(target)) {
+                    if (after) grid.insertBefore(card, target.nextSibling);
+                    else grid.insertBefore(card, target);
+                } else {
+                    grid.appendChild(card);
+                }
+
+                if (ph?.parentElement) ph.parentElement.removeChild(ph);
+                commitOrderFromDom(DRAG.sectionKey, grid);
+            }
+
+            cleanupDrag();
+        }
+
+        function onPointerCancel(e) {
+            if (!DRAG.active || e.pointerId !== DRAG.pointerId) return;
+            cleanupDrag();
+        }
+
+        function attachDnDHandlers() {
+            document.querySelectorAll("[data-drag-handle]").forEach(h => {
+                if (h.__hasDrag) return;
+                h.__hasDrag = true;
+                h.addEventListener("pointerdown", (e) => startDragFromHandle(h, e), { passive: false });
+            });
+        }
+
+        function commitOrderFromDom(sectionKey, gridEl) {
+            ensureDraft();
+
+            const idsInDom = [...gridEl.querySelectorAll(".card")]
+                .map(c => c.getAttribute("data-id"))
+                .filter(Boolean);
+
+            const current = DRAFT.itemsBySection[sectionKey] || [];
+            const map = new Map(current.map(it => [String(it.id), it]));
+
+            const next = [];
+            for (const id of idsInDom) {
+                const it = map.get(String(id));
+                if (it) next.push(it);
+            }
+            for (const it of current) {
+                if (!idsInDom.includes(String(it.id))) next.push(it);
+            }
+
+            DRAFT.itemsBySection[sectionKey] = next;
+            setDirty(true);
+
+            renderPublic(DRAFT, true);
+        }
+
         function openCreateModal(sectionKey) {
             ensureDraft();
             const empty = { id: genId(), name: "", info: "", imageUrl: "" };
@@ -1759,15 +1946,15 @@
             if (!it) return;
 
             openModal("Elimina", `
-                    <div class="panel">
-                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-                      <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-                      <div class="right">
-                        <button class="btn" id="cancelDel" type="button">Annulla</button>
-                        <button class="btn danger" id="doDel" type="button">Elimina</button>
-                      </div>
-                    </div>
-                  `);
+                <div class="panel">
+                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+                  <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+                  <div class="right">
+                    <button class="btn" id="cancelDel" type="button">Annulla</button>
+                    <button class="btn danger" id="doDel" type="button">Elimina</button>
+                  </div>
+                </div>
+              `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -1783,52 +1970,54 @@
         }
 
         /******************************************************************
-         * ITEM MODAL (✅ salva solo path immage/filename, NO base64)
+         * ITEM MODAL (unchanged)
          ******************************************************************/
         function openItemModal(title, item, onSave, allowEmptyName = false) {
             const currentImg = (item.imageUrl && String(item.imageUrl).trim()) ? String(item.imageUrl).trim() : "";
             const preview = resolveImageSrc(currentImg, item.name || "Piatto");
 
             openModal(title, `
-                    <div class="panel">
-                      <div class="row">
-                        <label>Titolo</label>
-                        <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+                <div class="panel">
+                  <div class="row">
+                    <label>Titolo</label>
+                    <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
+                  </div>
+
+                  <div class="row">
+                    <label>Descrizione</label>
+                    <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+                  </div>
+
+                  <div class="row">
+                    <label>Immagine</label>
+                    <div class="fileRow">
+                      <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+
+                      <div class="fileActions">
+                        <input id="fFile" type="file" accept="image/*" style="display:none" />
+                        <button class="btn" id="pickFile" type="button">📷 Seleziona file</button>
+                        <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
                       </div>
 
-                      <div class="row">
-                        <label>Descrizione</label>
-                        <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
+                      <div class="mini">
+                        ✅ Selezionando un file, nel JSON verrà salvato:
+                        <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
+                        Poi devi copiare quel file dentro <b>${escapeXml(IMAGES_FOLDER)}</b> prima di caricare su GitHub.
                       </div>
 
-                      <div class="row">
-                        <label>Immagine</label>
-                        <div class="fileRow">
-                          <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
-
-                          <div class="fileActions">
-                            <input id="fFile" type="file" accept="image/*" style="display:none" />
-                            <button class="btn" id="pickFile" type="button">📷 Seleziona file</button>
-                            <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
-                          </div>
-
-                          <div class="mini">
-                            ✅ Importante: selezionando un file, nel JSON verrà salvato solo il riferimento:
-                            <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
-                            Poi devi copiare quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> del progetto prima di caricare su GitHub.
-                          </div>
-
-                          <div class="mini">Oppure incolla un URL (opzionale):</div>
-                          <input id="fImgUrl" type="text" value="${escapeXml(currentImg && (currentImg.startsWith("http://") || currentImg.startsWith("https://")) ? currentImg : "")}" placeholder="https://..." />
-                        </div>
-                      </div>
-
-                      <div class="right">
-                        <button class="btn" id="cancelItem" type="button">Annulla</button>
-                        <button class="btn ok" id="saveItem" type="button">Conferma</button>
-                      </div>
+                      <div class="mini">Oppure incolla un URL (opzionale):</div>
+                      <input id="fImgUrl" type="text"
+                        value="${escapeXml(currentImg && (currentImg.startsWith("http://") || currentImg.startsWith("https://")) ? currentImg : "")}"
+                        placeholder="https://..." />
                     </div>
-                  `);
+                  </div>
+
+                  <div class="right">
+                    <button class="btn" id="cancelItem" type="button">Annulla</button>
+                    <button class="btn ok" id="saveItem" type="button">Conferma</button>
+                  </div>
+                </div>
+              `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -1841,16 +2030,12 @@
                 const previewImg = document.getElementById("imgPreview");
                 const urlInput = document.getElementById("fImgUrl");
 
-                // ✅ questo è ciò che verrà salvato nel JSON (path relativo o URL)
                 let modalImageValue = currentImg;
-
-                // ✅ anteprima locale (blob url) SOLO per vedere la preview adesso
                 let localPreviewObjectUrl = "";
 
                 function setPreview(src) {
                     previewImg.src = resolveImageSrc(src, nameEl.value || "Piatto");
                 }
-
                 function revokeLocalPreview() {
                     if (localPreviewObjectUrl) {
                         try { URL.revokeObjectURL(localPreviewObjectUrl); } catch { }
@@ -1858,27 +2043,20 @@
                     }
                 }
 
-                if (cancel) cancel.onclick = () => {
-                    revokeLocalPreview();
-                    closeModal();
-                };
+                if (cancel) cancel.onclick = () => { revokeLocalPreview(); closeModal(); };
 
                 if (pickFileBtn && fileInput) {
                     pickFileBtn.onclick = () => fileInput.click();
-
                     fileInput.onchange = () => {
                         const file = fileInput.files && fileInput.files[0];
                         if (!file) return;
 
-                        // ✅ salva solo "immage/nomefile.ext" nel JSON
                         modalImageValue = IMAGES_FOLDER + file.name;
 
-                        // ✅ anteprima immediata dal file scelto (non finisce nel JSON)
                         revokeLocalPreview();
                         localPreviewObjectUrl = URL.createObjectURL(file);
                         previewImg.src = localPreviewObjectUrl;
 
-                        // se stai usando file, svuota URL
                         if (urlInput) urlInput.value = "";
                     };
                 }
@@ -1898,10 +2076,9 @@
                         const v = urlInput.value.trim();
                         if (v) {
                             revokeLocalPreview();
-                            modalImageValue = v;   // URL vero
+                            modalImageValue = v;
                             setPreview(v);
                         } else {
-                            // se era un URL, svuota
                             if (modalImageValue && (modalImageValue.startsWith("http://") || modalImageValue.startsWith("https://"))) {
                                 modalImageValue = "";
                                 setPreview("");
@@ -1912,7 +2089,6 @@
 
                 if (nameEl) {
                     nameEl.addEventListener("input", () => {
-                        // se non c'è immagine, rigenera placeholder col titolo
                         if (!modalImageValue) setPreview("");
                     });
                 }
@@ -1922,7 +2098,6 @@
                     const info = document.getElementById("fInfo").value;
                     const url = (document.getElementById("fImgUrl").value || "").trim();
 
-                    // se hanno scritto un URL, preferisci quello
                     let finalImg = modalImageValue;
                     if (url) finalImg = url;
 
@@ -1945,61 +2120,316 @@
             }, 0);
         }
 
+        /******************************************************************
+         * EVENT MODAL (unchanged except theme already present)
+         ******************************************************************/
         function openEventModal() {
             ensureDraft();
             const c = DRAFT.cover;
 
+            const patternPreview = c.themePatternUrl ? resolveImageSrc(c.themePatternUrl, "Tema") : "";
+
             openModal("Modifica evento", `
-                    <div class="panel">
-                      <div class="row">
-                        <label>Titolo browser</label>
-                        <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
+                <div class="panel">
+
+                  <div class="row">
+                    <label>Titolo browser</label>
+                    <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
+                  </div>
+
+                  <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
+
+                  <div class="row">
+                    <label>Tema sito (pattern)</label>
+                    <div class="fileRow">
+                      <div class="thumb"><img id="prevPattern" alt="preview pattern" src="${patternPreview || resolveImageSrc("", "Tema")}"></div>
+
+                      <div class="fileActions">
+                        <input id="eFilePattern" type="file" accept="image/*" style="display:none" />
+                        <button class="btn" id="pickPattern" type="button">🖼️ Seleziona immagine tema</button>
+                        <button class="btn danger" id="clearPattern" type="button">Rimuovi tema</button>
                       </div>
 
-                      <div class="row">
-                        <label>Titolo (prima parte)</label>
-                        <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+                      <div class="row" style="margin-top:0;">
+                        <label>Dimensione pattern (px)</label>
+                        <input id="ePatternSize" type="number" min="80" step="10" value="${escapeXml(String(c.themePatternSize ?? DEFAULT_DATA.cover.themePatternSize))}" />
                       </div>
 
-                      <div class="row">
-                        <label>Titolo (parte oro)</label>
-                        <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+                      <div class="mini">
+                        Il tema è un’immagine ripetuta in loop mentre scrolli (repeat).<br/>
+                        ✅ Nel JSON si salva solo <b>${escapeXml(IMAGES_FOLDER)}nomefile.ext</b> se selezioni un file.
                       </div>
 
-                      <div class="row">
-                        <label>Descrizione evento</label>
-                        <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+                      <div class="mini">Oppure incolla un URL immagine (opzionale):</div>
+                      <input id="ePatternUrl" type="text" value="${escapeXml((c.themePatternUrl || "").startsWith("http") ? c.themePatternUrl : "")}" placeholder="https://...">
+                      <div class="row" style="margin-top:10px;">
+                        <label>Colore sfondo (opzionale)</label>
+                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                          <input id="eBaseBgColor" type="text" value="${escapeXml(String(c.baseBgColor || ""))}" placeholder="#ff7a00 (Halloween)" style="flex:1; min-width:180px;" />
+                          <input id="eBaseBgColorPick" type="color" value="${escapeXml((String(c.baseBgColor || "").trim() && String(c.baseBgColor || "").trim().startsWith('#') && String(c.baseBgColor || "").trim().length >= 4) ? String(c.baseBgColor || "").trim() : "#ff7a00")}" style="width:54px; height:44px; padding:0; border-radius:12px;" />
+                          <button class="btn danger" id="clearBaseBgColor" type="button">Reset</button>
+                        </div>
                       </div>
 
-                      <div class="row">
-                        <label>Dettagli serata</label>
-                        <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
-                      </div>
-
-                      <div class="row">
-                        <label>Data & Orario</label>
-                        <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
-                      </div>
-
-                      <div class="row">
-                        <label>Note</label>
-                        <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
-                      </div>
-
-                      <div class="right">
-                        <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                        <button class="btn ok" id="saveEvent" type="button">Conferma</button>
-                      </div>
                     </div>
-                  `);
+                  </div>
+
+                  <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
+
+                  <div class="row">
+                    <label>Ruolo 1 (sopra)</label>
+                    <input id="eRole1Label" type="text" value="${escapeXml(c.role1Label || "")}" />
+                  </div>
+                  <div class="row">
+                    <label>Ruolo 1 (nome sotto)</label>
+                    <input id="eRole1Name" type="text" value="${escapeXml(c.role1Name || "")}" />
+                  </div>
+
+                  <div class="row">
+                    <label>Ruolo 2 (sopra)</label>
+                    <input id="eRole2Label" type="text" value="${escapeXml(c.role2Label || "")}" />
+                  </div>
+                  <div class="row">
+                    <label>Ruolo 2 (nome sotto)</label>
+                    <input id="eRole2Name" type="text" value="${escapeXml(c.role2Name || "")}" />
+                  </div>
+
+                  <div class="row">
+                    <label>Foto sinistra</label>
+                    <div class="fileRow">
+                      <div class="thumb"><img id="prevLeft" alt="preview left" src="${resolveImageSrc(c.sideLeftImageUrl, "Foto sinistra")}"></div>
+                      <div class="fileActions">
+                        <input id="eFileLeft" type="file" accept="image/*" style="display:none" />
+                        <button class="btn" id="pickLeft" type="button">📷 Seleziona file</button>
+                        <button class="btn danger" id="clearLeft" type="button">Rimuovi</button>
+                      </div>
+                      <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <label>Foto destra</label>
+                    <div class="fileRow">
+                      <div class="thumb"><img id="prevRight" alt="preview right" src="${resolveImageSrc(c.sideRightImageUrl, "Foto destra")}"></div>
+                      <div class="fileActions">
+                        <input id="eFileRight" type="file" accept="image/*" style="display:none" />
+                        <button class="btn" id="pickRight" type="button">📷 Seleziona file</button>
+                        <button class="btn danger" id="clearRight" type="button">Rimuovi</button>
+                      </div>
+                      <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <label>Titolo (prima parte)</label>
+                    <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+                  </div>
+
+                  <div class="row">
+                    <label>Titolo (parte oro)</label>
+                    <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+                  </div>
+
+                  <div class="row">
+                    <label>Descrizione evento</label>
+                    <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+                  </div>
+
+                  <div class="row">
+                    <label>Dettagli serata</label>
+                    <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+                  </div>
+
+                  <div class="row">
+                    <label>Data & Orario</label>
+                    <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+                  </div>
+
+                  <div class="row">
+                    <label>Note</label>
+                    <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+                  </div>
+
+                  <div class="right">
+                    <button class="btn" id="cancelEvent" type="button">Annulla</button>
+                    <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+                  </div>
+                </div>
+              `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
                 const save = document.getElementById("saveEvent");
                 if (cancel) cancel.onclick = closeModal;
 
+                let leftValue = String(DRAFT.cover.sideLeftImageUrl || "");
+                let rightValue = String(DRAFT.cover.sideRightImageUrl || "");
+                let leftPreviewUrl = "";
+                let rightPreviewUrl = "";
+
+                let patternValue = String(DRAFT.cover.themePatternUrl || "");
+                let patternPreviewUrl = "";
+
+                function revoke(u) { try { if (u) URL.revokeObjectURL(u); } catch { } }
+
+                const pickPattern = document.getElementById("pickPattern");
+                const filePattern = document.getElementById("eFilePattern");
+                const prevPattern = document.getElementById("prevPattern");
+                const clearPattern = document.getElementById("clearPattern");
+                const patternUrlInput = document.getElementById("ePatternUrl");
+                const patternSizeInput = document.getElementById("ePatternSize");
+
+                const baseBgInput = document.getElementById("eBaseBgColor");
+                const baseBgPick = document.getElementById("eBaseBgColorPick");
+                const clearBaseBg = document.getElementById("clearBaseBgColor");
+                let baseBgValue = String(DRAFT.cover.baseBgColor || "").trim();
+
+                function normalizeHex(v){
+                    const s = String(v||"").trim();
+                    if (!s) return "";
+                    // accetta #RGB o #RRGGBB
+                    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s)) return s;
+                    return "";
+                }
+
+                function syncBaseBgUI(from){
+                    const hex = normalizeHex(baseBgValue);
+                    if (baseBgInput && from !== "text") baseBgInput.value = baseBgValue;
+                    if (baseBgPick && from !== "pick") baseBgPick.value = hex || "#ff7a00";
+                }
+
+                syncBaseBgUI();
+
+                if (baseBgInput) {
+                    baseBgInput.addEventListener("input", () => {
+                        baseBgValue = String(baseBgInput.value || "").trim();
+                        syncBaseBgUI("text");
+                    });
+                }
+
+                if (baseBgPick) {
+                    baseBgPick.addEventListener("input", () => {
+                        baseBgValue = String(baseBgPick.value || "").trim();
+                        syncBaseBgUI("pick");
+                    });
+                }
+
+                if (clearBaseBg) {
+                    clearBaseBg.onclick = () => {
+                        baseBgValue = "";
+                        syncBaseBgUI();
+                    };
+                }
+
+                function refreshPatternPreview(src) {
+                    prevPattern.src = src ? resolveImageSrc(src, "Tema") : resolveImageSrc("", "Tema");
+                }
+
+                if (pickPattern && filePattern) {
+                    pickPattern.onclick = () => filePattern.click();
+                    filePattern.onchange = () => {
+                        const f = filePattern.files && filePattern.files[0];
+                        if (!f) return;
+
+                        // ✅ Per poter salvare davvero l'immagine nel file HTML, dobbiamo convertirla in DataURL
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            patternValue = String(reader.result || "");
+                            prevPattern.src = patternValue || resolveImageSrc("", "Tema");
+                            if (patternUrlInput) patternUrlInput.value = "";
+                        };
+                        reader.readAsDataURL(f);
+                    };
+                }
+                if (clearPattern) {
+                    clearPattern.onclick = () => {
+                        revoke(patternPreviewUrl); patternPreviewUrl = "";
+                        patternValue = "";
+                        if (filePattern) filePattern.value = "";
+                        if (patternUrlInput) patternUrlInput.value = "";
+                        refreshPatternPreview("");
+                    };
+                }
+                if (patternUrlInput) {
+                    patternUrlInput.addEventListener("input", () => {
+                        const v = patternUrlInput.value.trim();
+                        if (v) {
+                            revoke(patternPreviewUrl); patternPreviewUrl = "";
+                            patternValue = v;
+                            refreshPatternPreview(v);
+                        } else {
+                            if (patternValue.startsWith("http")) {
+                                patternValue = "";
+                                refreshPatternPreview("");
+                            }
+                        }
+                    });
+                }
+
+                const pickLeft = document.getElementById("pickLeft");
+                const fileLeft = document.getElementById("eFileLeft");
+                const prevLeft = document.getElementById("prevLeft");
+                const clearLeft = document.getElementById("clearLeft");
+
+                if (pickLeft && fileLeft) {
+                    pickLeft.onclick = () => fileLeft.click();
+                    fileLeft.onchange = () => {
+                        const f = fileLeft.files && fileLeft.files[0];
+                        if (!f) return;
+
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            leftValue = String(reader.result || "");
+                            prevLeft.src = leftValue || resolveImageSrc("", "Foto sinistra");
+                        };
+                        reader.readAsDataURL(f);
+                    };
+                }
+                if (clearLeft) {
+                    clearLeft.onclick = () => {
+                        revoke(leftPreviewUrl); leftPreviewUrl = "";
+                        leftValue = "";
+                        if (fileLeft) fileLeft.value = "";
+                        prevLeft.src = resolveImageSrc("", "Foto sinistra");
+                    };
+                }
+
+                const pickRight = document.getElementById("pickRight");
+                const fileRight = document.getElementById("eFileRight");
+                const prevRight = document.getElementById("prevRight");
+                const clearRight = document.getElementById("clearRight");
+
+                if (pickRight && fileRight) {
+                    pickRight.onclick = () => fileRight.click();
+                    fileRight.onchange = () => {
+                        const f = fileRight.files && fileRight.files[0];
+                        if (!f) return;
+
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            rightValue = String(reader.result || "");
+                            prevRight.src = rightValue || resolveImageSrc("", "Foto destra");
+                        };
+                        reader.readAsDataURL(f);
+                    };
+                }
+                if (clearRight) {
+                    clearRight.onclick = () => {
+                        revoke(rightPreviewUrl); rightPreviewUrl = "";
+                        rightValue = "";
+                        if (fileRight) fileRight.value = "";
+                        prevRight.src = resolveImageSrc("", "Foto destra");
+                    };
+                }
+
                 if (save) save.onclick = () => {
                     const browserTitle = document.getElementById("eBrowserTitle").value.trim();
+
+                    const role1Label = document.getElementById("eRole1Label").value.trim();
+                    const role1Name = document.getElementById("eRole1Name").value.trim();
+                    const role2Label = document.getElementById("eRole2Label").value.trim();
+                    const role2Name = document.getElementById("eRole2Name").value.trim();
+
                     const heroPrefix = document.getElementById("eHeroPrefix").value.trim();
                     const heroGold = document.getElementById("eHeroGold").value.trim();
 
@@ -2008,7 +2438,27 @@
                     const orario = document.getElementById("eOrario").value;
                     const note = document.getElementById("eNote").value;
 
+                    const sizeVal = Number(patternSizeInput?.value || DEFAULT_DATA.cover.themePatternSize);
+
                     DRAFT.cover.browserTitle = browserTitle || DEFAULT_DATA.cover.browserTitle;
+
+                    DRAFT.cover.role1Label = role1Label || DEFAULT_DATA.cover.role1Label;
+                    DRAFT.cover.role1Name = role1Name || "";
+
+                    DRAFT.cover.role2Label = role2Label || DEFAULT_DATA.cover.role2Label;
+                    DRAFT.cover.role2Name = role2Name || "";
+
+                    DRAFT.cover.sideLeftImageUrl = String(leftValue || "").trim();
+                    DRAFT.cover.sideRightImageUrl = String(rightValue || "").trim();
+
+                    const urlTyped = (patternUrlInput?.value || "").trim();
+                    DRAFT.cover.themePatternUrl = (urlTyped ? urlTyped : String(patternValue || "").trim());
+                    DRAFT.cover.themePatternSize = (Number.isFinite(sizeVal) && sizeVal >= 80) ? Math.round(sizeVal) : DEFAULT_DATA.cover.themePatternSize;
+
+
+                    // ✅ sfondo base custom (opzionale)
+                    DRAFT.cover.baseBgColor = String(baseBgValue || "").trim();
+
                     DRAFT.cover.heroPrefix = heroPrefix || "";
                     DRAFT.cover.heroGold = heroGold || "";
 
@@ -2017,6 +2467,10 @@
                     DRAFT.cover.metaOrario = String(orario ?? "").replace(/\r\n/g, "\n");
                     DRAFT.cover.metaNote = String(note ?? "").replace(/\r\n/g, "\n");
 
+                    revoke(leftPreviewUrl);
+                    revoke(rightPreviewUrl);
+                    revoke(patternPreviewUrl);
+
                     setDirty(true);
                     renderPublic(DRAFT, true);
                     closeModal();
@@ -2024,22 +2478,25 @@
             }, 0);
         }
 
+        /******************************************************************
+         * LOGIN
+         ******************************************************************/
         function showLogin() {
             openModal("Login Admin", `
-                    <div class="panel">
-                      <div class="row">
-                        <label>Username</label>
-                        <input id="loginUser" type="text" autocomplete="username" />
-                      </div>
-                      <div class="row">
-                        <label>Password</label>
-                        <input id="loginPass" type="password" autocomplete="current-password" />
-                      </div>
-                      <div class="right">
-                        <button class="btn ok" id="doLogin" type="button">Accedi</button>
-                      </div>
-                    </div>
-                  `);
+                <div class="panel">
+                  <div class="row">
+                    <label>Username</label>
+                    <input id="loginUser" type="text" autocomplete="username" />
+                  </div>
+                  <div class="row">
+                    <label>Password</label>
+                    <input id="loginPass" type="password" autocomplete="current-password" />
+                  </div>
+                  <div class="right">
+                    <button class="btn ok" id="doLogin" type="button">Accedi</button>
+                  </div>
+                </div>
+              `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -2055,14 +2512,14 @@
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                          <div class="panel">
-                            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                            <p class="mini">Riprova.</p>
-                            <div class="right">
-                              <button class="btn ok" id="retryLogin" type="button">Riprova</button>
-                            </div>
-                          </div>
-                        `);
+                      <div class="panel">
+                        <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                        <p class="mini">Riprova.</p>
+                        <div class="right">
+                          <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                        </div>
+                      </div>
+                    `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -2096,7 +2553,9 @@
             renderPublic(MENU, false);
         }
 
-        /* download robusto */
+        /******************************************************************
+         * DOWNLOAD JSON
+         ******************************************************************/
         function downloadJsonFile(data, filename = "menu-data.json") {
             const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: "application/json;charset=utf-8" });
@@ -2118,34 +2577,29 @@
             }, 600);
         }
 
-        // ✅ Salvataggio A: scarica SEMPRE json, poi prova localStorage senza bloccare
         function saveAll() {
             if (!isAdmin() || !DRAFT) return;
 
             try {
                 DRAFT = normalizeMenuData(DRAFT);
 
-                // 1) scarica sempre (persistenza vera)
                 downloadJsonFile(DRAFT, "menu-data.json");
 
-                // 2) cache locale (non obbligatoria)
                 MENU = deepClone(DRAFT);
                 setDirty(false);
 
                 openModal("Salvato", `
-              <div class="panel">
-                   <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-                <p class="mini">
-                 Ho scaricato <b>menu-data.json</b>.<br/><br/>
-                  Ricorda: se hai scelto un file immagine, nel JSON c’è scritto tipo <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
-                  quindi devi avere davvero quel file dentro la cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
-                </p>
-                <div class="right">
-                  <button class="btn ok" id="okClose" type="button">Ok</button>
-                </div>
-              </div>
-            `);
-
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                    <p class="mini">
+                      Ho scaricato <b>menu-data.json</b>.<br/><br/>
+                      Se hai scelto immagini come file, ricordati di caricarle davvero nella cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
+                    </p>
+                    <div class="right">
+                      <button class="btn ok" id="okClose" type="button">Ok</button>
+                    </div>
+                  </div>
+                `);
 
                 setTimeout(() => {
                     const b = document.getElementById("okClose");
@@ -2156,20 +2610,14 @@
             } catch (err) {
                 console.error(err);
                 openModal("Errore Salvataggio", `
-                            <div class="panel">
-                              <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px; color: rgba(255,91,107,.9);">Errore ❌</b>
-                              <p class="mini">
-                                Il salvataggio si è interrotto per un errore JavaScript.<br/>
-                                Apri la console (F12 → Console) e guarda l’errore stampato.
-                              </p>
-                              <div class="mini" style="margin-top:10px; padding:10px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.18);">
-                                ${escapeXml(String(err && (err.stack || err.message) ? (err.stack || err.message) : err))}
-                              </div>
-                              <div class="right">
-                                <button class="btn ok" id="errClose" type="button">Ok</button>
-                              </div>
-                            </div>
-                        `);
+                  <div class="panel">
+                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px; color: rgba(255,91,107,.9);">Errore ❌</b>
+                    <p class="mini">Apri la console (F12 → Console) e guarda l’errore.</p>
+                    <div class="right">
+                      <button class="btn ok" id="errClose" type="button">Ok</button>
+                    </div>
+                  </div>
+                `);
 
                 setTimeout(() => {
                     const b = document.getElementById("errClose");
@@ -2178,16 +2626,13 @@
             }
         }
 
+        /******************************************************************
+         * INIT
+         ******************************************************************/
         (async function init() {
-            if (location.hash) {
-                history.replaceState(null, "", location.pathname + location.search);
-            }
-
             $("toggleTheme").addEventListener("click", () => document.body.classList.toggle("light"));
             $("printBtn").addEventListener("click", () => window.print());
             $("modalClose").addEventListener("click", closeModal);
-
-            $("modalBack").addEventListener("click", (e) => { });
 
             $("adminBtn").addEventListener("click", () => {
                 if (isAdmin()) enterAdmin();
@@ -2208,6 +2653,7 @@
 
             MENU = await loadMenuAsync();
             renderPublic(MENU, false);
+            setupThemeScrollMotion();
 
             window.addEventListener("beforeunload", (e) => {
                 if (isAdmin() && DIRTY) {
