@@ -2292,6 +2292,61 @@
                     return "";
                 }
 
+// ==========================================================
+// ✅ IMAGE OPTIMIZER (evita QuotaExceededError in localStorage)
+// Riduce e comprime l'immagine prima di salvarla (WEBP 1024px).
+// ==========================================================
+function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
+    return new Promise((resolve) => {
+        try {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = async () => {
+                try {
+                    const w = img.naturalWidth || img.width;
+                    const h = img.naturalHeight || img.height;
+                    const scale = Math.min(1, maxDim / Math.max(w, h));
+                    const cw = Math.max(1, Math.round(w * scale));
+                    const ch = Math.max(1, Math.round(h * scale));
+
+                    const canvas = document.createElement("canvas");
+                    canvas.width = cw;
+                    canvas.height = ch;
+                    const ctx = canvas.getContext("2d", { alpha: true });
+                    ctx.clearRect(0, 0, cw, ch);
+                    ctx.drawImage(img, 0, 0, cw, ch);
+
+                    const done = (dataUrl) => resolve(String(dataUrl || ""));
+                    if (canvas.toBlob) {
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                // fallback
+                                try { done(canvas.toDataURL("image/png")); } catch { done(""); }
+                                return;
+                            }
+                            const r = new FileReader();
+                            r.onload = () => done(r.result);
+                            r.readAsDataURL(blob);
+                        }, "image/webp", quality);
+                    } else {
+                        // fallback vecchi browser
+                        try { done(canvas.toDataURL("image/png")); } catch { done(""); }
+                    }
+                } catch (e) {
+                    resolve("");
+                } finally {
+                    try { URL.revokeObjectURL(url); } catch { }
+                }
+            };
+            img.onerror = () => { try { URL.revokeObjectURL(url); } catch { } resolve(""); };
+            img.src = url;
+        } catch (e) {
+            resolve("");
+        }
+    });
+}
+
+
                 function syncBaseBgUI(from){
                     const hex = normalizeHex(baseBgValue);
                     if (baseBgInput && from !== "text") baseBgInput.value = baseBgValue;
@@ -2327,19 +2382,30 @@
 
                 if (pickPattern && filePattern) {
                     pickPattern.onclick = () => filePattern.click();
-                    filePattern.onchange = () => {
-                        const f = filePattern.files && filePattern.files[0];
-                        if (!f) return;
+                    filePattern.onchange = async () => {
+    const f = filePattern.files && filePattern.files[0];
+    if (!f) return;
 
-                        // ✅ Per poter salvare davvero l'immagine nel file HTML, dobbiamo convertirla in DataURL
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            patternValue = String(reader.result || "");
-                            prevPattern.src = patternValue || resolveImageSrc("", "Tema");
-                            if (patternUrlInput) patternUrlInput.value = "";
-                        };
-                        reader.readAsDataURL(f);
-                    };
+    // ✅ comprimi prima di salvare (evita che alcune immagini non si vedano per quota storage)
+    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+
+    // fallback: se per qualche motivo la compressione fallisce
+    if (!dataUrl) {
+        dataUrl = await new Promise((resolve) => {
+            try {
+                const rr = new FileReader();
+                rr.onload = () => resolve(String(rr.result || ""));
+                rr.onerror = () => resolve("");
+                rr.readAsDataURL(f);
+            } catch { resolve(""); }
+        });
+    }
+
+    patternValue = String(dataUrl || "");
+    prevPattern.src = patternValue || resolveImageSrc("", "Tema");
+    if (patternUrlInput) patternUrlInput.value = "";
+};
+
                 }
                 if (clearPattern) {
                     clearPattern.onclick = () => {
@@ -2373,17 +2439,26 @@
 
                 if (pickLeft && fileLeft) {
                     pickLeft.onclick = () => fileLeft.click();
-                    fileLeft.onchange = () => {
-                        const f = fileLeft.files && fileLeft.files[0];
-                        if (!f) return;
+                    fileLeft.onchange = async () => {
+    const f = fileLeft.files && fileLeft.files[0];
+    if (!f) return;
 
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            leftValue = String(reader.result || "");
-                            prevLeft.src = leftValue || resolveImageSrc("", "Foto sinistra");
-                        };
-                        reader.readAsDataURL(f);
-                    };
+    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+    if (!dataUrl) {
+        dataUrl = await new Promise((resolve) => {
+            try {
+                const rr = new FileReader();
+                rr.onload = () => resolve(String(rr.result || ""));
+                rr.onerror = () => resolve("");
+                rr.readAsDataURL(f);
+            } catch { resolve(""); }
+        });
+    }
+
+    leftValue = String(dataUrl || "");
+    prevLeft.src = leftValue || resolveImageSrc("", "Foto sinistra");
+};
+
                 }
                 if (clearLeft) {
                     clearLeft.onclick = () => {
@@ -2401,17 +2476,26 @@
 
                 if (pickRight && fileRight) {
                     pickRight.onclick = () => fileRight.click();
-                    fileRight.onchange = () => {
-                        const f = fileRight.files && fileRight.files[0];
-                        if (!f) return;
+                    fileRight.onchange = async () => {
+    const f = fileRight.files && fileRight.files[0];
+    if (!f) return;
 
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            rightValue = String(reader.result || "");
-                            prevRight.src = rightValue || resolveImageSrc("", "Foto destra");
-                        };
-                        reader.readAsDataURL(f);
-                    };
+    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+    if (!dataUrl) {
+        dataUrl = await new Promise((resolve) => {
+            try {
+                const rr = new FileReader();
+                rr.onload = () => resolve(String(rr.result || ""));
+                rr.onerror = () => resolve("");
+                rr.readAsDataURL(f);
+            } catch { resolve(""); }
+        });
+    }
+
+    rightValue = String(dataUrl || "");
+    prevRight.src = rightValue || resolveImageSrc("", "Foto destra");
+};
+
                 }
                 if (clearRight) {
                     clearRight.onclick = () => {
