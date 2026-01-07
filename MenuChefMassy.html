@@ -87,7 +87,7 @@
             background-repeat: repeat;
             background-size: var(--themePatternSize) auto;
             /* ✅ scroll motion (updated via JS) */
-            background-position: left var(--themeScrollY);
+            background-position: left calc(var(--themeScrollY, 0px));
             opacity: var(--themePatternOpacity);
             filter: saturate(1.08) contrast(1.02);
         }
@@ -544,12 +544,55 @@
         }
 
         @media (max-width: 560px) {
+            /* ✅ TELEFONO: rendi tutto più compatto e metti 2 card per riga */
+            .wrap { padding: 18px 12px 84px; }
+
             .grid {
-                grid-template-columns: repeat(1, 1fr);
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 12px;
             }
+
+            .card { grid-column: span 1; }
+
+            .img { height: 15px; }
+
+            .content { padding: 10px 10px 12px; }
+
+            .sectionHead { padding: 12px 14px; }
+
+            .sectionHead h2 { font-size: 13px; }
+
+            /* ✅ TELEFONO: se ci sono le foto laterali, le tengo ai bordi (non nella riga sopra) */
+            .sidePortraitMobileRow { display: none !important; }
+
+            body.hasSidePortraits .wrap {
+                padding-left: 130px;
+                padding-right: 130px;
+            }
+
+            body.hasSidePortraits .sidePortrait {
+                position: fixed !important;
+                top: 120px !important;
+                transform: none !important;
+                width: 112px !important;
+                height: calc(100vh - 160px) !important;
+                border-radius: 22px !important;
+                z-index: 2 !important;
+                pointer-events: none;
+                display: block; /* visibilità gestita dal JS (se c'è src valida) */
+            }
+
+            body.hasSidePortraits .sideLeft { left: 8px !important; }
+            body.hasSidePortraits .sideRight { right: 8px !important; }
+
+            /* ✅ MOBILE PATTERN TUNING: pattern più piccolo e ancorato all'inizio schermo */
+            :root { --themePatternSize: 220px; }
+            body::before { background-position: left top !important; }
+
         }
 
-        .card {
+  .card {
             grid-column: span 4;
             border: 1px solid rgba(255,255,255,.10);
             background: rgb(10,10,18);
@@ -1113,7 +1156,182 @@
                 display: none !important;
             }
         }
-    </style>
+    
+/* =========================
+   EXTRA MOBILE COMPACT (v4)
+   - lascia spazio alle foto laterali
+   - card piccole (3-4 per riga)
+   ========================= */
+@media (max-width: 560px) {
+  /* contenuto più stretto e leggibile */
+  .wrap { padding: 14px 10px 78px; }
+
+  /* topbar e hero più compatti */
+  .topbar { padding: 10px 10px; border-radius: 22px; }
+  .brand { gap: 10px; }
+  .logo { width: 36px; height: 36px; }
+  .actions { gap: 8px; }
+  .pill, .chip, .miniBtn { padding: 8px 10px; border-radius: 999px; font-size: 12px; }
+  .headline { font-size: 26px; line-height: 1.06; }
+  .subheadline { font-size: 13px; }
+
+  /* sezioni */
+  .section { margin-top: 12px; border-radius: 22px; }
+  .sectionHead { padding: 10px 12px; }
+  .sectionHead h2 { font-size: 12px; letter-spacing: .18em; }
+  .sectionHead .hint { font-size: 11px; }
+
+  /* griglia piatti: più piccola */
+  .grid { gap: 8px; padding: 10px; grid-template-columns: repeat(3, 1fr); }
+  .card { border-radius: 18px; }
+  .img { height: 92px; }
+  .content { padding: 8px 8px 10px; }
+  .title { font-size: 12px; }
+  .desc { font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* icone edit/delete più compatte */
+  .cardTools { top: 8px; right: 8px; gap: 6px; }
+  .miniIcon { width: 26px; height: 26px; }
+
+  /* ====== FOTO LATERALI SU MOBILE ====== */
+  body.hasSidePortraits .wrap {
+    padding-left: 64px !important;
+    padding-right: 64px !important;
+  }
+  body.hasSidePortraits .sidePortrait {
+    top: 82px !important;
+    width: 54px !important;
+    height: calc(100vh - 118px) !important;
+    border-radius: 18px !important;
+    opacity: .95 !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  body.hasSidePortraits .sideLeft { left: 6px !important; }
+  body.hasSidePortraits .sideRight { right: 6px !important; }
+}
+
+/* schermi davvero stretti (iPhone SE ecc.) */
+@media (max-width: 380px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  body.hasSidePortraits .wrap { padding-left: 58px !important; padding-right: 58px !important; }
+  body.hasSidePortraits .sidePortrait { width: 48px !important; }
+  .headline { font-size: 24px; }
+}
+
+
+
+/* =========================
+   MOBILE iPhone OPTIM (v5)
+   Obiettivo: come screenshot (ritratti ai lati + contenuto centrale stretto),
+   con 3 card per riga su iPhone 11 Pro Max (414px).
+   ========================= */
+@media (max-width: 600px) {
+  /* spazio reale per le due immagini laterali */
+  body.hasSidePortraits .wrap{
+    padding-left: 78px !important;
+    padding-right: 78px !important;
+  }
+
+  /* ritratti laterali: strisce strette e alte */
+  body.hasSidePortraits .sidePortrait{
+    top: 88px !important;
+    width: 70px !important;
+    height: calc(100vh - 120px) !important;
+    border-radius: 18px !important;
+    opacity: .96 !important;
+  }
+  body.hasSidePortraits .sideLeft{ left: 6px !important; }
+  body.hasSidePortraits .sideRight{ right: 6px !important; }
+
+  /* layout più "denso" */
+  .section{ margin-top: 10px; }
+  .coverInner{ padding: 14px !important; }
+  .lede{ font-size: 13px; }
+
+  /* piatti: 3 per riga su iPhone grandi */
+  .grid{
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+
+  .card{ border-radius: 16px !important; }
+  .img{ height: 84px !important; }
+  .content{ padding: 8px 8px 10px !important; }
+  .name{ font-size: 11px !important; }
+  .info{
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* schermi davvero stretti (SE / vecchi Android): 2 per riga */
+@media (max-width: 380px) {
+  .grid{ grid-template-columns: repeat(2, 1fr) !important; }
+  body.hasSidePortraits .wrap{
+    padding-left: 70px !important;
+    padding-right: 70px !important;
+  }
+  body.hasSidePortraits .sidePortrait{ width: 62px !important; }
+}
+
+
+
+/* =========================
+   iPHONE FIX LATERALI (v6)
+   - ritratti PIÙ LARGHI e NON TAGLIATI
+   - contenuto centrale più stretto
+   ========================= */
+@media (max-width: 560px) {
+  /* più spazio alle immagini laterali */
+  body.hasSidePortraits .wrap{
+    padding-left: 148px !important;
+    padding-right: 148px !important;
+  }
+
+  /* ritratti laterali più larghi */
+  body.hasSidePortraits .sidePortrait{
+    width: 132px !important;
+    height: calc(100vh - 120px) !important;
+    top: 88px !important;
+    border-radius: 22px !important;
+  }
+  body.hasSidePortraits .sideLeft{ left: 6px !important; }
+  body.hasSidePortraits .sideRight{ right: 6px !important; }
+
+  /* IMPORTANTISSIMO: non tagliare le persone */
+  body.hasSidePortraits .sidePortrait img{
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    background: rgba(0,0,0,.10);
+  }
+
+  /* centro ancora più compatto */
+  .topbar{ padding: 9px 9px !important; }
+  .roles{ padding: 6px 8px !important; }
+  .roleLabel{ font-size: 9px !important; }
+  .roleName{ font-size: 11px !important; }
+  .btn{ padding: 9px 10px !important; font-size: 12px !important; }
+  .coverInner{ padding: 12px !important; }
+}
+
+/* schermi più piccoli (SE): mantieni laterali grandi ma non soffocare il centro */
+@media (max-width: 390px) {
+  body.hasSidePortraits .wrap{
+    padding-left: 132px !important;
+    padding-right: 132px !important;
+  }
+  body.hasSidePortraits .sidePortrait{
+    width: 118px !important;
+  }
+}
+
+</style>
 </head>
 
 <body>
@@ -1586,26 +1804,22 @@
             if (!left || !right || !wrap || !topbar) return;
 
             const isMobile = window.matchMedia("(max-width: 980px)").matches;
+            const isPhone = window.matchMedia("(max-width: 560px)").matches;
+
             let row = document.querySelector(".sidePortraitMobileRow");
 
-            if (isMobile) {
-                if (!row) {
-                    row = document.createElement("div");
-                    row.className = "sidePortraitMobileRow";
-                    // subito sotto la topbar, così le vedi anche da telefono
-                    topbar.insertAdjacentElement("afterend", row);
-                }
+            // helper: rileva se esiste davvero un'immagine valida
+            const hasValidImg = (el) => {
+                const img = el ? el.querySelector("img") : null;
+                const src = img ? (img.getAttribute("src") || "") : "";
+                return !!src && src.trim().length > 20; // dataURL o URL
+            };
 
-                // sposta in alto, dentro la riga mobile
-                row.appendChild(left);
-                row.appendChild(right);
-
-                // mostra solo se c'è una src valida (setSidePortrait gestisce display)
-                // qui non forzo display: lascio quello già impostato.
-            } else {
-                // desktop: riportale fuori dal wrap (prima del floating save, se esiste)
+            // ✅ TELEFONO: prova a tenere le foto ai lati (strette) e stringi il contenuto
+            if (isPhone) {
                 if (row) row.remove();
 
+                // assicurati che siano nel body (fixed)
                 const saveFloat = document.getElementById("saveFloat");
                 if (saveFloat) {
                     document.body.insertBefore(left, saveFloat);
@@ -1614,6 +1828,44 @@
                     document.body.appendChild(left);
                     document.body.appendChild(right);
                 }
+
+                // attiva layout "con foto laterali" solo se almeno una è presente
+                const anySide = hasValidImg(left) || hasValidImg(right);
+                document.body.classList.toggle("hasSidePortraits", anySide);
+
+                return;
+            }
+
+            // ✅ TABLET/MOBILE: mettile in alto in una riga (sotto la topbar)
+            if (isMobile) {
+                if (!row) {
+                    row = document.createElement("div");
+                    row.className = "sidePortraitMobileRow";
+                    // subito sotto la topbar, così le vedi anche da telefono
+                    topbar.insertAdjacentElement("afterend", row);
+                }
+
+                document.body.classList.remove("hasSidePortraits");
+
+                // sposta in alto, dentro la riga mobile
+                row.appendChild(left);
+                row.appendChild(right);
+
+                // qui non forzo display: setSidePortrait gestisce display
+                return;
+            }
+
+            // ✅ DESKTOP: riportale fuori dal wrap
+            if (row) row.remove();
+            document.body.classList.remove("hasSidePortraits");
+
+            const saveFloat = document.getElementById("saveFloat");
+            if (saveFloat) {
+                document.body.insertBefore(left, saveFloat);
+                document.body.insertBefore(right, saveFloat);
+            } else {
+                document.body.appendChild(left);
+                document.body.appendChild(right);
             }
         }
 
