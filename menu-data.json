@@ -3,11 +3,11 @@
     "browserTitle": "Invito alla festa di carnevale",
     "heroPrefix": "Stasera a casa con Massy & Anna:",
     "heroGold": "Cena di Carnevale",
-    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, PopCorn accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nBruschette con il pomodoro grigliate\n\n-Secondo\ntre teglie di pizza con gusti misti",
+    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, PopCorn accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nBruschette con il pomodoro grigliate\n\n-Secondo\nTre teglie di pizza con gusti misti",
     "chefName": "Massimiliano Giannone",
-    "toast": "Cosa propone L'animazione:\nla serata si svolgerà come segue:\n1) Giochi (non da tavolo)\n2) Giochi (da tavolo)\n3) Ognuno a casa sua",
+    "toast": "Cosa propone L'animazione:\nLa serata si svolgerà come segue:\n1) Giochi (non da tavolo)\n2) Giochi (da tavolo)\n3) Ognuno a casa sua",
     "metaOrario": "17/02/2026\nAlle ore 19:00 PUNTUALE",
-    "metaNote": "Informatemi di aventuali allergie o intolleranze.\nNon sono ammesse rotture di cazzo.\nNon cercate birra con il pesce o vi butto fuori di casa.",
+    "metaNote": "Informatemi di aventuali allergie o intolleranze.",
     "role1Label": "Chef della serata",
     "role1Name": "Massimiliano Giannone",
     "role2Label": "Animazione della serata",
@@ -78,7 +78,7 @@
       {
         "id": "a1143b2d-7e6c-4757-ab05-e861de3a5f32",
         "name": "Teglia di pizza",
-        "info": "tre teglie di pizza tra cui\n1 solo pomodoro\n2 diversi gusti misti",
+        "info": "Tre teglie di pizza tra cui\n1 solo pomodoro\n2 diversi gusti misti",
         "imageUrl": "immage/TegliaDiPizza.png"
       }
     ],
