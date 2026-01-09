@@ -1,4 +1,5 @@
-﻿<!doctype html>
+﻿﻿
+<!doctype html>
 <html lang="it">
 <head>
     <meta charset="utf-8" />
@@ -35,6 +36,7 @@
             --themePattern: none; /* set to: url("...") via JS */
             --themePatternSize: 420px; /* set via JS */
             --themePatternOpacity: 1; /* 1 = colori reali, nessuna tinta dal background */ /* puoi aumentare se vuoi il pattern più visibile */
+            --sideOverlap: 60px; /* quanto la parte centrale entra nelle foto (desktop) */
         }
 
         body.light {
@@ -76,23 +78,23 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ✅ Pattern layer: fixed, always covers viewport; moves with scroll via CSS var */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background-image: var(--themePattern);
-            background-repeat: repeat;
-            background-size: var(--themePatternSize) auto;
-            /* ✅ scroll motion (updated via JS) */
-            background-position: left calc(var(--themeScrollY, 0px));
-            opacity: var(--themePatternOpacity);
-            filter: saturate(1.08) contrast(1.02);
-        }
+            /* ✅ Pattern layer: fixed, always covers viewport; moves with scroll via CSS var */
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 0;
+                background-image: var(--themePattern);
+                background-repeat: repeat;
+                background-size: var(--themePatternSize) auto;
+                /* ✅ scroll motion (updated via JS) */
+                background-position: left calc(var(--themeScrollY, 0px));
+                opacity: var(--themePatternOpacity);
+                filter: saturate(1.08) contrast(1.02);
+            }
 
-        body.modal-open {
+            body.modal-open {
                 overflow: hidden;
                 height: 100%;
             }
@@ -111,16 +113,19 @@
             align-items: center;
             justify-content: space-between;
             gap: 14px;
-            padding: 14px 16px;
+            padding: 14px 24px;
             border: 1px solid var(--border);
             background: linear-gradient(180deg, rgb(18,18,26), rgb(10,10,18));
             border-radius: var(--radius2);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
-            position: sticky;
-            top: 10px;
+            position: relative;
+            top: auto;
             z-index: 50;
             flex-wrap: wrap;
+            width: 100vw;
+            margin-left: 50%;
+            transform: translateX(-50%);
         }
 
         body.light .topbar {
@@ -170,25 +175,36 @@
             letter-spacing: .02em;
         }
 
+        .rolesWrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
         /* roles (2 colonne) */
         .roles {
-            margin-left: auto;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            padding: 6px 10px;
+            padding: 6px; /* ← meno padding laterale */
             border-radius: 14px;
             border: 1px solid rgba(246,211,101,.22);
             background: rgba(202,162,74,.10);
             backdrop-filter: blur(8px);
             min-width: 360px;
+            width: 100%; /* ← usa TUTTA la larghezza disponibile */
+            box-sizing: border-box;
         }
 
         .roleCard {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            padding: 6px 10px;
+            padding: 8px 12px;
+            width: 100%; /* ← OCCUPA TUTTA LA COLONNA */
+            box-sizing: border-box;
             border-radius: 12px;
             border: 1px solid rgba(255,255,255,.10);
             background: rgb(10,10,18);
@@ -297,18 +313,16 @@
         }
 
         @media (max-width: 720px) {
-            .roles {
+            .rolesWrap {
                 order: 3;
                 width: 100%;
                 margin-left: 0;
-                min-width: unset;
-                grid-template-columns: 1fr;
+                justify-content: flex-start;
             }
 
-            .actions {
-                order: 4;
-                width: 100%;
-                justify-content: flex-start;
+            .roles {
+                min-width: unset;
+                grid-template-columns: 1fr;
             }
         }
 
@@ -543,56 +557,8 @@
             }
         }
 
-        @media (max-width: 560px) {
-            /* ✅ TELEFONO: rendi tutto più compatto e metti 2 card per riga */
-            .wrap { padding: 18px 12px 84px; }
 
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-                padding: 12px;
-            }
-
-            .card { grid-column: span 1; }
-
-            .img { height: 15px; }
-
-            .content { padding: 10px 10px 12px; }
-
-            .sectionHead { padding: 12px 14px; }
-
-            .sectionHead h2 { font-size: 13px; }
-
-            /* ✅ TELEFONO: se ci sono le foto laterali, le tengo ai bordi (non nella riga sopra) */
-            .sidePortraitMobileRow { display: none !important; }
-
-            body.hasSidePortraits .wrap {
-                padding-left: 130px;
-                padding-right: 130px;
-            }
-
-            body.hasSidePortraits .sidePortrait {
-                position: fixed !important;
-                top: 120px !important;
-                transform: none !important;
-                width: 112px !important;
-                height: calc(100vh - 160px) !important;
-                border-radius: 22px !important;
-                z-index: 2 !important;
-                pointer-events: none;
-                display: block; /* visibilità gestita dal JS (se c'è src valida) */
-            }
-
-            body.hasSidePortraits .sideLeft { left: 8px !important; }
-            body.hasSidePortraits .sideRight { right: 8px !important; }
-
-            /* ✅ MOBILE PATTERN TUNING: pattern più piccolo e ancorato all'inizio schermo */
-            :root { --themePatternSize: 220px; }
-            body::before { background-position: left top !important; }
-
-        }
-
-  .card {
+        .card {
             grid-column: span 4;
             border: 1px solid rgba(255,255,255,.10);
             background: rgb(10,10,18);
@@ -613,11 +579,6 @@
             }
         }
 
-        @media (max-width: 560px) {
-            .card {
-                grid-column: span 1;
-            }
-        }
 
         .card:hover {
             transform: translateY(-2px);
@@ -754,7 +715,7 @@
             height: 4px;
             border-radius: 999px;
             background: linear-gradient(90deg, rgba(246,211,101,.2), rgba(246,211,101,.95), rgba(246,211,101,.2));
-            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25);
+            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25));
             pointer-events: none;
         }
 
@@ -802,13 +763,15 @@
             }
 
         @media (max-width: 980px) {
-            .grid.center-few {
-                grid-template-columns: 1fr;
-                justify-content: stretch;
+            .grid.center-few .card {
+                max-width: var(--cardW, 112px) !important;
+                width: var(--cardW, 112px) !important;
+                flex: 0 0 var(--cardW, 112px) !important;
             }
 
                 .grid.center-few .card {
-                    max-width: none;
+                    max-width: 180px; /* ✅ stessa grandezza, non si allarga */
+                    width: 100%;
                 }
         }
 
@@ -1028,7 +991,7 @@
         /* Side portraits (500px) */
         .sidePortrait {
             position: fixed;
-            top: 50%;
+            top: 55%;
             transform: translateY(-50%);
             width: 500px; /* ✅ 500 */
             height: 1000px; /* ✅ 500 */
@@ -1038,7 +1001,7 @@
             background: rgba(0,0,0,.0);
             box-shadow: var(--shadow);
             backdrop-filter: blur(0px);
-            z-index: 0;
+            z-index: 5;
             display: none;
         }
 
@@ -1087,38 +1050,10 @@
         }
 
         @media (max-width: 980px) {
-            /* ✅ MOBILE: non nascondo le foto laterali, le sposto in alto (via JS) e le rendo "card" responsive */
-            .sidePortrait {
-                position: relative;
-                top: auto;
-                left: auto;
-                right: auto;
-                transform: none;
-                width: min(44vw, 220px);
-                height: auto;
-                aspect-ratio: 3 / 4;
-                border-radius: 26px;
-                z-index: 5;
-                display: none; /* verrà mostrata solo se c'è una foto e solo dopo che il JS le ha riposizionate */
-                margin: 10px 0;
-            }
-
-            .sidePortrait img {
-                object-fit: cover;
-            }
-
-            /* contenitore mobile creato via JS */
-            .sidePortraitMobileRow {
-                display: flex;
-                gap: 12px;
-                justify-content: center;
-                align-items: stretch;
-                flex-wrap: nowrap;
-                margin-top: 12px;
-            }
-
             /* ✅ MOBILE: lo sfondo tema lo gestisco direttamente sul body per evitare lag/bug di iOS con ::before fixed */
-            body::before { display: none !important; }
+            body::before {
+                display: none !important;
+            }
 
             body {
                 background-image: var(--themePattern);
@@ -1158,389 +1093,209 @@
                 display: none !important;
             }
         }
-    
-/* =========================
-   EXTRA MOBILE COMPACT (v4)
-   - lascia spazio alle foto laterali
-   - card piccole (3-4 per riga)
-   ========================= */
-@media (max-width: 560px) {
-  /* contenuto più stretto e leggibile */
-  .wrap { padding: 14px 10px 78px; }
 
-  /* topbar e hero più compatti */
-  .topbar { padding: 10px 10px; border-radius: 22px; }
-  .brand { gap: 10px; }
-  .logo { width: 36px; height: 36px; }
-  .actions { gap: 8px; }
-  .pill, .chip, .miniBtn { padding: 8px 10px; border-radius: 999px; font-size: 12px; }
-  .headline { font-size: 26px; line-height: 1.06; }
-  .subheadline { font-size: 13px; }
-
-  /* sezioni */
-  .section { margin-top: 12px; border-radius: 22px; }
-  .sectionHead { padding: 10px 12px; }
-  .sectionHead h2 { font-size: 12px; letter-spacing: .18em; }
-  .sectionHead .hint { font-size: 11px; }
-
-  /* griglia piatti: più piccola */
-  .grid { gap: 8px; padding: 10px; grid-template-columns: repeat(3, 1fr); }
-  .card { border-radius: 18px; }
-  .img { height: 92px; }
-  .content { padding: 8px 8px 10px; }
-  .title { font-size: 12px; }
-  .desc { font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-  /* icone edit/delete più compatte */
-  .cardTools { top: 8px; right: 8px; gap: 6px; }
-  .miniIcon { width: 26px; height: 26px; }
-
-  /* ====== FOTO LATERALI SU MOBILE ====== */
-  body.hasSidePortraits .wrap {
-    padding-left: 64px !important;
-    padding-right: 64px !important;
-  }
-  body.hasSidePortraits .sidePortrait {
-    top: 82px !important;
-    width: 54px !important;
-    height: calc(100vh - 118px) !important;
-    border-radius: 18px !important;
-    opacity: .95 !important;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-  body.hasSidePortraits .sideLeft { left: 6px !important; }
-  body.hasSidePortraits .sideRight { right: 6px !important; }
-}
-
-/* schermi davvero stretti (iPhone SE ecc.) */
-@media (max-width: 380px) {
-  .grid { grid-template-columns: repeat(2, 1fr); }
-  body.hasSidePortraits .wrap { padding-left: 58px !important; padding-right: 58px !important; }
-  body.hasSidePortraits .sidePortrait { width: 48px !important; }
-  .headline { font-size: 24px; }
-}
-
-
-
-/* =========================
-   MOBILE iPhone OPTIM (v5)
-   Obiettivo: come screenshot (ritratti ai lati + contenuto centrale stretto),
-   con 3 card per riga su iPhone 11 Pro Max (414px).
-   ========================= */
-@media (max-width: 600px) {
-  /* spazio reale per le due immagini laterali */
-  body.hasSidePortraits .wrap{
-    padding-left: 78px !important;
-    padding-right: 78px !important;
-  }
-
-  /* ritratti laterali: strisce strette e alte */
-  body.hasSidePortraits .sidePortrait{
-    top: 88px !important;
-    width: 70px !important;
-    height: calc(100vh - 120px) !important;
-    border-radius: 18px !important;
-    opacity: .96 !important;
-  }
-  body.hasSidePortraits .sideLeft{ left: 6px !important; }
-  body.hasSidePortraits .sideRight{ right: 6px !important; }
-
-  /* layout più "denso" */
-  .section{ margin-top: 10px; }
-  .coverInner{ padding: 14px !important; }
-  .lede{ font-size: 13px; }
-
-  /* piatti: 3 per riga su iPhone grandi */
-  .grid{
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
-    padding: 10px !important;
-  }
-
-  .card{ border-radius: 16px !important; }
-  .img{ height: 84px !important; }
-  .content{ padding: 8px 8px 10px !important; }
-  .name{ font-size: 11px !important; }
-  .info{
-    font-size: 9.5px !important;
-    line-height: 1.25 !important;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-}
-
-/* schermi davvero stretti (SE / vecchi Android): 2 per riga */
-@media (max-width: 380px) {
-  .grid{ grid-template-columns: repeat(2, 1fr) !important; }
-  body.hasSidePortraits .wrap{
-    padding-left: 70px !important;
-    padding-right: 70px !important;
-  }
-  body.hasSidePortraits .sidePortrait{ width: 62px !important; }
-}
-
-
-
-/* =========================
-   iPHONE FIX LATERALI (v6)
-   - ritratti PIÙ LARGHI e NON TAGLIATI
-   - contenuto centrale più stretto
-   ========================= */
-@media (max-width: 560px) {
-  /* più spazio alle immagini laterali */
-  body.hasSidePortraits .wrap{
-    padding-left: 148px !important;
-    padding-right: 148px !important;
-  }
-
-  /* ritratti laterali più larghi */
-  body.hasSidePortraits .sidePortrait{
-    width: 132px !important;
-    height: calc(100vh - 120px) !important;
-    top: 88px !important;
-    border-radius: 22px !important;
-  }
-  body.hasSidePortraits .sideLeft{ left: 6px !important; }
-  body.hasSidePortraits .sideRight{ right: 6px !important; }
-
-  /* IMPORTANTISSIMO: non tagliare le persone */
-  body.hasSidePortraits .sidePortrait img{
-    object-fit: contain !important;
-    object-position: center bottom !important;
-    background: rgba(0,0,0,.10);
-  }
-
-  /* centro ancora più compatto */
-  .topbar{ padding: 9px 9px !important; }
-  .roles{ padding: 6px 8px !important; }
-  .roleLabel{ font-size: 9px !important; }
-  .roleName{ font-size: 11px !important; }
-  .btn{ padding: 9px 10px !important; font-size: 12px !important; }
-  .coverInner{ padding: 12px !important; }
-}
-
-/* schermi più piccoli (SE): mantieni laterali grandi ma non soffocare il centro */
-@media (max-width: 390px) {
-  body.hasSidePortraits .wrap{
-    padding-left: 132px !important;
-    padding-right: 132px !important;
-  }
-  body.hasSidePortraits .sidePortrait{
-    width: 118px !important;
-  }
-}
-
-
-
-/* =========================
-   iPhone / Mobile fine-tune (più cornice, tutto centrato)
-   ========================= */
-@media (max-width: 430px) {
-
-  /* laterali: più larghe e davvero centrate nello schermo */ /*Questo modifica la larghezza delle foto destra e sinistra*/
-  body.hasSidePortraits .sidePortrait{
-    width: 80px !important;
-    min-width: 80px !important;
-    max-width: 80px !important;
-
-    height: 10vh !important;           /* meno “barra lunga” */
-    max-height: 10vh !important;
-
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-
-    border-radius: 22px !important;
-  }
-
-  body.hasSidePortraits .sideLeft{ left: 10px !important; top: 50% !important; transform: translateY(-50%) !important; }
-  body.hasSidePortraits .sideRight{ right: 10px !important; top: 50% !important; transform: translateY(-50%) !important; }
-
-  /* IMPORTANTISSIMO: non tagliare e non mettere in basso */
-  body.hasSidePortraits .sidePortrait img{
-    object-fit: contain !important;
-    object-position: center center !important;
-    height: 100% !important;
-    width: 100% !important;
-  }
-
-  /* centro più stretto per dare spazio alle laterali */
-  body.hasSidePortraits .page,
-  body.hasSidePortraits .container,
-  body.hasSidePortraits .wrap,
-  body.hasSidePortraits .main,
-  body.hasSidePortraits .mainContent{
-    padding-left: 70px !important;   /* 160 + margine */
-    padding-right: 70px !important;
-  }
-
-  /* se esiste un contenitore principale con max-width, lo forzo */
-  body.hasSidePortraits .page,
-  body.hasSidePortraits .container,
-  body.hasSidePortraits .wrap{
-    max-width: 100vw !important;
-  }
-}
-
-
-/* =========================
-   OVERRIDE SIDE PORTRAITS (MOBILE FIRST) - vFinal
-   Obiettivi:
-   1) Se NON c’è foto => NON mostrare nulla (niente “foto sinistra/destra”)
-   2) Se ci sono foto => stanno a filo bordo schermo (left=0 / right=0)
-   3) Il contenuto centrale arriva fino a “toccare” le foto (padding = larghezza foto + gap)
-   ========================= */
-
-/* Variabili (puoi regolarle qui) */
-:root{
-  --sideW: 110px;     /* larghezza striscia foto su iPhone 11 Pro Max */
-  --sideGap: 10px;    /* spazio tra foto e contenuto centrale */
-  --sideTop: 50%;     /* centratura verticale */
-}
-
-/* Base: i ritratti NON devono mai mostrare placeholder/alt text */
-.sidePortrait img{ display:block; }
-.sidePortrait[data-empty="1"]{ display:none !important; } /* JS marca vuoto */
-
-/* MOBILE: foto ai bordi + contenuto “a contatto” */
-@media (max-width: 560px){
-  body.hasSidePortraits .wrap{
-    max-width: 100vw !important;
-    padding-left: calc(var(--sideW) + var(--sideGap)) !important;
-    padding-right: calc(var(--sideW) + var(--sideGap)) !important;
-  }
-
-  body.hasSidePortraits .sidePortrait{
-    position: fixed !important;
-    top: var(--sideTop) !important;
-    transform: translateY(-50%) !important;
-
-    width: var(--sideW) !important;
-    height: calc(100vh - 4px) !important;  /* quasi tutta altezza */
-    max-height: calc(100vh - 24px) !important;
-
-    border-radius: 22px !important;
-
-    /* a filo bordo */
-    left: auto !important;
-    right: auto !important;
-    margin: 0 !important;
-  }
-
-  body.hasSidePortraits .sideLeft{ left: 0 !important; }
-  body.hasSidePortraits .sideRight{ right: 0 !important; }
-
-  /* non tagliare le persone */
-  body.hasSidePortraits .sidePortrait img{
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    object-position: center bottom !important;
-    background: rgba(0,0,0,.10);
-  }
-}
-
-/* Schermi molto stretti: riduci leggermente la larghezza per non strozzare il centro */
-@media (max-width: 390px){
-  :root{ --sideW: 96px; --sideGap: 8px; }
-}
-
-
-
-/* =========================
-   MOBILE SIDE PORTRAITS (v3)
-   - immagini ai bordi schermo (sinistra/destra)
-   - centrate verticalmente
-   - più piccole
-   - NESSUN blur / cornici / sfondi
-   - contenuto centrale più largo (tocca quasi le foto)
-   ========================= */
-@media (max-width: 560px) {
-  :root{ --sideW: 96px; --sideGap: 6px; }
-
-        body.hasSidePortraits .wrap {
-            padding-left: 60px !important;
-            padding-right: 60px !important;
+        /* Base: i ritratti NON devono mai mostrare placeholder/alt text */
+        .sidePortrait img {
+            display: block;
         }
 
-  body.hasSidePortraits .sidePortrait{
-    position: fixed !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
+        .sidePortrait[data-empty="1"] {
+            display: none !important;
+        }
 
-    width: var(--sideW) !important;
-    height: min(78vh, 620px) !important;
+        /* Non mostrare testo alt quando non c'è src */
+        .sidePortrait img:not([src]),
+        .sidePortrait img[src=""] {
+            display: none !important;
+        }
 
-    border-radius: 18px !important;
-    overflow: visible !important;
+        /* Mobile layout + card centrate */
+        @media (max-width: 600px) {
+            :root {
+                --sideW: 96px;
+                --sideGap: 6px;
+                --sideOverlap: 30px; /* overlap più piccolo su mobile */
+                z-index: 5; /* sopra la card centrale */
+                --cardW: clamp(96px, calc((100vw - 36px)/3), 120px); /* ✅ sempre 3 per riga */
+            }
 
-    border: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+            .topbar {
+                padding: 10px;
+                border-radius: 22px;
+            }
 
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    filter: none !important;
-    pointer-events: none !important;
-  }
+            .logo {
+                width: 36px;
+                height: 36px;
+            }
 
-  body.hasSidePortraits .sideLeft{ left: 0 !important; }
-  body.hasSidePortraits .sideRight{ right: 0 !important; }
+            .headline {
+                font-size: 26px;
+                line-height: 1.06;
+            }
 
-  body.hasSidePortraits .sidePortrait img{
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    background: transparent !important;
-    filter: none !important;
-  }
+            .section {
+                margin-top: 12px;
+                border-radius: 22px;
+            }
+
+            .sectionHead {
+                padding: 10px 12px;
+            }
+
+                .sectionHead h2 {
+                    font-size: 12px;
+                    letter-spacing: .18em;
+                }
+
+            .grid {
+                display: grid;
+                gap: 8px;
+                padding: 12px; /* ✅ un filo più spazio per non “toccare” i bordi della sezione */
+                align-items: stretch;
+                /* ✅ 3 card per riga che SI ADATTANO alla larghezza reale della sezione
+                   (così non vengono tagliate quando la wrap ha padding extra per le foto laterali) */
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                justify-content: stretch;
+            }
+
+            .grid .card {
+                width: auto;
+                max-width: none; /* ✅ niente larghezze “a viewport” che causano clipping */
+                grid-column: auto;
+                border-radius: 16px;
+            }
+
+            .img {
+                height: 84px;
+            }
+
+            .content {
+                padding: 8px 8px 10px;
+            }
+
+            .name {
+                font-size: 11px;
+            }
+
+            .info {
+                font-size: 9.5px;
+                line-height: 1.35;
+                white-space: normal;
+                overflow: visible;
+                display: block;
+            }
+
+            body.hasSidePortraits .wrap {
+                padding-left: calc(var(--sideW) + var(--sideGap) - var(--sideOverlap));
+                padding-right: calc(var(--sideW) + var(--sideGap) - var(--sideOverlap));
+            }
+
+            body.hasSidePortraits .sidePortrait {
+                position: fixed;
+                top: 55%;
+                transform: translateY(-50%);
+                width: var(--sideW);
+                height: min(78vh, 620px);
+                border-radius: 18px;
+                overflow: visible;
+                border: 0;
+                background: transparent;
+                box-shadow: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                pointer-events: none;
+            }
+
+            body.hasSidePortraits .sideLeft {
+                left: 0;
+            }
+
+            body.hasSidePortraits .sideRight {
+                right: 0;
+            }
+
+            body.hasSidePortraits .sidePortrait img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
+                background: transparent;
+                filter: none;
+            }
+
+            /* ✅ Quando le card sono 1 o 2: restano CENTRATE nella sezione, senza sembrare unite */
+
+.grid.center-few{
+    /* ✅ quando le card sono 1–2: colonne elastiche per NON sforare i bordi,
+       ma card con max-width fisso per restare compatte e centrate */
+    grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+    justify-content: center;
+    justify-items: center;
+    gap: 10px; /* separazione giusta senza "unirle" */
 }
 
-/* telefoni molto stretti: riduci leggermente le foto laterali */
-@media (max-width: 390px) {
-  :root{ --sideW: 84px; }
+.grid.center-few .card{
+    width: 100%;
+    max-width: var(--cardW);
+}
+
+}
+
+        @media (max-width: 380px) {
+            :root {
+                --sideW: 84px;
+            }
+
+            .grid .card {
+                width: 100%;
+                max-width: var(--cardW);
 }
 
 
-/* non mostrare testo alt quando non c'è src */
-.sidePortrait img:not([src]),
-.sidePortrait img[src=""]{ display:none !important; }
-
-
-/* =========================
-   FIX DEFINITIVO: CARD CENTRATE SU MOBILE (ultima riga)
-   - usa flex-wrap così 1 o 2 card finiscono al centro automaticamente
-   - mantiene 3 card per riga su telefoni “grandi” (es. iPhone 11 Pro Max)
-   - 2 card per riga su schermi stretti
-   ========================= */
-@media (max-width: 600px){
-  .grid{
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;  /* ✅ centra le card (soprattutto l’ultima riga) */
-    align-items: stretch !important;
-    gap: 8px !important;
-    padding: 10px !important;
-  }
-
-  /* 3 per riga */
-  .grid .card{
-    flex: 0 0 calc((100% - 16px) / 3) !important; /* 2 gap * 8px = 16px */
-    max-width: none !important;
-    width: auto !important;
-    grid-column: unset !important;
-  }
-}
-
-/* 2 per riga su schermi piccoli */
-@media (max-width: 380px){
-  .grid .card{
-    flex: 0 0 calc((100% - 8px) / 2) !important; /* 1 gap */
-  }
-}
+            .headline {
+                font-size: 24px;
+            }
+        }
+    
+        /* --- FIX: pulsanti Modalità/Admin a destra, senza uscire dallo schermo --- */
+        .rolesWrap{
+            display: grid;
+            grid-template-columns: minmax(0,1fr) auto;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+            min-width: 0;          /* permette al contenuto di restringersi */
+            max-width: 100%;
+        }
+        .roles{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            min-width: 0;
+        }
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-wrap: wrap; /* se serve, va a capo ma resta dentro */
+            justify-content: flex-end;
+            align-items: center;
+            align-items: flex-end;
+            max-width: 100%;
+        }
+        .topbar{
+            overflow-x: hidden;    /* evita qualsiasi “sbordamento” laterale */
+        }
+        @media (max-width: 560px){
+            /* compatta un filo i pulsanti per farli stare a destra accanto ai ruoli */
+            .actions .btn{
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+        }
 
 </style>
 </head>
@@ -1556,49 +1311,41 @@
                 </div>
             </div>
 
-            <div class="roles" aria-label="Ruoli serata">
-                <div class="roleCard">
-                    <span class="roleLabel" id="role1Label">Chef della serata</span>
-                    <span class="roleName" id="role1Name">Massimiliano Giannone</span>
+            <div class="rolesWrap">
+                <div class="roles" aria-label="Ruoli serata">
+                    <div class="roleCard">
+                        <span class="roleLabel" id="role1Label">Chef della serata</span>
+                        <span class="roleName" id="role1Name">Massimiliano Giannone</span>
+                    </div>
+                    <div class="roleCard">
+                        <span class="roleLabel" id="role2Label">Animazione della serata</span>
+                        <span class="roleName" id="role2Name">Anna Maria</span>
+                    </div>
                 </div>
-                <div class="roleCard">
-                    <span class="roleLabel" id="role2Label">Animazione della serata</span>
-                    <span class="roleName" id="role2Name">Anna Maria</span>
+
+                <div class="actions">
+                    <button class="btn" id="toggleTheme" type="button" title="Modalità chiara/scura">
+                        <span class="dot" aria-hidden="true"></span>
+                        Modalità
+                    </button>
+
+                    <button class="btn" id="editEventBtn" type="button" title="Modifica evento (solo admin)" style="display:none;">
+                        ✏️ Modifica evento
+                    </button>
+
+                    <button class="btn" id="adminBtn" type="button" title="Apri modalità admin">
+                        <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M12 3l7 4v6c0 5-3 8-7 8s-7-3-7-8V7l7-4Z" stroke="currentColor" stroke-width="1.8" />
+                            <path d="M12 10v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                            <path d="M12 16h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+                        </svg>
+                        Admin
+                    </button>
+
+                    <button class="btn danger" id="logoutBtn" type="button" title="Logout (solo admin)" style="display:none;">
+                        Logout
+                    </button>
                 </div>
-            </div>
-
-            <div class="actions">
-                <button class="btn" id="toggleTheme" type="button" title="Modalità chiara/scura">
-                    <span class="dot" aria-hidden="true"></span>
-                    Modalità
-                </button>
-
-                <button class="btn" id="printBtn" type="button" title="Stampa o salva in PDF">
-                    <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M7 8V4h10v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        <path d="M7 17h10v3H7v-3Z" stroke="currentColor" stroke-width="1.8" />
-                        <path d="M6 10h12a2 2 0 0 1 2 2v3h-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        <path d="M7 15H4v-3a2 2 0 0 1 2-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                    </svg>
-                    PDF / Stampa
-                </button>
-
-                <button class="btn" id="editEventBtn" type="button" title="Modifica evento (solo admin)" style="display:none;">
-                    ✏️ Modifica evento
-                </button>
-
-                <button class="btn" id="adminBtn" type="button" title="Apri modalità admin">
-                    <svg class="ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 3l7 4v6c0 5-3 8-7 8s-7-3-7-8V7l7-4Z" stroke="currentColor" stroke-width="1.8" />
-                        <path d="M12 10v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                        <path d="M12 16h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
-                    </svg>
-                    Admin
-                </button>
-
-                <button class="btn danger" id="logoutBtn" type="button" title="Logout (solo admin)" style="display:none;">
-                    Logout
-                </button>
             </div>
         </header>
 
@@ -1744,23 +1491,23 @@
 
         function placeholderSvg(title) {
             return `data:image/svg+xml;utf8,
-                <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-                  <defs>
-                    <linearGradient id="g" x1="0" x2="1">
-                      <stop offset="0" stop-color="%2307070a"/>
-                      <stop offset="1" stop-color="%23151622"/>
-                    </linearGradient>
-                    <radialGradient id="r" cx="25%" cy="20%" r="70%">
-                      <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
-                      <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
-                    </radialGradient>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(%23g)"/>
-                  <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
-                  <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
-                  <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
-                  <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
-                </svg>`;
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+                      <defs>
+                        <linearGradient id="g" x1="0" x2="1">
+                          <stop offset="0" stop-color="%2307070a"/>
+                          <stop offset="1" stop-color="%23151622"/>
+                        </linearGradient>
+                        <radialGradient id="r" cx="25%" cy="20%" r="70%">
+                          <stop offset="0" stop-color="%23f6d365" stop-opacity="0.20"/>
+                          <stop offset="1" stop-color="%23d6ae54" stop-opacity="0"/>
+                        </radialGradient>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(%23g)"/>
+                      <circle cx="320" cy="170" r="420" fill="url(%23r)"/>
+                      <rect x="120" y="210" width="960" height="460" rx="48" fill="%23ffffff" fill-opacity="0.06" stroke="%23ffffff" stroke-opacity="0.12"/>
+                      <text x="160" y="350" font-size="54" fill="%23ffffff" fill-opacity="0.92" font-family="Arial">${escapeXml(title || "Piatto")}</text>
+                      <text x="160" y="420" font-size="28" fill="%23ffffff" fill-opacity="0.62" font-family="Arial">foto in arrivo ✨</text>
+                    </svg>`;
         }
 
         function resolveImageSrc(imageUrl, fallbackTitle) {
@@ -1960,9 +1707,9 @@
             const c = String(color || "").trim();
             if (!c) return "";
             return `radial-gradient(1200px 600px at 15% -10%, rgba(246,211,101,.14), transparent 60%),
-                    radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.12), transparent 55%),
-                    radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.08), transparent 55%),
-                    linear-gradient(180deg, ${c} 0%, ${c} 100%)`;
+                        radial-gradient(900px 500px at 90% 10%, rgba(202,162,74,.12), transparent 55%),
+                        radial-gradient(800px 500px at 50% 110%, rgba(120,90,200,.08), transparent 55%),
+                        linear-gradient(180deg, ${c} 0%, ${c} 100%)`;
         }
 
         /******************************************************************
@@ -2062,13 +1809,13 @@
             const t = String(browserTitle || DEFAULT_DATA?.cover?.browserTitle || "").trim();
             const parts = t.split("•");
             const main = (parts[0] || "").trim();
-            const sub  = (parts[1] || "").trim();
+            const sub = (parts[1] || "").trim();
 
             const elMain = document.getElementById("topTitle");
-            const elSub  = document.getElementById("topSubtitle");
+            const elSub = document.getElementById("topSubtitle");
 
             if (elMain) elMain.textContent = main || "Menu";
-            if (elSub)  elSub.textContent  = sub  || "";
+            if (elSub) elSub.textContent = sub || "";
         }
 
 
@@ -2077,7 +1824,7 @@
             document.title = t;
             const titleEl = document.querySelector("head title");
             if (titleEl) titleEl.textContent = t;
-            try { applyTopBarTitleFromBrowserTitle(title); } catch(e) {}
+            try { applyTopBarTitleFromBrowserTitle(title); } catch (e) { }
 
         }
 
@@ -2120,21 +1867,21 @@
                 sectionEl.setAttribute("aria-label", section.title);
 
                 const actionsHtml = adminMode ? `
-                  <div class="sectionActions">
-                    <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
-                  </div>
-                ` : `<div></div>`;
+                      <div class="sectionActions">
+                        <button class="miniBtn" title="Aggiungi" data-add="${escapeXml(section.key)}">+</button>
+                      </div>
+                    ` : `<div></div>`;
 
                 sectionEl.innerHTML = `
-                  <div class="sectionHead">
-                    <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
-                    <div style="display:flex; align-items:baseline; gap:12px;">
-                      <p class="desc">${escapeXml(section.desc || "")}</p>
-                      ${actionsHtml}
-                    </div>
-                  </div>
-                  <div class="grid" data-section="${escapeXml(section.key)}"></div>
-                `;
+                      <div class="sectionHead">
+                        <h2><span class="dot" aria-hidden="true"></span> ${escapeXml(section.title)}</h2>
+                        <div style="display:flex; align-items:baseline; gap:12px;">
+                          <p class="desc">${escapeXml(section.desc || "")}</p>
+                          ${actionsHtml}
+                        </div>
+                      </div>
+                      <div class="grid" data-section="${escapeXml(section.key)}"></div>
+                    `;
 
                 const grid = sectionEl.querySelector(".grid");
 
@@ -2148,23 +1895,23 @@
                     card.setAttribute("data-id", String(it.id || ""));
 
                     card.innerHTML = `
-                    <div class="img">
-                      ${adminMode ? `
-                        <div class="dragBtnWrap">
-                          <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1">⠿</button>
+                        <div class="img">
+                          ${adminMode ? `
+                            <div class="dragBtnWrap">
+                              <button class="dragBtn" title="Trascina per riordinare" data-drag-handle="1">⠿</button>
+                            </div>
+                            <div class="cardBtnsRight">
+                              <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
+                              <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                            </div>
+                          ` : ``}
+                          <img alt="${escapeXml(it.name || "Piatto")}" src="${imgSrc}">
                         </div>
-                        <div class="cardBtnsRight">
-                          <button class="editBtn" title="Modifica" data-edit="${escapeXml(section.key)}:${idx}">✏️</button>
-                          <button class="delBtn" title="Elimina" data-del="${escapeXml(section.key)}:${idx}">−</button>
+                        <div class="content">
+                          <h3 class="name">${escapeXml(it.name || "")}</h3>
+                          <p class="info">${escapeXml(it.info || "")}</p>
                         </div>
-                      ` : ``}
-                      <img alt="${escapeXml(it.name || "Piatto")}" src="${imgSrc}">
-                    </div>
-                    <div class="content">
-                      <h3 class="name">${escapeXml(it.name || "")}</h3>
-                      <p class="info">${escapeXml(it.info || "")}</p>
-                    </div>
-                  `;
+                      `;
                     grid.appendChild(card);
                 });
 
@@ -2471,15 +2218,15 @@
             if (!it) return;
 
             openModal("Elimina", `
-                <div class="panel">
-                  <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
-                  <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
-                  <div class="right">
-                    <button class="btn" id="cancelDel" type="button">Annulla</button>
-                    <button class="btn danger" id="doDel" type="button">Elimina</button>
-                  </div>
-                </div>
-              `);
+                    <div class="panel">
+                      <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Conferma</b>
+                      <p class="mini">Vuoi eliminare: <b>${escapeXml(it.name || "(senza nome)")}</b>?</p>
+                      <div class="right">
+                        <button class="btn" id="cancelDel" type="button">Annulla</button>
+                        <button class="btn danger" id="doDel" type="button">Elimina</button>
+                      </div>
+                    </div>
+                  `);
 
             setTimeout(() => {
                 const c = document.getElementById("cancelDel");
@@ -2502,47 +2249,47 @@
             const preview = resolveImageSrc(currentImg, item.name || "Piatto");
 
             openModal(title, `
-                <div class="panel">
-                  <div class="row">
-                    <label>Titolo</label>
-                    <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
-                  </div>
-
-                  <div class="row">
-                    <label>Descrizione</label>
-                    <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
-                  </div>
-
-                  <div class="row">
-                    <label>Immagine</label>
-                    <div class="fileRow">
-                      <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
-
-                      <div class="fileActions">
-                        <input id="fFile" type="file" accept="image/*" style="display:none" />
-                        <button class="btn" id="pickFile" type="button">📷 Seleziona file</button>
-                        <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                    <div class="panel">
+                      <div class="row">
+                        <label>Titolo</label>
+                        <input id="fName" type="text" value="${escapeXml(item.name || "")}" placeholder="Es: Bruschette gourmet" />
                       </div>
 
-                      <div class="mini">
-                        ✅ Selezionando un file, nel JSON verrà salvato:
-                        <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
-                        Poi devi copiare quel file dentro <b>${escapeXml(IMAGES_FOLDER)}</b> prima di caricare su GitHub.
+                      <div class="row">
+                        <label>Descrizione</label>
+                        <textarea id="fInfo" placeholder="Descrizione breve...">${escapeXml(item.info || "")}</textarea>
                       </div>
 
-                      <div class="mini">Oppure incolla un URL (opzionale):</div>
-                      <input id="fImgUrl" type="text"
-                        value="${escapeXml(currentImg && (currentImg.startsWith("http://") || currentImg.startsWith("https://")) ? currentImg : "")}"
-                        placeholder="https://..." />
+                      <div class="row">
+                        <label>Immagine</label>
+                        <div class="fileRow">
+                          <div class="thumb"><img id="imgPreview" alt="preview" src="${preview}"></div>
+
+                          <div class="fileActions">
+                            <input id="fFile" type="file" accept="image/*" style="display:none" />
+                            <button class="btn" id="pickFile" type="button">📷 Seleziona file</button>
+                            <button class="btn danger" id="clearImg" type="button">Rimuovi</button>
+                          </div>
+
+                          <div class="mini">
+                            ✅ Selezionando un file, nel JSON verrà salvato:
+                            <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b><br/>
+                            Poi devi copiare quel file dentro <b>${escapeXml(IMAGES_FOLDER)}</b> prima di caricare su GitHub.
+                          </div>
+
+                          <div class="mini">Oppure incolla un URL (opzionale):</div>
+                          <input id="fImgUrl" type="text"
+                            value="${escapeXml(currentImg && (currentImg.startsWith("http://") || currentImg.startsWith("https://")) ? currentImg : "")}"
+                            placeholder="https://..." />
+                        </div>
+                      </div>
+
+                      <div class="right">
+                        <button class="btn" id="cancelItem" type="button">Annulla</button>
+                        <button class="btn ok" id="saveItem" type="button">Conferma</button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div class="right">
-                    <button class="btn" id="cancelItem" type="button">Annulla</button>
-                    <button class="btn ok" id="saveItem" type="button">Conferma</button>
-                  </div>
-                </div>
-              `);
+                  `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelItem");
@@ -2655,132 +2402,132 @@
             const patternPreview = c.themePatternUrl ? resolveImageSrc(c.themePatternUrl, "Tema") : "";
 
             openModal("Modifica evento", `
-                <div class="panel">
+                    <div class="panel">
 
-                  <div class="row">
-                    <label>Titolo browser</label>
-                    <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
-                  </div>
-
-                  <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
-
-                  <div class="row">
-                    <label>Tema sito (pattern)</label>
-                    <div class="fileRow">
-                      <div class="thumb"><img id="prevPattern" alt="preview pattern" src="${patternPreview || resolveImageSrc("", "Tema")}"></div>
-
-                      <div class="fileActions">
-                        <input id="eFilePattern" type="file" accept="image/*" style="display:none" />
-                        <button class="btn" id="pickPattern" type="button">🖼️ Seleziona immagine tema</button>
-                        <button class="btn danger" id="clearPattern" type="button">Rimuovi tema</button>
+                      <div class="row">
+                        <label>Titolo browser</label>
+                        <input id="eBrowserTitle" type="text" value="${escapeXml(c.browserTitle || "")}" />
                       </div>
 
-                      <div class="row" style="margin-top:0;">
-                        <label>Dimensione pattern (px)</label>
-                        <input id="ePatternSize" type="number" min="80" step="10" value="${escapeXml(String(c.themePatternSize ?? DEFAULT_DATA.cover.themePatternSize))}" />
-                      </div>
+                      <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
 
-                      <div class="mini">
-                        Il tema è un’immagine ripetuta in loop mentre scrolli (repeat).<br/>
-                        ✅ Nel JSON si salva solo <b>${escapeXml(IMAGES_FOLDER)}nomefile.ext</b> se selezioni un file.
-                      </div>
+                      <div class="row">
+                        <label>Tema sito (pattern)</label>
+                        <div class="fileRow">
+                          <div class="thumb"><img id="prevPattern" alt="preview pattern" src="${patternPreview || resolveImageSrc("", "Tema")}"></div>
 
-                      <div class="mini">Oppure incolla un URL immagine (opzionale):</div>
-                      <input id="ePatternUrl" type="text" value="${escapeXml((c.themePatternUrl || "").startsWith("http") ? c.themePatternUrl : "")}" placeholder="https://...">
-                      <div class="row" style="margin-top:10px;">
-                        <label>Colore sfondo (opzionale)</label>
-                        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                          <input id="eBaseBgColor" type="text" value="${escapeXml(String(c.baseBgColor || ""))}" placeholder="#ff7a00 (Halloween)" style="flex:1; min-width:180px;" />
-                          <input id="eBaseBgColorPick" type="color" value="${escapeXml((String(c.baseBgColor || "").trim() && String(c.baseBgColor || "").trim().startsWith('#') && String(c.baseBgColor || "").trim().length >= 4) ? String(c.baseBgColor || "").trim() : "#ff7a00")}" style="width:54px; height:44px; padding:0; border-radius:12px;" />
-                          <button class="btn danger" id="clearBaseBgColor" type="button">Reset</button>
+                          <div class="fileActions">
+                            <input id="eFilePattern" type="file" accept="image/*" style="display:none" />
+                            <button class="btn" id="pickPattern" type="button">🖼️ Seleziona immagine tema</button>
+                            <button class="btn danger" id="clearPattern" type="button">Rimuovi tema</button>
+                          </div>
+
+                          <div class="row" style="margin-top:0;">
+                            <label>Dimensione pattern (px)</label>
+                            <input id="ePatternSize" type="number" min="80" step="10" value="${escapeXml(String(c.themePatternSize ?? DEFAULT_DATA.cover.themePatternSize))}" />
+                          </div>
+
+                          <div class="mini">
+                            Il tema è un’immagine ripetuta in loop mentre scrolli (repeat).<br/>
+                            ✅ Nel JSON si salva solo <b>${escapeXml(IMAGES_FOLDER)}nomefile.ext</b> se selezioni un file.
+                          </div>
+
+                          <div class="mini">Oppure incolla un URL immagine (opzionale):</div>
+                          <input id="ePatternUrl" type="text" value="${escapeXml((c.themePatternUrl || "").startsWith("http") ? c.themePatternUrl : "")}" placeholder="https://...">
+                          <div class="row" style="margin-top:10px;">
+                            <label>Colore sfondo (opzionale)</label>
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                              <input id="eBaseBgColor" type="text" value="${escapeXml(String(c.baseBgColor || ""))}" placeholder="#ff7a00 (Halloween)" style="flex:1; min-width:180px;" />
+                              <input id="eBaseBgColorPick" type="color" value="${escapeXml((String(c.baseBgColor || "").trim() && String(c.baseBgColor || "").trim().startsWith('#') && String(c.baseBgColor || "").trim().length >= 4) ? String(c.baseBgColor || "").trim() : "#ff7a00")}" style="width:54px; height:44px; padding:0; border-radius:12px;" />
+                              <button class="btn danger" id="clearBaseBgColor" type="button">Reset</button>
+                            </div>
+                          </div>
+
                         </div>
                       </div>
 
-                    </div>
-                  </div>
+                      <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
 
-                  <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0; opacity:.7" />
-
-                  <div class="row">
-                    <label>Ruolo 1 (sopra)</label>
-                    <input id="eRole1Label" type="text" value="${escapeXml(c.role1Label || "")}" />
-                  </div>
-                  <div class="row">
-                    <label>Ruolo 1 (nome sotto)</label>
-                    <input id="eRole1Name" type="text" value="${escapeXml(c.role1Name || "")}" />
-                  </div>
-
-                  <div class="row">
-                    <label>Ruolo 2 (sopra)</label>
-                    <input id="eRole2Label" type="text" value="${escapeXml(c.role2Label || "")}" />
-                  </div>
-                  <div class="row">
-                    <label>Ruolo 2 (nome sotto)</label>
-                    <input id="eRole2Name" type="text" value="${escapeXml(c.role2Name || "")}" />
-                  </div>
-
-                  <div class="row">
-                    <label>Foto sinistra</label>
-                    <div class="fileRow">
-                      <div class="thumb"><img id="prevLeft" alt="preview left" src="${resolveImageSrc(c.sideLeftImageUrl, "Foto sinistra")}"></div>
-                      <div class="fileActions">
-                        <input id="eFileLeft" type="file" accept="image/*" style="display:none" />
-                        <button class="btn" id="pickLeft" type="button">📷 Seleziona file</button>
-                        <button class="btn danger" id="clearLeft" type="button">Rimuovi</button>
+                      <div class="row">
+                        <label>Ruolo 1 (sopra)</label>
+                        <input id="eRole1Label" type="text" value="${escapeXml(c.role1Label || "")}" />
                       </div>
-                      <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <label>Foto destra</label>
-                    <div class="fileRow">
-                      <div class="thumb"><img id="prevRight" alt="preview right" src="${resolveImageSrc(c.sideRightImageUrl, "Foto destra")}"></div>
-                      <div class="fileActions">
-                        <input id="eFileRight" type="file" accept="image/*" style="display:none" />
-                        <button class="btn" id="pickRight" type="button">📷 Seleziona file</button>
-                        <button class="btn danger" id="clearRight" type="button">Rimuovi</button>
+                      <div class="row">
+                        <label>Ruolo 1 (nome sotto)</label>
+                        <input id="eRole1Name" type="text" value="${escapeXml(c.role1Name || "")}" />
                       </div>
-                      <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
+
+                      <div class="row">
+                        <label>Ruolo 2 (sopra)</label>
+                        <input id="eRole2Label" type="text" value="${escapeXml(c.role2Label || "")}" />
+                      </div>
+                      <div class="row">
+                        <label>Ruolo 2 (nome sotto)</label>
+                        <input id="eRole2Name" type="text" value="${escapeXml(c.role2Name || "")}" />
+                      </div>
+
+                      <div class="row">
+                        <label>Foto sinistra</label>
+                        <div class="fileRow">
+                          <div class="thumb"><img id="prevLeft" alt="preview left" src="${resolveImageSrc(c.sideLeftImageUrl, "Foto sinistra")}"></div>
+                          <div class="fileActions">
+                            <input id="eFileLeft" type="file" accept="image/*" style="display:none" />
+                            <button class="btn" id="pickLeft" type="button">📷 Seleziona file</button>
+                            <button class="btn danger" id="clearLeft" type="button">Rimuovi</button>
+                          </div>
+                          <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <label>Foto destra</label>
+                        <div class="fileRow">
+                          <div class="thumb"><img id="prevRight" alt="preview right" src="${resolveImageSrc(c.sideRightImageUrl, "Foto destra")}"></div>
+                          <div class="fileActions">
+                            <input id="eFileRight" type="file" accept="image/*" style="display:none" />
+                            <button class="btn" id="pickRight" type="button">📷 Seleziona file</button>
+                            <button class="btn danger" id="clearRight" type="button">Rimuovi</button>
+                          </div>
+                          <div class="mini">Verrà salvato: <b>${escapeXml(IMAGES_FOLDER)}nomefile.jpg</b></div>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <label>Titolo (prima parte)</label>
+                        <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
+                      </div>
+
+                      <div class="row">
+                        <label>Titolo (parte oro)</label>
+                        <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
+                      </div>
+
+                      <div class="row">
+                        <label>Descrizione evento</label>
+                        <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
+                      </div>
+
+                      <div class="row">
+                        <label>Dettagli serata</label>
+                        <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
+                      </div>
+
+                      <div class="row">
+                        <label>Data & Orario</label>
+                        <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
+                      </div>
+
+                      <div class="row">
+                        <label>Note</label>
+                        <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
+                      </div>
+
+                      <div class="right">
+                        <button class="btn" id="cancelEvent" type="button">Annulla</button>
+                        <button class="btn ok" id="saveEvent" type="button">Conferma</button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div class="row">
-                    <label>Titolo (prima parte)</label>
-                    <input id="eHeroPrefix" type="text" value="${escapeXml(c.heroPrefix || "")}" />
-                  </div>
-
-                  <div class="row">
-                    <label>Titolo (parte oro)</label>
-                    <input id="eHeroGold" type="text" value="${escapeXml(c.heroGold || "")}" />
-                  </div>
-
-                  <div class="row">
-                    <label>Descrizione evento</label>
-                    <textarea id="eHeroDesc">${escapeXml(brToNl(String(c.heroDesc || "")))}</textarea>
-                  </div>
-
-                  <div class="row">
-                    <label>Dettagli serata</label>
-                    <textarea id="eToast">${escapeXml(brToNl(String(c.toast || "")))}</textarea>
-                  </div>
-
-                  <div class="row">
-                    <label>Data & Orario</label>
-                    <textarea id="eOrario">${escapeXml(brToNl(String(c.metaOrario || "")))}</textarea>
-                  </div>
-
-                  <div class="row">
-                    <label>Note</label>
-                    <textarea id="eNote">${escapeXml(brToNl(String(c.metaNote || "")))}</textarea>
-                  </div>
-
-                  <div class="right">
-                    <button class="btn" id="cancelEvent" type="button">Annulla</button>
-                    <button class="btn ok" id="saveEvent" type="button">Conferma</button>
-                  </div>
-                </div>
-              `);
+                  `);
 
             setTimeout(() => {
                 const cancel = document.getElementById("cancelEvent");
@@ -2809,70 +2556,70 @@
                 const clearBaseBg = document.getElementById("clearBaseBgColor");
                 let baseBgValue = String(DRAFT.cover.baseBgColor || "").trim();
 
-                function normalizeHex(v){
-                    const s = String(v||"").trim();
+                function normalizeHex(v) {
+                    const s = String(v || "").trim();
                     if (!s) return "";
                     // accetta #RGB o #RRGGBB
                     if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s)) return s;
                     return "";
                 }
 
-// ==========================================================
-// ✅ IMAGE OPTIMIZER (evita QuotaExceededError in localStorage)
-// Riduce e comprime l'immagine prima di salvarla (WEBP 1024px).
-// ==========================================================
-function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
-    return new Promise((resolve) => {
-        try {
-            const url = URL.createObjectURL(file);
-            const img = new Image();
-            img.onload = async () => {
-                try {
-                    const w = img.naturalWidth || img.width;
-                    const h = img.naturalHeight || img.height;
-                    const scale = Math.min(1, maxDim / Math.max(w, h));
-                    const cw = Math.max(1, Math.round(w * scale));
-                    const ch = Math.max(1, Math.round(h * scale));
+                // ==========================================================
+                // ✅ IMAGE OPTIMIZER (evita QuotaExceededError in localStorage)
+                // Riduce e comprime l'immagine prima di salvarla (WEBP 1024px).
+                // ==========================================================
+                function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
+                    return new Promise((resolve) => {
+                        try {
+                            const url = URL.createObjectURL(file);
+                            const img = new Image();
+                            img.onload = async () => {
+                                try {
+                                    const w = img.naturalWidth || img.width;
+                                    const h = img.naturalHeight || img.height;
+                                    const scale = Math.min(1, maxDim / Math.max(w, h));
+                                    const cw = Math.max(1, Math.round(w * scale));
+                                    const ch = Math.max(1, Math.round(h * scale));
 
-                    const canvas = document.createElement("canvas");
-                    canvas.width = cw;
-                    canvas.height = ch;
-                    const ctx = canvas.getContext("2d", { alpha: true });
-                    ctx.clearRect(0, 0, cw, ch);
-                    ctx.drawImage(img, 0, 0, cw, ch);
+                                    const canvas = document.createElement("canvas");
+                                    canvas.width = cw;
+                                    canvas.height = ch;
+                                    const ctx = canvas.getContext("2d", { alpha: true });
+                                    ctx.clearRect(0, 0, cw, ch);
+                                    ctx.drawImage(img, 0, 0, cw, ch);
 
-                    const done = (dataUrl) => resolve(String(dataUrl || ""));
-                    if (canvas.toBlob) {
-                        canvas.toBlob((blob) => {
-                            if (!blob) {
-                                // fallback
-                                try { done(canvas.toDataURL("image/png")); } catch { done(""); }
-                                return;
-                            }
-                            const r = new FileReader();
-                            r.onload = () => done(r.result);
-                            r.readAsDataURL(blob);
-                        }, "image/webp", quality);
-                    } else {
-                        // fallback vecchi browser
-                        try { done(canvas.toDataURL("image/png")); } catch { done(""); }
-                    }
-                } catch (e) {
-                    resolve("");
-                } finally {
-                    try { URL.revokeObjectURL(url); } catch { }
+                                    const done = (dataUrl) => resolve(String(dataUrl || ""));
+                                    if (canvas.toBlob) {
+                                        canvas.toBlob((blob) => {
+                                            if (!blob) {
+                                                // fallback
+                                                try { done(canvas.toDataURL("image/png")); } catch { done(""); }
+                                                return;
+                                            }
+                                            const r = new FileReader();
+                                            r.onload = () => done(r.result);
+                                            r.readAsDataURL(blob);
+                                        }, "image/webp", quality);
+                                    } else {
+                                        // fallback vecchi browser
+                                        try { done(canvas.toDataURL("image/png")); } catch { done(""); }
+                                    }
+                                } catch (e) {
+                                    resolve("");
+                                } finally {
+                                    try { URL.revokeObjectURL(url); } catch { }
+                                }
+                            };
+                            img.onerror = () => { try { URL.revokeObjectURL(url); } catch { } resolve(""); };
+                            img.src = url;
+                        } catch (e) {
+                            resolve("");
+                        }
+                    });
                 }
-            };
-            img.onerror = () => { try { URL.revokeObjectURL(url); } catch { } resolve(""); };
-            img.src = url;
-        } catch (e) {
-            resolve("");
-        }
-    });
-}
 
 
-                function syncBaseBgUI(from){
+                function syncBaseBgUI(from) {
                     const hex = normalizeHex(baseBgValue);
                     if (baseBgInput && from !== "text") baseBgInput.value = baseBgValue;
                     if (baseBgPick && from !== "pick") baseBgPick.value = hex || "#ff7a00";
@@ -2908,28 +2655,28 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
                 if (pickPattern && filePattern) {
                     pickPattern.onclick = () => filePattern.click();
                     filePattern.onchange = async () => {
-    const f = filePattern.files && filePattern.files[0];
-    if (!f) return;
+                        const f = filePattern.files && filePattern.files[0];
+                        if (!f) return;
 
-    // ✅ comprimi prima di salvare (evita che alcune immagini non si vedano per quota storage)
-    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+                        // ✅ comprimi prima di salvare (evita che alcune immagini non si vedano per quota storage)
+                        let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
 
-    // fallback: se per qualche motivo la compressione fallisce
-    if (!dataUrl) {
-        dataUrl = await new Promise((resolve) => {
-            try {
-                const rr = new FileReader();
-                rr.onload = () => resolve(String(rr.result || ""));
-                rr.onerror = () => resolve("");
-                rr.readAsDataURL(f);
-            } catch { resolve(""); }
-        });
-    }
+                        // fallback: se per qualche motivo la compressione fallisce
+                        if (!dataUrl) {
+                            dataUrl = await new Promise((resolve) => {
+                                try {
+                                    const rr = new FileReader();
+                                    rr.onload = () => resolve(String(rr.result || ""));
+                                    rr.onerror = () => resolve("");
+                                    rr.readAsDataURL(f);
+                                } catch { resolve(""); }
+                            });
+                        }
 
-    patternValue = String(dataUrl || "");
-    prevPattern.src = patternValue || resolveImageSrc("", "Tema");
-    if (patternUrlInput) patternUrlInput.value = "";
-};
+                        patternValue = String(dataUrl || "");
+                        prevPattern.src = patternValue || resolveImageSrc("", "Tema");
+                        if (patternUrlInput) patternUrlInput.value = "";
+                    };
 
                 }
                 if (clearPattern) {
@@ -2965,24 +2712,24 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
                 if (pickLeft && fileLeft) {
                     pickLeft.onclick = () => fileLeft.click();
                     fileLeft.onchange = async () => {
-    const f = fileLeft.files && fileLeft.files[0];
-    if (!f) return;
+                        const f = fileLeft.files && fileLeft.files[0];
+                        if (!f) return;
 
-    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
-    if (!dataUrl) {
-        dataUrl = await new Promise((resolve) => {
-            try {
-                const rr = new FileReader();
-                rr.onload = () => resolve(String(rr.result || ""));
-                rr.onerror = () => resolve("");
-                rr.readAsDataURL(f);
-            } catch { resolve(""); }
-        });
-    }
+                        let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+                        if (!dataUrl) {
+                            dataUrl = await new Promise((resolve) => {
+                                try {
+                                    const rr = new FileReader();
+                                    rr.onload = () => resolve(String(rr.result || ""));
+                                    rr.onerror = () => resolve("");
+                                    rr.readAsDataURL(f);
+                                } catch { resolve(""); }
+                            });
+                        }
 
-    leftValue = String(dataUrl || "");
-    prevLeft.src = leftValue || resolveImageSrc("", "Foto sinistra");
-};
+                        leftValue = String(dataUrl || "");
+                        prevLeft.src = leftValue || resolveImageSrc("", "Foto sinistra");
+                    };
 
                 }
                 if (clearLeft) {
@@ -3002,24 +2749,24 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
                 if (pickRight && fileRight) {
                     pickRight.onclick = () => fileRight.click();
                     fileRight.onchange = async () => {
-    const f = fileRight.files && fileRight.files[0];
-    if (!f) return;
+                        const f = fileRight.files && fileRight.files[0];
+                        if (!f) return;
 
-    let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
-    if (!dataUrl) {
-        dataUrl = await new Promise((resolve) => {
-            try {
-                const rr = new FileReader();
-                rr.onload = () => resolve(String(rr.result || ""));
-                rr.onerror = () => resolve("");
-                rr.readAsDataURL(f);
-            } catch { resolve(""); }
-        });
-    }
+                        let dataUrl = await fileToOptimizedDataURL(f, 1024, 0.86);
+                        if (!dataUrl) {
+                            dataUrl = await new Promise((resolve) => {
+                                try {
+                                    const rr = new FileReader();
+                                    rr.onload = () => resolve(String(rr.result || ""));
+                                    rr.onerror = () => resolve("");
+                                    rr.readAsDataURL(f);
+                                } catch { resolve(""); }
+                            });
+                        }
 
-    rightValue = String(dataUrl || "");
-    prevRight.src = rightValue || resolveImageSrc("", "Foto destra");
-};
+                        rightValue = String(dataUrl || "");
+                        prevRight.src = rightValue || resolveImageSrc("", "Foto destra");
+                    };
 
                 }
                 if (clearRight) {
@@ -3092,20 +2839,20 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
          ******************************************************************/
         function showLogin() {
             openModal("Login Admin", `
-                <div class="panel">
-                  <div class="row">
-                    <label>Username</label>
-                    <input id="loginUser" type="text" autocomplete="username" />
-                  </div>
-                  <div class="row">
-                    <label>Password</label>
-                    <input id="loginPass" type="password" autocomplete="current-password" />
-                  </div>
-                  <div class="right">
-                    <button class="btn ok" id="doLogin" type="button">Accedi</button>
-                  </div>
-                </div>
-              `);
+                    <div class="panel">
+                      <div class="row">
+                        <label>Username</label>
+                        <input id="loginUser" type="text" autocomplete="username" />
+                      </div>
+                      <div class="row">
+                        <label>Password</label>
+                        <input id="loginPass" type="password" autocomplete="current-password" />
+                      </div>
+                      <div class="right">
+                        <button class="btn ok" id="doLogin" type="button">Accedi</button>
+                      </div>
+                    </div>
+                  `);
 
             setTimeout(() => {
                 const btn = document.getElementById("doLogin");
@@ -3121,14 +2868,14 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
                         enterAdmin();
                     } else {
                         openModal("Login Admin", `
-                      <div class="panel">
-                        <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
-                        <p class="mini">Riprova.</p>
-                        <div class="right">
-                          <button class="btn ok" id="retryLogin" type="button">Riprova</button>
-                        </div>
-                      </div>
-                    `);
+                          <div class="panel">
+                            <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Credenziali errate</b>
+                            <p class="mini">Riprova.</p>
+                            <div class="right">
+                              <button class="btn ok" id="retryLogin" type="button">Riprova</button>
+                            </div>
+                          </div>
+                        `);
                         setTimeout(() => {
                             const r = document.getElementById("retryLogin");
                             if (r) r.onclick = showLogin;
@@ -3198,17 +2945,17 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
                 setDirty(false);
 
                 openModal("Salvato", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
-                    <p class="mini">
-                      Ho scaricato <b>menu-data.json</b>.<br/><br/>
-                      Se hai scelto immagini come file, ricordati di caricarle davvero nella cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
-                    </p>
-                    <div class="right">
-                      <button class="btn ok" id="okClose" type="button">Ok</button>
-                    </div>
-                  </div>
-                `);
+                      <div class="panel">
+                        <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px;">Ok ✅</b>
+                        <p class="mini">
+                          Ho scaricato <b>menu-data.json</b>.<br/><br/>
+                          Se hai scelto immagini come file, ricordati di caricarle davvero nella cartella <b>${escapeXml(IMAGES_FOLDER)}</b> su GitHub.
+                        </p>
+                        <div class="right">
+                          <button class="btn ok" id="okClose" type="button">Ok</button>
+                        </div>
+                      </div>
+                    `);
 
                 setTimeout(() => {
                     const b = document.getElementById("okClose");
@@ -3219,14 +2966,14 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
             } catch (err) {
                 console.error(err);
                 openModal("Errore Salvataggio", `
-                  <div class="panel">
-                    <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px; color: rgba(255,91,107,.9);">Errore ❌</b>
-                    <p class="mini">Apri la console (F12 → Console) e guarda l’errore.</p>
-                    <div class="right">
-                      <button class="btn ok" id="errClose" type="button">Ok</button>
-                    </div>
-                  </div>
-                `);
+                      <div class="panel">
+                        <b style="letter-spacing:.18em; text-transform:uppercase; font-size:12px; color: rgba(255,91,107,.9);">Errore ❌</b>
+                        <p class="mini">Apri la console (F12 → Console) e guarda l’errore.</p>
+                        <div class="right">
+                          <button class="btn ok" id="errClose" type="button">Ok</button>
+                        </div>
+                      </div>
+                    `);
 
                 setTimeout(() => {
                     const b = document.getElementById("errClose");
@@ -3240,7 +2987,6 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
          ******************************************************************/
         (async function init() {
             $("toggleTheme").addEventListener("click", () => document.body.classList.toggle("light"));
-            $("printBtn").addEventListener("click", () => window.print());
             $("modalClose").addEventListener("click", closeModal);
 
             $("adminBtn").addEventListener("click", () => {
@@ -3261,7 +3007,7 @@ function fileToOptimizedDataURL(file, maxDim = 1024, quality = 0.86) {
             });
 
             MENU = await loadMenuAsync();
-                try { applyTopBarTitleFromBrowserTitle(MENU?.cover?.browserTitle); } catch(e) {}
+            try { applyTopBarTitleFromBrowserTitle(MENU?.cover?.browserTitle); } catch (e) { }
             renderPublic(MENU, false);
             setupThemeScrollMotion();
             relocateSidePortraitsForMobile();
