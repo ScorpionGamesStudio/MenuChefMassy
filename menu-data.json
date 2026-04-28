@@ -1,12 +1,12 @@
 {
   "cover": {
     "browserTitle": "Invito Primo Maggio",
-    "heroPrefix": "Stasera a casa con Massy & Anna:",
-    "heroGold": "Cena di Carnevale",
-    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, PopCorn accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nBruschette con il pomodoro grigliate\n\n-Secondo\nTre teglie di pizza con gusti misti",
+    "heroPrefix": "Oggi a casa con Massy & Anna:",
+    "heroGold": "Pranzo Primo maggio",
+    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nBruschette con il pomodoro grigliate\n\n-Secondo\nCarne di vitello grigliata, salsiccia mista grigliata, Amburgher grigliati, wrustel grigliati, mortadella grigliata, cosce di pollo grigliate, petto di pollo grigliato.",
     "chefName": "Massimiliano Giannone",
     "toast": "Cosa propone L'animazione:\nLa serata si svolgerà come segue:\n1) Giochi (non da tavolo)\n2) Giochi (da tavolo)\n3) Ognuno a casa sua",
-    "metaOrario": "17/02/2026\nAlle ore 19:00 PUNTUALE",
+    "metaOrario": "17/02/2026\nAlle ore 11:30 PUNTUALE",
     "metaNote": "Informatemi di aventuali allergie o intolleranze.",
     "role1Label": "Chef della serata",
     "role1Name": "Massimiliano Giannone",
@@ -86,6 +86,12 @@
         "name": "Amburger",
         "info": "",
         "imageUrl": "immage/Amburger.png"
+      },
+      {
+        "id": "b5d7e2c2-e03b-4fdc-9c77-02847b0932e2",
+        "name": "Coscia di pollo",
+        "info": "",
+        "imageUrl": "immage/CosciaDiPollo.png"
       }
     ],
     "dolci": [],
