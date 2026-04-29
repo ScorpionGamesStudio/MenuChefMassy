@@ -110,6 +110,12 @@
         "name": "Mortadella grigliata",
         "info": "",
         "imageUrl": "immage/mortadellagrigliata.png"
+      },
+      {
+        "id": "10d596bc-d4a4-4958-801d-04b0adc3e83a",
+        "name": "Wurstel Grigliati",
+        "info": "",
+        "imageUrl": "immage/wurstel.png"
       }
     ],
     "dolci": [
