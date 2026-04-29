@@ -3,7 +3,7 @@
     "browserTitle": "Invito Primo Maggio",
     "heroPrefix": "Oggi a casa con Massy & Anna:",
     "heroGold": "Pranzo Primo maggio",
-    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, Bruschette, accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nSpaghetti fatti in casa con aglio olio e peperoncino\n\n-Secondo\nCarne di vitello grigliata, salsiccia mista grigliata, Amburgher grigliati, wrustel grigliati, mortadella grigliata, cosce di pollo grigliate, petto di pollo grigliato.\n\n-Bevande\nAcqua, Coca-cola, Fanta, Birra",
+    "heroDesc": "Cosa propone lo Chef:\n- Antipasto\nPatatine, Bruschette, accompagnate da un piacevole Aperol Spritz della casa\n\n-Primo\nSpaghetti aglio olio e peperoncino\n\n-Secondo\nCarne di vitello grigliata, salsiccia mista grigliata, Amburgher grigliati, wrustel grigliati, mortadella grigliata, cosce di pollo grigliate, petto di pollo grigliato.\n\n-Bevande\nAcqua, Coca-cola, Fanta, Birra",
     "chefName": "Massimiliano Giannone",
     "toast": "La parola magica e RELAX.\nSperando che la giornata lo permetta, vi auguriamo di passare una splendida giornata in compagnia dello Chef (non ancora stellato), e della nostra aiuto cuoca ancora alle prime armi",
     "metaOrario": "01/05/2026\nAlle ore 11:30/12:00",
@@ -70,7 +70,7 @@
       {
         "id": "21aaace0-ac98-465d-a6b5-c0f4ae24fcb9",
         "name": "Spaghetti aglio, olio e peperoncino",
-        "info": "Spaghetti fatti in casa dallo schef, con olio direttamente dal frantoio Siracusano\nNOTE:\nIl peperoncino verrà aggiunto direttamente nei piatti di chi lo voglia",
+        "info": "Spaghetti con olio direttamente dal frantoio Siracusano\nNOTE:\nIl peperoncino verrà aggiunto direttamente nei piatti di chi lo voglia",
         "imageUrl": "immage/SpaghettiAglioOlioPeperoncino.png"
       }
     ],
