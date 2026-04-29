@@ -1,4 +1,3 @@
-﻿﻿
 <!doctype html>
 <html lang="it">
 <head>
@@ -31,7 +30,7 @@
             --baseBg: var(--baseBgDefault);
             /* ✅ NEW: base background actually applied (can be customized from admin) */
             --baseBgApplied: var(--baseBgDefault);
-            --baseBgColor: ""; /* e.g. #ff7a00 */
+            --baseBgColor: ; /* e.g. #ff7a00 */
             /* NEW: pattern theme layer (default = none) */
             --themePattern: none; /* set to: url("...") via JS */
             --themePatternSize: 420px; /* set via JS */
@@ -120,12 +119,10 @@
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
             position: relative;
-            top: auto;
             z-index: 50;
             flex-wrap: wrap;
-            width: 100vw;
-            margin-left: 50%;
-            transform: translateX(-50%);
+            width: 100%;
+            overflow: hidden;
         }
 
         body.light .topbar {
@@ -181,20 +178,23 @@
             gap: 12px;
             flex-wrap: wrap;
             margin-left: auto;
+            min-width: 0;
+            max-width: 100%;
         }
 
         /* roles (2 colonne) */
         .roles {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 10px;
-            padding: 6px; /* ← meno padding laterale */
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            min-width: 0;
+            padding: 6px;
             border-radius: 14px;
             border: 1px solid rgba(246,211,101,.22);
             background: rgba(202,162,74,.10);
             backdrop-filter: blur(8px);
-            min-width: 360px;
-            width: 100%; /* ← usa TUTTA la larghezza disponibile */
             box-sizing: border-box;
         }
 
@@ -248,6 +248,7 @@
             flex-wrap: wrap;
             justify-content: flex-end;
             align-items: center;
+            max-width: 100%;
         }
 
         .btn {
@@ -557,6 +558,17 @@
             }
         }
 
+        /* Tablet: 2 cards per row */
+        @media (max-width: 980px) and (min-width: 601px) {
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .card {
+                grid-column: span 2;
+            }
+        }
+
 
         .card {
             grid-column: span 4;
@@ -715,7 +727,7 @@
             height: 4px;
             border-radius: 999px;
             background: linear-gradient(90deg, rgba(246,211,101,.2), rgba(246,211,101,.95), rgba(246,211,101,.2));
-            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25));
+            box-shadow: 0 0 0 4px rgba(202,162,74,.14), 0 12px 34px rgba(202,162,74,.25);
             pointer-events: none;
         }
 
@@ -1114,9 +1126,8 @@
             :root {
                 --sideW: 96px;
                 --sideGap: 6px;
-                --sideOverlap: 30px; /* overlap più piccolo su mobile */
-                z-index: 5; /* sopra la card centrale */
-                --cardW: clamp(96px, calc((100vw - 36px)/3), 120px); /* ✅ sempre 3 per riga */
+                --sideOverlap: 30px;
+                --cardW: clamp(96px, calc((100vw - 36px)/3), 120px);
             }
 
             .topbar {
@@ -1181,8 +1192,8 @@
             }
 
             .info {
-                font-size: 9.5px;
-                line-height: 1.35;
+                font-size: 11px;
+                line-height: 1.4;
                 white-space: normal;
                 overflow: visible;
                 display: block;
@@ -1261,40 +1272,8 @@
             }
         }
     
-        /* --- FIX: pulsanti Modalità/Admin a destra, senza uscire dallo schermo --- */
-        .rolesWrap{
-            display: grid;
-            grid-template-columns: minmax(0,1fr) auto;
-            align-items: center;
-            gap: 12px;
-            margin-left: auto;
-            min-width: 0;          /* permette al contenuto di restringersi */
-            max-width: 100%;
-        }
-        .roles{
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            align-items: center;
-            min-width: 0;
-        }
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex-wrap: wrap; /* se serve, va a capo ma resta dentro */
-            justify-content: flex-end;
-            align-items: center;
-            align-items: flex-end;
-            max-width: 100%;
-        }
-        .topbar{
-            overflow-x: hidden;    /* evita qualsiasi “sbordamento” laterale */
-        }
-        @media (max-width: 560px){
-            /* compatta un filo i pulsanti per farli stare a destra accanto ai ruoli */
-            .actions .btn{
+        @media (max-width: 560px) {
+            .actions .btn {
                 padding: 8px 10px;
                 font-size: 11px;
             }
@@ -1415,6 +1394,7 @@
     <script>
         /******************************************************************
          * CONFIG
+         ******************************************************************/
         /******************************************************************
          * SIDE PORTRAITS
          ******************************************************************/
@@ -1587,7 +1567,7 @@
 
                 /* ✅ theme pattern */
                 themePatternUrl: "",
-                themePatternSize: 420,
+                themePatternSize: 120,
                 /* ✅ base background color (optional, e.g. halloween orange) */
                 baseBgColor: "",
 
