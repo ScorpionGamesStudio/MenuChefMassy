@@ -1845,6 +1845,9 @@
             for (const section of menu.sections) {
                 const items = (menu.itemsBySection && menu.itemsBySection[section.key]) ? menu.itemsBySection[section.key] : [];
 
+                // ✅ Se la sezione è vuota e non siamo in modalità admin, non mostrarla
+                if (!adminMode && items.length === 0) continue;
+
                 const sectionEl = document.createElement("section");
                 sectionEl.className = "section";
                 sectionEl.setAttribute("aria-label", section.title);
